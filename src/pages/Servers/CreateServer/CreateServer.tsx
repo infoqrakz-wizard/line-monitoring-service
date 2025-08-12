@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   TextInput,
   PasswordInput,
@@ -8,11 +8,14 @@ import {
   Stack,
   Title,
   Text,
+  LoadingOverlay,
 } from "@mantine/core";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import classes from "./CreateServer.module.css";
 import { useServersStore } from "@/store/servers";
 import { parseApiError } from "@/lib/request";
+import { getServer as apiGetServer } from "@/api/servers";
+import type { ServerItem } from "@/types";
 
 export type CreateServerFormData = {
   serverName: string;
@@ -24,7 +27,13 @@ export type CreateServerFormData = {
 
 const CreateServer: React.FC = () => {
   const navigate = useNavigate();
-  const { createServer } = useServersStore();
+  const [searchParams] = useSearchParams();
+  const { createServer, updateServer, findByUrlPort } = useServersStore();
+  const isEditMode = useMemo(
+    () => Boolean(searchParams.get("url") && searchParams.get("port")),
+    [searchParams],
+  );
+  const [originalServer, setOriginalServer] = useState<ServerItem | null>(null);
   const [formData, setFormData] = useState<CreateServerFormData>({
     serverName: "",
     login: "",
@@ -34,6 +43,49 @@ const CreateServer: React.FC = () => {
   });
 
   const [error, setError] = useState<string | null>(null);
+  // simple loading flag to guard fetch; currently unused in UI
+  const [isLoadingDetails, setIsLoadingDetails] = useState<boolean>(false);
+
+  // Prefill on edit mode
+  useEffect(() => {
+    if (!isEditMode) {
+      return;
+    }
+    const urlParam = searchParams.get("url") ?? undefined;
+    const portParam = searchParams.get("port") ?? undefined;
+    if (!urlParam || !portParam) {
+      return;
+    }
+    const portNum = Number(portParam);
+    const fromStore = findByUrlPort(urlParam, portNum);
+    if (fromStore) {
+      setOriginalServer(fromStore);
+      setFormData({
+        serverName: fromStore.name,
+        login: fromStore.username,
+        password: "",
+        ipAddress: fromStore.url,
+        port: fromStore.port,
+      });
+      return;
+    }
+    setIsLoadingDetails(true);
+    apiGetServer(urlParam, portNum)
+      .then((server) => {
+        setOriginalServer(server);
+        setFormData({
+          serverName: server.name,
+          login: server.username,
+          password: "",
+          ipAddress: server.url,
+          port: server.port,
+        });
+      })
+      .catch(() => {
+        setError("Не удалось загрузить сервер");
+      })
+      .finally(() => setIsLoadingDetails(false));
+  }, [isEditMode, searchParams, findByUrlPort]);
 
   const handleInputChange = (
     field: keyof CreateServerFormData,
@@ -47,7 +99,11 @@ const CreateServer: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    void handleCreateServer();
+    if (isEditMode) {
+      void handleUpdateServer();
+    } else {
+      void handleCreateServer();
+    }
   };
 
   const handleCancel = () => {
@@ -89,15 +145,75 @@ const CreateServer: React.FC = () => {
     }
   };
 
-  const isFormValid =
-    formData.serverName.trim() &&
-    formData.login.trim() &&
-    formData.password.trim() &&
-    formData.ipAddress.trim() &&
-    formData.port !== "";
+  const handleUpdateServer = async () => {
+    if (!originalServer) {
+      return;
+    }
+    try {
+      const patch: Record<string, unknown> = {};
+      if (formData.serverName !== originalServer.name) {
+        patch.name = formData.serverName;
+      }
+      if (formData.login !== originalServer.username) {
+        patch.username = formData.login;
+      }
+      if (formData.ipAddress !== originalServer.url) {
+        patch.url = formData.ipAddress;
+      }
+      if (Number(formData.port) !== originalServer.port) {
+        patch.port = Number(formData.port);
+      }
+      if (formData.password && formData.password.trim().length > 0) {
+        patch.password = formData.password;
+      }
+
+      if (Object.keys(patch).length === 0) {
+        void navigate("/servers");
+        return;
+      }
+
+      await updateServer(originalServer.url, originalServer.port, patch);
+      void navigate("/servers");
+    } catch (error) {
+      const apiError = parseApiError(error);
+      if (apiError) {
+        if (apiError.status === 409) {
+          setError(
+            "Сервер с таким адресом и портом уже существует. Проверьте поля IP-адрес и Порт.",
+          );
+          return;
+        }
+        if (apiError.status === 500) {
+          setError("Внутренняя ошибка сервера. Повторите попытку позже.");
+          return;
+        }
+        setError(apiError.message || "Не удалось сохранить изменения");
+        return;
+      }
+      setError("Не удалось сохранить изменения");
+    }
+  };
+
+  const isFormValid = isEditMode
+    ? Boolean(
+        formData.serverName.trim() &&
+          formData.login.trim() &&
+          formData.ipAddress.trim() &&
+          formData.port !== "",
+      )
+    : Boolean(
+        formData.serverName.trim() &&
+          formData.login.trim() &&
+          formData.password.trim() &&
+          formData.ipAddress.trim() &&
+          formData.port !== "",
+      );
 
   return (
-    <div className={classes.container}>
+    <div className={classes.container} style={{ position: "relative" }}>
+      {isEditMode && (
+        <LoadingOverlay visible={isLoadingDetails} zIndex={1000} />
+      )}
       <div className={classes.header}>
         <Title order={1} size="h3">
           Серверы
@@ -113,7 +229,7 @@ const CreateServer: React.FC = () => {
           <div className={classes.backIcon} />
         </button>
         <Title order={3} className={classes.title}>
-          Добавить новый сервер
+          {isEditMode ? "Редактировать сервер" : "Добавить новый сервер"}
         </Title>
       </div>
       <form onSubmit={handleSubmit} className={classes.form}>
@@ -138,10 +254,12 @@ const CreateServer: React.FC = () => {
 
           <PasswordInput
             label="Пароль"
-            placeholder="Введите пароль"
+            placeholder={
+              isEditMode ? "Оставьте пустым, чтобы не менять" : "Введите пароль"
+            }
             value={formData.password}
             onChange={(e) => handleInputChange("password", e.target.value)}
-            required
+            required={!isEditMode}
             size="md"
           />
 
@@ -178,9 +296,9 @@ const CreateServer: React.FC = () => {
             <Button
               disabled={!isFormValid}
               size="md"
-              onClick={handleCreateServer}
+              onClick={isEditMode ? handleUpdateServer : handleCreateServer}
             >
-              Создать сервер
+              {isEditMode ? "Сохранить изменения" : "Создать сервер"}
             </Button>
           </Group>
         </Stack>

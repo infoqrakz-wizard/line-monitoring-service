@@ -96,7 +96,7 @@ const Servers: React.FC = () => {
     });
   }, [serversWithMonitoring, activeFilter, q]);
 
-  const handleClickDeleteServer = async (url: string, port: number) => {
+  const handleClickDeleteServer = (url: string, port: number) => {
     const server = serversWithMonitoring.find(
       (s) => s.url === url && s.port === port,
     );
@@ -333,7 +333,15 @@ const Servers: React.FC = () => {
               render: (row: ServerItemWithMonitoring) => (
                 <Group gap="xs">
                   <Tooltip label="Редактировать">
-                    <ActionIcon variant="light" aria-label="Редактировать">
+                    <ActionIcon
+                      variant="light"
+                      aria-label="Редактировать"
+                      onClick={() =>
+                        navigate(
+                          `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
+                        )
+                      }
+                    >
                       <IconPencil size={16} />
                     </ActionIcon>
                   </Tooltip>

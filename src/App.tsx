@@ -26,7 +26,10 @@ const theme = createTheme({
   components: {
     Button: {
       // Subscribe to theme and component params
-      styles: (theme: any, params: any) => ({
+      styles: (
+        theme: { colors: Record<string, string[]> },
+        params: { variant?: string },
+      ) => ({
         root: {
           backgroundColor:
             params.variant === "filled" ? theme.colors["dark"][9] : undefined,
@@ -55,6 +58,7 @@ const App: React.FC = () => {
                   <Route index element={<Monitoring />} />
                   <Route path="servers" element={<Servers />} />
                   <Route path="servers/create" element={<CreateServer />} />
+                  <Route path="servers/edit" element={<CreateServer />} />
                   <Route path="users" element={<Users />} />
                   <Route path="map" element={<MapPage />} />
                   <Route path="groups" element={<Groups />} />

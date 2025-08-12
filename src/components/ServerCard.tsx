@@ -14,6 +14,7 @@ import type {
   ServerStatus,
   ServerMonitoringData,
 } from "@/types";
+import { useNavigate } from "react-router";
 
 export type ServerCardProps = {
   server: ServerItemWithMonitoring;
@@ -21,6 +22,8 @@ export type ServerCardProps = {
 };
 
 const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
+  const navigate = useNavigate();
+
   const getStatusColor = (status: ServerStatus) => {
     switch (status) {
       case "green":
@@ -154,7 +157,13 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
 
       <Group mt="md" justify="flex-start" gap="xs">
         <Tooltip label="Редактировать">
-          <ActionIcon variant="light" aria-label="Редактировать">
+          <ActionIcon
+            variant="light"
+            aria-label="Редактировать"
+            onClick={() =>
+              navigate(`/servers/${server.url}/${server.port}/edit`)
+            }
+          >
             <IconPencil size={16} />
           </ActionIcon>
         </Tooltip>
