@@ -54,18 +54,30 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
 
     const { totalCameras, enabledCameras, enabledWithProblemStream } =
       monitoring;
-    const workingCameras = enabledCameras - enabledWithProblemStream;
+
+    let workingCameras;
+
+    if (
+      Number.isInteger(enabledCameras) &&
+      Number.isInteger(enabledWithProblemStream)
+    ) {
+      workingCameras = enabledCameras - enabledWithProblemStream;
+    } else {
+      workingCameras = "-";
+    }
 
     return (
       <Group gap="xs">
         <Badge color="dark" size="xs">
-          {totalCameras}
+          {Number.isInteger(totalCameras) ? totalCameras : "-"}
         </Badge>
         <Badge color="green" size="xs">
           {workingCameras}
         </Badge>
         <Badge color="red" size="xs">
-          {enabledWithProblemStream}
+          {Number.isInteger(enabledWithProblemStream)
+            ? enabledWithProblemStream
+            : "-"}
         </Badge>
       </Group>
     );

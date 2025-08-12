@@ -1,7 +1,14 @@
 import { request } from "@/lib/request";
 import { ServerItem } from "@/types";
 
-export type CreateServerRequest = ServerItem;
+export type CreateServerRequest = {
+  url: string;
+  port: number;
+  username: string;
+  password: string;
+  name: string;
+  enabled: boolean;
+};
 
 export type UpdateServerRequest = Partial<CreateServerRequest>;
 

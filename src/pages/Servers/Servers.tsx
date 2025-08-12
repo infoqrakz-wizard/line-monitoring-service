@@ -134,18 +134,29 @@ const Servers: React.FC = () => {
 
     const { totalCameras, enabledCameras, enabledWithProblemStream } =
       monitoring;
-    const workingCameras = enabledCameras - enabledWithProblemStream;
 
+    let workingCameras;
+
+    if (
+      Number.isInteger(enabledCameras) &&
+      Number.isInteger(enabledWithProblemStream)
+    ) {
+      workingCameras = enabledCameras - enabledWithProblemStream;
+    } else {
+      workingCameras = "-";
+    }
     return (
       <Group gap="xs">
         <Badge color="dark" size="sm">
-          {totalCameras}
+          {Number.isInteger(totalCameras) ? totalCameras : "-"}
         </Badge>
         <Badge color="green" size="sm">
           {workingCameras}
         </Badge>
         <Badge color="red" size="sm">
-          {enabledWithProblemStream}
+          {Number.isInteger(enabledWithProblemStream)
+            ? enabledWithProblemStream
+            : "-"}
         </Badge>
       </Group>
     );
@@ -368,7 +379,7 @@ const Servers: React.FC = () => {
         title="Вы уверены, что хотите удалить сервер?"
         confirmText="Удалить"
         cancelText="Отмена"
-        onConfirm={() => {}}
+        onConfirm={handleDeleteServer}
         onClose={() => {
           setIsRemoveModalOpen(false);
           setSelectedServer(null);
