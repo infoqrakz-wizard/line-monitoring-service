@@ -14,13 +14,13 @@ export type TableProps<T> = {
 };
 
 function getKey<T>(row: T, index: number, keyField?: keyof T | ((row: T, index: number) => string)) {
-  if (typeof keyField === 'function') return keyField(row, index);
-  if (keyField) return String((row as any)[keyField]);
+  if (typeof keyField === 'function') {return keyField(row, index);}
+  if (keyField) {return String((row as any)[keyField]);}
   return String(index);
 }
 
 export const Table = <T,>({ columns, data, keyField }: TableProps<T>) => {
-  if (!columns.length) return null;
+  if (!columns.length) {return null;}
   return (
     <div className={classes.tableContainer}>
       <table className={classes.table}>

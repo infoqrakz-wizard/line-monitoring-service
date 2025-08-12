@@ -64,6 +64,20 @@
   justify-content: space-between;
   align-items: center;
 }
+
+.legendItem {
+  box-sizing: content-box;
+  padding: 15px 20px 15px 14px;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 1px solid transparent;
+}
+
+.legendItem:hover,
+.activeFilter {
+  border-color: #000;
+}
+
 /* Tablet */
 @media (max-width: 1024px) {
   .controlsRowDesktop {

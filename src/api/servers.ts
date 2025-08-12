@@ -29,7 +29,10 @@ const buildUrlPort = (url: string, port: number | string): string => `${url}:${p
 export const listServers = async (
   params: { limit?: number; offset?: number } = {}
 ): Promise<PaginatedResponse<ServerItem>> => {
-  const query = buildQueryString({ limit: params.limit, offset: params.offset });
+  const query = buildQueryString({
+    limit: params.limit,
+    offset: params.offset
+  });
   return request.get<PaginatedResponse<ServerItem>>(`/servers${query}`);
 };
 

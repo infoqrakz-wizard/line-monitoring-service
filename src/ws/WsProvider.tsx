@@ -11,27 +11,28 @@ const WsContext = createContext<WsContextValue | undefined>(undefined);
 
 export const useWs = (): WsContextValue => {
   const ctx = useContext(WsContext);
-  if (!ctx) throw new Error('useWs must be used within WsProvider');
+  if (!ctx) {throw new Error('useWs must be used within WsProvider');}
   return ctx;
 };
 
 export const WsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const token = useAuthStore((s) => s.token);
+  // const token = useAuthStore((s) => s.token);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!token) {
-      if (socketRef.current) {
-        socketRef.current.close();
-        socketRef.current = null;
-      }
-      setIsConnected(false);
-      return;
-    }
+    // if (!token) {
+    //   if (socketRef.current) {
+    //     socketRef.current.close();
+    //     socketRef.current = null;
+    //   }
+    //   setIsConnected(false);
+    //   return;
+    // }
 
-    const urlBase = import.meta.env.VITE_WS_URL ?? '';
-    const url = `${urlBase}?token=${encodeURIComponent(token)}`;
+    // const urlBase = import.meta.env.VITE_WS_URL ?? '';
+    // const url = `${urlBase}?token=${encodeURIComponent(token)}`;
+    const url = 'ws://161.35.77.101:4000/ws'
     const ws = new WebSocket(url);
     socketRef.current = ws;
 
@@ -48,14 +49,14 @@ export const WsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
       ws.removeEventListener('error', handleClose);
       ws.close();
     };
-  }, [token]);
+  }, []);
 
   const value = useMemo<WsContextValue>(() => ({
     socket: socketRef.current,
     isConnected,
     send: (data: unknown) => {
       const socket = socketRef.current;
-      if (!socket || socket.readyState !== WebSocket.OPEN) return;
+      if (!socket || socket.readyState !== WebSocket.OPEN) {return;}
       const payload = typeof data === 'string' ? data : JSON.stringify(data);
       socket.send(payload);
     }

@@ -31,9 +31,10 @@ const theme = createTheme({
             params.variant === 'filled'
               ? theme.colors['dark'][9]
               : undefined,
-          '&:hover': { backgroundColor: params.variant === 'filled'
+          '&:hover': {
+            backgroundColor: params.variant === 'filled'
               ?'#ddd':'transparent'
-            }
+          }
         },
       }),
     },

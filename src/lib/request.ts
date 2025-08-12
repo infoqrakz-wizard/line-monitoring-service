@@ -13,15 +13,25 @@ const buildHeaders = (init?: RequestInit): HeadersInit => {
     'Content-Type': 'application/json'
   };
   const auth: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
-  return { ...base, ...auth, ...(init?.headers ?? {}) };
+  return {
+    ...base,
+    ...auth,
+    ...(init?.headers ?? {})
+  };
 };
 
 export const apiFetch = async <T = unknown>(path: string, init?: RequestInit): Promise<T> => {
   const url = `${API_URL}${path}`;
-  const res = await fetch(url, { ...init, headers: buildHeaders(init) });
+  const res = await fetch(url, {
+    ...init,
+    headers: buildHeaders(init)
+  });
   if (!res.ok) {
     const text = await res.text();
-    throw { status: res.status, message: text } as ApiError;
+    throw new Error(JSON.stringify({
+      status: res.status,
+      message: text
+    }));
   }
   const contentType = res.headers.get('content-type');
   if (contentType && contentType.includes('application/json')) {
@@ -31,12 +41,30 @@ export const apiFetch = async <T = unknown>(path: string, init?: RequestInit): P
 };
 
 export const request = {
-  get: <T = unknown>(path: string, init?: RequestInit) => apiFetch<T>(path, { ...init, method: 'GET' }),
+  get: <T = unknown>(path: string, init?: RequestInit) => apiFetch<T>(path, {
+    ...init,
+    method: 'GET'
+  }),
   post: <T = unknown>(path: string, body?: unknown, init?: RequestInit) =>
-    apiFetch<T>(path, { ...init, method: 'POST', body: body ? JSON.stringify(body) : undefined }),
+    apiFetch<T>(path, {
+      ...init,
+      method: 'POST',
+      body: body ? JSON.stringify(body) : undefined
+    }),
   put: <T = unknown>(path: string, body?: unknown, init?: RequestInit) =>
-    apiFetch<T>(path, { ...init, method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
+    apiFetch<T>(path, {
+      ...init,
+      method: 'PUT',
+      body: body ? JSON.stringify(body) : undefined
+    }),
   patch: <T = unknown>(path: string, body?: unknown, init?: RequestInit) =>
-    apiFetch<T>(path, { ...init, method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
-  delete: <T = unknown>(path: string, init?: RequestInit) => apiFetch<T>(path, { ...init, method: 'DELETE' })
+    apiFetch<T>(path, {
+      ...init,
+      method: 'PATCH',
+      body: body ? JSON.stringify(body) : undefined
+    }),
+  delete: <T = unknown>(path: string, init?: RequestInit) => apiFetch<T>(path, {
+    ...init,
+    method: 'DELETE'
+  })
 };

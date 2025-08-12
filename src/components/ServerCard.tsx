@@ -9,7 +9,7 @@ export type ServerCardProps = {
 };
 
 const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
-  const statusColor = server.status === 'online' ? 'green' : 'red';
+  const statusColor = server.enabled ? 'green' : 'red';
 
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -19,7 +19,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
           <Text fw={600}>{server.name}</Text>
         </div>
         <Badge color={statusColor} variant="light" radius="xl">
-          {server.status === 'online' ? 'доступен' : 'выключен'}
+          {server.enabled ? 'доступен' : 'выключен'}
         </Badge>
       </Group>
 
@@ -52,9 +52,9 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
           </ActionIcon>
         </Tooltip>
         <Tooltip label="Удалить">
-          <ActionIcon 
-            variant="light" 
-            color="red" 
+          <ActionIcon
+            variant="light"
+            color="red"
             aria-label="Удалить"
             onClick={() => onDelete?.(server.url, server.port)}
           >

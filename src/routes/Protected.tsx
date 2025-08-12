@@ -8,7 +8,10 @@ export type ProtectedProps = {
 };
 
 const Protected: React.FC<ProtectedProps> = ({ allowedRoles }) => {
-  const { isAuthenticated, role } = useAuthStore((s) => ({ isAuthenticated: s.isAuthenticated, role: s.role }));
+  const { isAuthenticated, role } = useAuthStore((s) => ({
+    isAuthenticated: s.isAuthenticated,
+    role: s.role
+  }));
   const location = useLocation();
 
   if (!isAuthenticated) {

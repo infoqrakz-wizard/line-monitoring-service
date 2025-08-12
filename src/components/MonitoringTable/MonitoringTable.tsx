@@ -74,7 +74,10 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({ type, rows, onDelete 
                     role="cell"
                   >
                     <span className={classes.label}>Важность</span>
-                    <span className={classes.value}><span className={classes.icon} />{r.severity === 'critical' ? 'критично' : 'некритично'}</span>
+                    <span className={classes.value}>
+                      <span className={classes.icon} />
+                      {r.severity === 'critical' ? 'критично' : 'некритично'}
+                    </span>
                   </div>
                   <div className={`${classes.field} ${classes.fDuration}`} role="cell">
                     <span className={classes.label}>Длительность</span>
@@ -108,7 +111,10 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({ type, rows, onDelete 
                     role="cell"
                   >
                     <span className={classes.label}>Важность</span>
-                    <span className={classes.value}><span className={classes.icon} />{r.severity === 'critical' ? 'критично' : 'некритично'}</span>
+                    <span className={classes.value}>
+                      <span className={classes.icon} />
+                      {r.severity === 'critical' ? 'критично' : 'некритично'}
+                    </span>
                   </div>
                   <div className={`${classes.field} ${classes.fDuration}`} role="cell">
                     <span className={classes.label}>Длительность</span>

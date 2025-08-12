@@ -9,7 +9,7 @@ export let servers = {
             "username": "admin",
             "password": "Cc5OedXH",
             "name": "Фёдора Лузана, 23",
-            "enabled": true,
+            "enabled": false,
             "maps": {
                 "x": 45.069053,
                 "y": 38.981431

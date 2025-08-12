@@ -15,14 +15,18 @@ export type Problem = {
 };
 
 export type ServerItem = {
-  id: string;
+  id: number;
+  url: string;
+  port: number;
+  username: string;
+  password: string | null;
   name: string;
-  ip: string;
-  status: 'online' | 'offline';
-  groupId?: string;
-  password?: string;
-  port?: string;
-  serverName?: string;
+  enabled: boolean;
+  maps: {
+    x: number;
+    y: number;
+  } | null;
+  date_update: string;
 };
 
 export type GroupItem = {

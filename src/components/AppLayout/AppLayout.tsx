@@ -20,16 +20,44 @@ const AppLayout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const mainItems = [
-    { to: '/', label: 'Мониторинг', icon: <img src={monitoringIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
-    { to: '/servers', label: 'Серверы', icon: <img src={serversIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
-    { to: '/users', label: 'Пользователи', icon: <img src={usersIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
-    { to: '/map', label: 'Карта', icon: <img src={mapIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
-    { to: '/groups', label: 'Группы', icon: <img src={groupsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> }
+    {
+      to: '/',
+      label: 'Мониторинг',
+      icon: <img src={monitoringIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+    },
+    {
+      to: '/servers',
+      label: 'Серверы',
+      icon: <img src={serversIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+    },
+    {
+      to: '/users',
+      label: 'Пользователи',
+      icon: <img src={usersIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+    },
+    {
+      to: '/map',
+      label: 'Карта',
+      icon: <img src={mapIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+    },
+    {
+      to: '/groups',
+      label: 'Группы',
+      icon: <img src={groupsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+    }
   ];
 
   const bottomItems = [
-    { to: '/notifications', label: 'Уведомления', icon: <img src={notificationsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
-    { to: '/settings', label: 'Настройки аккаунта', icon: <img src={settingsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> }
+    {
+      to: '/notifications',
+      label: 'Уведомления',
+      icon: <img src={notificationsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+    },
+    {
+      to: '/settings',
+      label: 'Настройки аккаунта',
+      icon: <img src={settingsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+    }
   ];
 
   const toggleSidebar = () => {

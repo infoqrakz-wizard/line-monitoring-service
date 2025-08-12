@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Checkbox, Group, Stack, Title, Tabs, Badge, Text } from '@mantine/core';
+import { Button, Checkbox, Stack, Title, Tabs } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import SearchInput from '@/components/SearchInput';
 import classes from './Users.module.css';
@@ -59,28 +59,103 @@ const mockUsers: UserItem[] = [
     actionsCount: 7,
     deletable: true,
   },
-  { id: 'u3', login: 'monica', description: 'описание пользователя', servers: ['Калинина, 374'], actionsCount: 17, deletable: true },
-  { id: 'u4', login: 'star', description: 'описание пользователя', servers: [
-    'Калинина, 374','Чкалова, 21','Гагарина, 45','Ленина, 456','Красная, 45','Энтузиастов, 4567','Чкалова, 21','Гагарина, 45','Ленина, 456','Красная, 45','Энтузиастов, 4567','Чкалова, 21','Гагарина, 45','Ленина, 456','Красная, 45','Энтузиастов, 4567'
-  ], actionsCount: 1, deletable: true },
-  { id: 'u5', login: 'root', description: 'описание пользователя', servers: ['Калинина, 374'], actionsCount: 1, deletable: true },
+  {
+    id: 'u3',
+    login: 'monica',
+    description: 'описание пользователя',
+    servers: ['Калинина, 374'],
+    actionsCount: 17,
+    deletable: true
+  },
+  {
+    id: 'u4',
+    login: 'star',
+    description: 'описание пользователя',
+    servers: [
+      'Калинина, 374','Чкалова, 21','Гагарина, 45','Ленина, 456','Красная, 45','Энтузиастов, 4567','Чкалова, 21','Гагарина, 45','Ленина, 456','Красная, 45','Энтузиастов, 4567','Чкалова, 21','Гагарина, 45','Ленина, 456','Красная, 45','Энтузиастов, 4567'
+    ],
+    actionsCount: 1,
+    deletable: true
+  },
+  {
+    id: 'u5',
+    login: 'root',
+    description: 'описание пользователя',
+    servers: ['Калинина, 374'],
+    actionsCount: 1,
+    deletable: true
+  },
 ];
 
 type LogItem = { id: string; kind: 'success' | 'error' | 'warning' | 'pending'; text: string; time: string; date: string };
 
 const logItems: LogItem[] = [
-  { id: 'l1', kind: 'success', text: 'Пользователь «user456» удален на Чкалова, 270', time: '14:13:45', date: '20.05.2025' },
-  { id: 'l2', kind: 'error', text: 'Не удалось добавить «user456» на Чкалова, 270', time: '14:13:45', date: '20.05.2025' },
-  { id: 'l3', kind: 'warning', text: 'Пользователь «user456» не найден на Чкалова, 270', time: '14:13:45', date: '20.05.2025' },
-  { id: 'l4', kind: 'success', text: 'Пользователь «user456» удален на Чкалова, 270', time: '14:13:45', date: '20.05.2025' },
-  { id: 'l5', kind: 'error', text: 'Не удалось добавить «user456» на Чкалова, 270', time: '14:13:45', date: '20.05.2025' },
-  { id: 'l6', kind: 'warning', text: 'Пользователь «user456» не найден на Чкалова, 270', time: '14:13:45', date: '20.05.2025' },
+  {
+    id: 'l1',
+    kind: 'success',
+    text: 'Пользователь «user456» удален на Чкалова, 270',
+    time: '14:13:45',
+    date: '20.05.2025'
+  },
+  {
+    id: 'l2',
+    kind: 'error',
+    text: 'Не удалось добавить «user456» на Чкалова, 270',
+    time: '14:13:45',
+    date: '20.05.2025'
+  },
+  {
+    id: 'l3',
+    kind: 'warning',
+    text: 'Пользователь «user456» не найден на Чкалова, 270',
+    time: '14:13:45',
+    date: '20.05.2025'
+  },
+  {
+    id: 'l4',
+    kind: 'success',
+    text: 'Пользователь «user456» удален на Чкалова, 270',
+    time: '14:13:45',
+    date: '20.05.2025'
+  },
+  {
+    id: 'l5',
+    kind: 'error',
+    text: 'Не удалось добавить «user456» на Чкалова, 270',
+    time: '14:13:45',
+    date: '20.05.2025'
+  },
+  {
+    id: 'l6',
+    kind: 'warning',
+    text: 'Пользователь «user456» не найден на Чкалова, 270',
+    time: '14:13:45',
+    date: '20.05.2025'
+  },
 ];
 
 const pendingItems: LogItem[] = [
-  { id: 'p1', kind: 'pending', text: 'Пользователь «user456»  удален на Чкалова, 270', time: '14:13:45', date: '20.05.2025' },
-  { id: 'p2', kind: 'pending', text: 'Пользователь «user456»  удален на Чкалова, 270', time: '14:13:45', date: '20.05.2025' },
-  { id: 'p3', kind: 'pending', text: 'Пользователь «user456»  удален на Чкалова, 270', time: '14:13:45', date: '20.05.2025' },
+  {
+    id: 'p1',
+    kind: 'pending',
+    text: 'Пользователь «user456» удален на Чкалова, 270',
+    time: '14:13:45',
+    date: '20.05.2025'
+  },
+  {
+    id: 'p2',
+    kind: 'pending',
+    text: 'Пользователь «user456» удален на Чкалова, 270',
+    time: '14:13:45',
+    date: '20.05.2025'
+  },
+  {
+    id: 'p3',
+    kind: 'pending',
+    text: 'Пользователь «user456» удален на Чкалова, 270',
+    time: '14:13:45',
+    date: '20.05.2025'
+  },
 ];
 
 const Users: React.FC = () => {
@@ -106,7 +181,9 @@ const Users: React.FC = () => {
     }
     const next = new Set<string>();
     filtered.forEach((u) => {
-      if (u.deletable !== false) next.add(u.id);
+      if (u.deletable !== false) {
+        next.add(u.id);
+      }
     });
     setSelectedIds(next);
   };
@@ -114,7 +191,11 @@ const Users: React.FC = () => {
   const handleToggleOne = (id: string, checked: boolean) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (checked) next.add(id); else next.delete(id);
+      if (checked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
       return next;
     });
   };
@@ -124,7 +205,10 @@ const Users: React.FC = () => {
   const shownCount = filtered.length; // For the tab counter demo
 
   const handleToggleExpand = (id: string) => {
-    setExpandedServers((prev) => ({ ...prev, [id]: !prev[id] }));
+    setExpandedServers((prev) => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
   };
 
   const renderServers = (user: UserItem) => {

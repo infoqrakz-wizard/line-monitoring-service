@@ -5,71 +5,123 @@ import SearchInput from '@/components/SearchInput';
 import Table from '@/components/Table';
 import ServerCard from '@/components/ServerCard';
 import type { ServerItem } from '@/types';
-import * as api from '@/api';
+import { useServersStore } from '@/store/servers';
 
 import classes from './Servers.module.css';
 
 // const mock: ServerItem[] = [
-//   { id: '1', name: 'IPC-F665P', ip: '34.182.173.247', status: 'online', password: 'pass01', port: '2222', serverName: 'server02' },
-//   { id: '2', name: 'IPC-F665P', ip: '34.182.173.247', status: 'online', password: 'pass01', port: 'H.264', serverName: '-' },
-//   { id: '3', name: 'IPC-F665P', ip: '34.182.173.247', status: 'online', password: 'pass01', port: 'H.264', serverName: '-' },
-//   { id: '4', name: 'IPC-F665P', ip: '34.182.173.247', status: 'online', password: 'pass01', port: 'H.264', serverName: '-' },
-//   { id: '5', name: 'IPC-F665P', ip: '34.182.173.247', status: 'online', password: 'pass01', port: 'H.264', serverName: '-' },
-//   { id: '6', name: 'IPC-F665P', ip: '34.182.173.247', status: 'online', password: 'pass01', port: 'H.264', serverName: '-' },
-//   { id: '7', name: 'IPC-F665P', ip: '34.182.173.247', status: 'offline', password: 'pass01', port: 'MJPEG/H.264', serverName: '-' },
+//   {
+//     id: '1',
+//     name: 'IPC-F665P',
+//     ip: '34.182.173.247',
+//     status: 'online',
+//     password: 'pass01',
+//     port: '2222',
+//     serverName: 'server02'
+//   },
+//   {
+//     id: '2',
+//     name: 'IPC-F665P',
+//     ip: '34.182.173.247',
+//     status: 'online',
+//     password: 'pass01',
+//     port: 'H.264',
+//     serverName: '-'
+//   },
+//   {
+//     id: '3',
+//     name: 'IPC-F665P',
+//     ip: '34.182.173.247',
+//     status: 'online',
+//     password: 'pass01',
+//     port: 'H.264',
+//     serverName: '-'
+//   },
+//   {
+//     id: '4',
+//     name: 'IPC-F665P',
+//     ip: '34.182.173.247',
+//     status: 'online',
+//     password: 'pass01',
+//     port: 'H.264',
+//     serverName: '-'
+//   },
+//   {
+//     id: '5',
+//     name: 'IPC-F665P',
+//     ip: '34.182.173.247',
+//     status: 'online',
+//     password: 'pass01',
+//     port: 'H.264',
+//     serverName: '-'
+//   },
+//   {
+//     id: '6',
+//     name: 'IPC-F665P',
+//     ip: '34.182.173.247',
+//     status: 'online',
+//     password: 'pass01',
+//     port: 'H.264',
+//     serverName: '-'
+//   },
+//   {
+//     id: '7',
+//     name: 'IPC-F665P',
+//     ip: '34.182.173.247',
+//     status: 'offline',
+//     password: 'pass01',
+//     port: 'MJPEG/H.264',
+//     serverName: '-'
+//   },
 // ];
 
 const Servers: React.FC = () => {
   const [q, setQ] = useState('');
-  const [servers, setServers] = useState<ServerItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
+  const { items, loading, error, fetchServers, deleteServer } = useServersStore();
+
+  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
+
+  const handleClickFilter = (filter: 'all' | 'active' | 'inactive') => {
+    if (filter === 'active' && activeFilter === 'active') {
+      setActiveFilter('all');
+    } else if (filter === 'inactive' && activeFilter === 'inactive') {
+      setActiveFilter('all');
+    } else {
+      setActiveFilter(filter);
+    }
+  };
+
   const filtered = useMemo(() => {
-    return servers?.filter((s) => s.name.toLowerCase().includes(q.toLowerCase())) ?? [];
-  }, [servers, q]);
+    return items?.filter((s) => {
+      if (activeFilter === 'active') {
+        return s.enabled;
+      } else if (activeFilter === 'inactive') {
+        return !s.enabled;
+      } else {
+        return items;
+        // return s.name.toLowerCase().includes(q.toLowerCase());
+      }
+    }) ?? [];
+  }, [items, activeFilter]);
 
   const handleDeleteServer = async (url: string, port: number) => {
-    try {
-      // Find the server in mock data to get IP and port
-      const server = servers.find((s: ServerItem) => s.url === url && s.port === port);
-      if (server) {
-        // Note: This would need to be updated when using real API data
-        await api.servers.deleteServer(server.url, server.port);
-        // console.log('Deleting server:', serverId);
-      }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete server';
-      setError(errorMessage);
-      console.error('Failed to delete server:', err);
-    }
+    await deleteServer(url, port);
   };
 
 
   useEffect(() => {
-    const fetchServers = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await api.servers.listServers();
-        setServers(response.servers);
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch servers';
-        setError(errorMessage);
-        console.error('Failed to fetch servers:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     void fetchServers();
-  }, []);
+  }, [fetchServers]);
 
   return (
     <Stack className={classes.wrapper} gap="md" pos="relative">
       <LoadingOverlay visible={loading} />
       {error && (
-        <div style={{ color: 'red', padding: '16px', textAlign: 'center' }}>
+        <div style={{
+          color: 'red',
+          padding: '16px',
+          textAlign: 'center'
+        }}>
           Ошибка: {error}
         </div>
       )}
@@ -78,8 +130,14 @@ const Servers: React.FC = () => {
 
         <div className={classes.controlsRowDesktop}>
           <div className={classes.legendGroup}>
-            <span className={classes.legendItem}><span className={classes.dotOnline} /> Доступные</span>
-            <span className={classes.legendItem}><span className={classes.dotOffline} /> Выключенные</span>
+            <div className={`${classes.legendItem} ${activeFilter === 'active' ? classes.activeFilter : ''}`} onClick={() => handleClickFilter('active')}>
+              <span className={classes.dotOnline} />
+              Доступные
+            </div>
+            <div className={`${classes.legendItem} ${activeFilter === 'inactive' ? classes.activeFilter : ''}`} onClick={() => handleClickFilter('inactive')}>
+              <span className={classes.dotOffline} />
+              Выключенные
+            </div>
           </div>
           <Button variant="filled" aria-label="Добавить сервер" leftSection={<IconPlus size={16} />}>Добавить сервер</Button>
           <SearchInput value={q} onChange={setQ} placeholder="Найти сервер..." />
@@ -90,8 +148,14 @@ const Servers: React.FC = () => {
         <SearchInput value={q} onChange={setQ} placeholder="Найти сервер..." fullWidth />
         <div className={classes.filtersAndAddRow}>
           <div className={classes.legendRowMobile}>
-            <span className={classes.legendItem}><span className={classes.dotOnline} /> Доступные</span>
-            <span className={classes.legendItem}><span className={classes.dotOffline} /> Выключенные</span>
+            <div className={`${classes.legendItem} ${activeFilter === 'active' ? classes.activeFilter : ''}`} onClick={() => handleClickFilter('active')}>
+              <span className={classes.dotOnline} />
+              Доступные
+            </div>
+            <div className={`${classes.legendItem} ${activeFilter === 'inactive' ? classes.activeFilter : ''}`} onClick={() => handleClickFilter('inactive')}>
+              <span className={classes.dotOffline} />
+              Выключенные
+            </div>
             <Button variant="filled" aria-label="Добавить сервер" leftSection={<IconPlus size={16} />}>Добавить сервер</Button>
           </div>
         </div>
@@ -100,22 +164,45 @@ const Servers: React.FC = () => {
       <div className={classes.desktopTable}>
         <Table
           columns={[
-            { key: 'name', header: 'Логин', render: (row: ServerItem) => (
-              <Group gap="xs">
-                <span className={row.status === 'online' ? classes.dotOnline : classes.dotOffline} />
-                <strong>{row.name}</strong>
-              </Group>
-            ) },
-            { key: 'password', header: 'Пароль', render: (row: ServerItem) => row.password ?? '-' },
-            { key: 'ip', header: 'IP адрес' },
-            { key: 'port', header: 'Порт', render: (row: ServerItem) => row.port ?? '-' },
-            { key: 'serverName', header: 'Имя сервера', render: (row: ServerItem) => row.name ?? '-' },
-            { key: 'actions', header: 'Действия', render: (row: ServerItem) => (
-              <Group gap="xs">
-                <Tooltip label="Редактировать"><ActionIcon variant="light" aria-label="Редактировать"><IconPencil size={16} /></ActionIcon></Tooltip>
-                <Tooltip label="Удалить"><ActionIcon variant="light" color="red" aria-label="Удалить" onClick={() => handleDeleteServer(row.url, row.port)}><IconTrash size={16} /></ActionIcon></Tooltip>
-              </Group>
-            ) },
+            {
+              key: 'name',
+              header: 'Логин',
+              render: (row: ServerItem) => (
+                <Group gap="xs">
+                  <span className={row.enabled ? classes.dotOnline : classes.dotOffline} />
+                  <strong>{row.name}</strong>
+                </Group>
+              )
+            },
+            {
+              key: 'password',
+              header: 'Пароль',
+              render: (row: ServerItem) => row.password ?? '-'
+            },
+            {
+              key: 'url',
+              header: 'URL'
+            },
+            {
+              key: 'port',
+              header: 'Порт',
+              render: (row: ServerItem) => row.port ?? '-'
+            },
+            {
+              key: 'serverName',
+              header: 'Имя сервера',
+              render: (row: ServerItem) => row.name ?? '-'
+            },
+            {
+              key: 'actions',
+              header: 'Действия',
+              render: (row: ServerItem) => (
+                <Group gap="xs">
+                  <Tooltip label="Редактировать"><ActionIcon variant="light" aria-label="Редактировать"><IconPencil size={16} /></ActionIcon></Tooltip>
+                  <Tooltip label="Удалить"><ActionIcon variant="light" color="red" aria-label="Удалить" onClick={() => handleDeleteServer(row.url, row.port)}><IconTrash size={16} /></ActionIcon></Tooltip>
+                </Group>
+              )
+            },
           ]}
           data={filtered}
           keyField="id"
@@ -123,7 +210,10 @@ const Servers: React.FC = () => {
       </div>
 
       <div className={classes.mobileCards}>
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+        <SimpleGrid cols={{
+          base: 1,
+          sm: 2
+        }} spacing="md">
           {filtered.map((s) => (
             <ServerCard key={s.id} server={s} onDelete={handleDeleteServer} />
           ))}

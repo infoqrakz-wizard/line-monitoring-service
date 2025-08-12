@@ -1,9 +1,9 @@
 let ymapPromise: Promise<any> | null = null;
 
 export const loadYMap = (): Promise<any> => {
-  if (typeof window === 'undefined') return Promise.resolve(null);
-  if ((window as any).ymaps) return Promise.resolve((window as any).ymaps);
-  if (ymapPromise) return ymapPromise;
+  if (typeof window === 'undefined') {return Promise.resolve(null);}
+  if ((window as any).ymaps) {return Promise.resolve((window as any).ymaps);}
+  if (ymapPromise) {return ymapPromise;}
 
   ymapPromise = new Promise((resolve, reject) => {
     const script = document.createElement('script');
