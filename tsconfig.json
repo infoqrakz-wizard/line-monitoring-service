@@ -24,7 +24,8 @@
       "@/ws/*": ["src/ws/*"],
       "@/routes/*": ["src/routes/*"],
       "@/components/*": ["src/components/*"],
-      "@/pages/*": ["src/pages/*"]
+      "@/pages/*": ["src/pages/*"],
+      "@/types": ["src/types"]
     }
   },
   "include": ["src"],

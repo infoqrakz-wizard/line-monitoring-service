@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Group, SegmentedControl, TextInput } from '@mantine/core';
+import { Button, Group, TextInput } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import classes from './MonitoringControls.module.css';
 

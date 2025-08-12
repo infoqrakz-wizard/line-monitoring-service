@@ -1,0 +1,35 @@
+.tableContainer {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.table {
+  min-width: 100%;
+  font-size: 14px;
+}
+
+.thead {
+  background-color: #f9fafb;
+}
+
+.th {
+  text-align: left;
+  padding: 8px 12px;
+  font-weight: 500;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.trOdd {
+  background-color: #ffffff;
+}
+
+.trEven {
+  background-color: #f9fafb;
+}

@@ -1,45 +1,52 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
+import { AppShell, Text, NavLink as MantineNavLink } from '@mantine/core';
 import { useUIStore } from '@/store/ui';
-
-const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-gray-200' : 'hover:bg-gray-100'}`;
+import classes from './Layout.module.css';
 
 const Layout: React.FC = () => {
   const sidebarOpen = useUIStore((s) => s.sidebarOpen);
-  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+
+  const navItems = [
+    { to: '/', label: 'Мониторинг', ariaLabel: 'Monitoring' },
+    { to: '/servers', label: 'Серверы', ariaLabel: 'Servers' },
+    { to: '/users', label: 'Пользователи', ariaLabel: 'Users' },
+    { to: '/map', label: 'Карта', ariaLabel: 'Map' },
+    { to: '/groups', label: 'Группы', ariaLabel: 'Groups' },
+    { to: '/notifications', label: 'Уведомления', ariaLabel: 'Notifications' },
+    { to: '/settings', label: 'Настройки', ariaLabel: 'Settings' }
+  ];
 
   return (
-    <div className="min-h-screen grid grid-cols-12">
-      <aside className={`col-span-12 md:col-span-3 lg:col-span-2 border-r ${sidebarOpen ? '' : 'hidden md:block'}`}>
-        <div className="p-4 font-semibold">Admin</div>
-        <nav className="flex flex-col gap-1 p-2">
-          <NavLink to="/" className={navLinkClass} aria-label="Monitoring">Мониторинг</NavLink>
-          <NavLink to="/servers" className={navLinkClass} aria-label="Servers">Серверы</NavLink>
-          <NavLink to="/users" className={navLinkClass} aria-label="Users">Пользователи</NavLink>
-          <NavLink to="/map" className={navLinkClass} aria-label="Map">Карта</NavLink>
-          <NavLink to="/groups" className={navLinkClass} aria-label="Groups">Группы</NavLink>
-          <NavLink to="/notifications" className={navLinkClass} aria-label="Notifications">Уведомления</NavLink>
-          <NavLink to="/settings" className={navLinkClass} aria-label="Settings">Настройки</NavLink>
+    <AppShell
+      navbar={{
+        width: { base: 200, md: 250, lg: 300 },
+        breakpoint: 'sm',
+        collapsed: { mobile: !sidebarOpen }
+      }}
+      padding="md"
+    >
+      <AppShell.Navbar p="md">
+        <Text fw={600} size="lg" mb="md">Admin</Text>
+        <nav className={classes.nav}>
+          {navItems.map((item) => (
+            <MantineNavLink
+              key={item.to}
+              component={NavLink}
+              to={item.to}
+              label={item.label}
+              aria-label={item.ariaLabel}
+              active
+              variant="filled"
+            />
+          ))}
         </nav>
-      </aside>
-      <main className="col-span-12 md:col-span-9 lg:col-span-10">
-        <header className="flex items-center justify-between border-b p-3">
-          <button
-            type="button"
-            onClick={toggleSidebar}
-            aria-label="Toggle sidebar"
-            className="px-2 py-1 border rounded"
-          >
-            ☰
-          </button>
-          <div className="text-sm text-gray-500">Line Monitoring Service</div>
-        </header>
-        <div className="p-4">
-          <Outlet />
-        </div>
-      </main>
-    </div>
+      </AppShell.Navbar>
+      
+      <AppShell.Main>
+        <Outlet />
+      </AppShell.Main>
+    </AppShell>
   );
 };
 

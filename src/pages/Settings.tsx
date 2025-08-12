@@ -1,11 +1,12 @@
 import React from 'react';
+import { Stack, Title, Text } from '@mantine/core';
 
 const Settings: React.FC = () => {
   return (
-    <div className="space-y-3">
-      <h1 className="text-xl font-semibold">Настройки</h1>
-      <p className="text-sm text-gray-700">Настройки аккаунта и профиля.</p>
-    </div>
+    <Stack gap="md">
+      <Title order={1} size="h3">Настройки</Title>
+      <Text size="sm" c="dimmed">Настройки аккаунта и профиля.</Text>
+    </Stack>
   );
 };
 

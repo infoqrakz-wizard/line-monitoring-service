@@ -1,4 +1,5 @@
 import React from 'react';
+import classes from './Table.module.css';
 
 export type TableColumn<T> = {
   key: keyof T | string;
@@ -21,12 +22,12 @@ function getKey<T>(row: T, index: number, keyField?: keyof T | ((row: T, index: 
 export const Table = <T,>({ columns, data, keyField }: TableProps<T>) => {
   if (!columns.length) return null;
   return (
-    <div className="overflow-x-auto border rounded">
-      <table className="min-w-full text-sm">
-        <thead className="bg-gray-50">
+    <div className={classes.tableContainer}>
+      <table className={classes.table}>
+        <thead className={classes.thead}>
           <tr>
             {columns.map((c) => (
-              <th key={String(c.key)} className="text-left px-3 py-2 font-medium text-gray-700 border-b">
+              <th key={String(c.key)} className={classes.th}>
                 {c.header}
               </th>
             ))}
@@ -34,9 +35,9 @@ export const Table = <T,>({ columns, data, keyField }: TableProps<T>) => {
         </thead>
         <tbody>
           {data.map((row, i) => (
-            <tr key={getKey(row, i, keyField)} className="odd:bg-white even:bg-gray-50">
+            <tr key={getKey(row, i, keyField)} className={i % 2 === 0 ? classes.trEven : classes.trOdd}>
               {columns.map((c) => (
-                <td key={String(c.key)} className="px-3 py-2 border-b">
+                <td key={String(c.key)} className={classes.td}>
                   {c.render ? c.render(row) : String((row as any)[c.key as any] ?? '')}
                 </td>
               ))}

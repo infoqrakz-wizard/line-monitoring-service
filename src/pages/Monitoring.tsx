@@ -1,25 +1,23 @@
 import React from 'react';
-import { Group, Title } from '@mantine/core';
+import { Flex, Group, Title } from '@mantine/core';
 import MonitoringSummary from '@/components/MonitoringSummary';
 import MonitoringControls, { MonitoringView } from '@/components/MonitoringControls';
 import MonitoringTable, { ProblemRow } from '@/components/MonitoringTable';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
+import classes from './Monitoring.module.css';
 
 const Monitoring: React.FC = () => {
   const [view, setView] = React.useState<MonitoringView>('current');
   const [query, setQuery] = React.useState('');
   const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [rowToDelete, setRowToDelete] = React.useState<ProblemRow | null>(null);
 
-  const handleOpenDelete = (row: ProblemRow) => {
-    setRowToDelete(row);
+  const handleOpenDelete = (_row: ProblemRow) => {
     setConfirmOpen(true);
   };
 
   const handleConfirmDelete = () => {
     // TODO: integrate with API
     setConfirmOpen(false);
-    setRowToDelete(null);
   };
 
   const summary = { servers: 123, cameras: 3567, postponed: 100, current: 13 };
@@ -45,11 +43,11 @@ const Monitoring: React.FC = () => {
   );
 
   return (
-    <div>
-      <Group justify="space-between" align="center" mb={20} p={20}>
+    <div className={classes.container}>
+      <Flex direction="row" justify="space-between" align="center" className={classes.header}>
         <Title order={2}>Мониторинг</Title>
         <MonitoringSummary {...summary} />
-      </Group>
+      </Flex>
 
       <MonitoringControls view={view} onChangeView={setView} query={query} onChangeQuery={setQuery} />
 

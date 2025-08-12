@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card, Text, Badge } from '@mantine/core';
 import type { ServerItem } from '@/types';
 
 export type ServerCardProps = {
@@ -6,13 +7,16 @@ export type ServerCardProps = {
 };
 
 const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
-  const statusColor = server.status === 'online' ? 'text-green-600' : 'text-red-600';
+  const statusColor = server.status === 'online' ? 'green' : 'red';
+  
   return (
-    <div className="border rounded p-3 flex flex-col gap-1">
-      <div className="font-medium">{server.name}</div>
-      <div className="text-sm text-gray-600">{server.ip}</div>
-      <div className={`text-sm ${statusColor}`}>{server.status}</div>
-    </div>
+    <Card shadow="sm" padding="md" radius="md" withBorder>
+      <Text fw={500} size="md">{server.name}</Text>
+      <Text size="sm" c="dimmed" mt={4}>{server.ip}</Text>
+      <Badge color={statusColor} variant="light" mt={8}>
+        {server.status}
+      </Badge>
+    </Card>
   );
 };
 

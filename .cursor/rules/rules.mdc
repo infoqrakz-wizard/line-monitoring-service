@@ -1,0 +1,388 @@
+---
+alwaysApply: true
+---
+
+# Line Monitoring Service - Development Rules
+
+## Project Overview
+This is a React-based monitoring service application built with:
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI Library**: Mantine v8 (NOT Tailwind CSS)
+- **Styling**: CSS Modules for custom styling
+- **State Management**: Zustand stores
+- **Routing**: React Router v6
+- **Icons**: Tabler Icons
+
+## Core Development Principles
+
+### 1. NO Tailwind CSS
+- **NEVER** use Tailwind CSS classes
+- Always use Mantine components or CSS modules
+- If custom styling is needed, create CSS modules in the same folder as the component
+
+### 2. Component Organization
+- Each component should be in its own folder named after the component
+- Component file should have capitalized name (e.g., `AppLayout.tsx`)
+- Include `index.ts` file exporting the component
+- If CSS is needed, create `ComponentName.module.css` in the same folder
+
+### 3. Mantine Component Usage
+- Prefer Mantine components over custom HTML elements
+- Use appropriate Mantine components:
+  - `Stack` for vertical layouts with spacing
+  - `Group` for horizontal layouts
+  - `Title` for headings (with proper `order` prop)
+  - `Text` for paragraphs and labels
+  - `Button` for actions
+  - `Card` for content containers
+  - `Modal` for dialogs
+- `Table` for data tables
+  - `TextInput` for form inputs
+  - `Switch` for toggles
+
+### 4. CSS Modules Guidelines
+- Use CSS modules for component-specific styling
+- Follow BEM-like naming conventions
+- Keep styles scoped to the component
+- Use semantic class names
+
+### 5. Desktop-First CSS Approach
+- **ALWAYS use desktop-first approach** in CSS files
+- Write base styles for desktop/tablet first
+- Use media queries to override styles for mobile devices
+- Media query structure:
+  ```css
+  /* Desktop styles (default) */
+  .component {
+    width: 300px;
+    padding: 20px;
+  }
+  
+  /* Mobile overrides */
+  @media (max-width: 767px) {
+    .component {
+      width: 100%;
+      padding: 15px;
+    }
+  }
+  ```
+- Common breakpoints: `max-width: 767px` for mobile, `max-width: 1024px` for tablet
+
+### 6. TypeScript Best Practices
+- Always define proper types for props and state
+- Use `React.FC<ComponentProps>` for functional components
+- Export types from component files when needed
+- Avoid `any` type - use proper typing
+
+### 7. File Structure
+```
+src/
+├── components/
+│   ├── ComponentName/
+│   │   ├── ComponentName.tsx
+│   │   ├── ComponentName.module.css (if needed)
+│   │   └── index.ts
+├── pages/
+├── store/
+├── types.ts
+└── lib/
+```
+
+### 8. Import/Export Patterns
+- Use named exports for components
+- Use default exports for main component files
+- Import Mantine components from `@mantine/core`
+- Import icons from `@tabler/icons-react`
+- Use `@/` alias for internal imports
+
+### 9. State Management
+- Use Zustand stores for global state
+- Keep component state local when possible
+- Use `useUIStore` for UI-related state
+- Use `useAuthStore` for authentication state
+
+### 10. Accessibility
+- Always include `aria-label` for interactive elements
+- Use semantic HTML elements
+- Ensure proper keyboard navigation
+- Follow ARIA guidelines
+
+### 11. Performance
+- Use `React.memo` for expensive components when needed
+- Avoid unnecessary re-renders
+- Use proper dependency arrays in hooks
+- Lazy load components when appropriate
+
+### 12. Code Style
+- Use early returns for better readability
+- Use descriptive variable and function names
+- Event handlers should be named with "handle" prefix
+- Use const arrow functions for components
+- Keep components focused and single-responsibility
+
+### 13. Error Handling
+- Always handle potential errors gracefully
+- Use proper error boundaries
+- Provide user-friendly error messages
+- Log errors appropriately
+
+### 14. Testing Considerations
+- Write testable code
+- Keep components pure when possible
+- Use proper prop interfaces
+- Avoid side effects in render functions
+
+## Common Patterns
+
+### Component Template
+```tsx
+import React from 'react';
+import { MantineComponent } from '@mantine/core';
+import classes from './ComponentName.module.css';
+
+export type ComponentNameProps = {
+  // Define props here
+};
+
+const ComponentName: React.FC<ComponentNameProps> = ({ /* props */ }) => {
+  // Component logic here
+  
+  return (
+    <div className={classes.wrapper}>
+      {/* Component JSX */}
+    </div>
+  );
+};
+
+export default ComponentName;
+```
+
+### CSS Module Template (Desktop-First)
+```css
+/* Desktop styles (default) */
+.wrapper {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+  max-width: 1200px;
+}
+
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .wrapper {
+    max-width: 100%;
+    padding: 20px;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .wrapper {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+}
+```
+
+## Remember
+- **NEVER use Tailwind CSS**
+- **Always use Mantine components when possible**
+- **Create CSS modules for custom styling**
+- **Use desktop-first CSS approach**
+- **Follow the established project structure**
+- **Maintain TypeScript strict mode compliance**
+---
+
+# Line Monitoring Service - Development Rules
+
+## Project Overview
+This is a React-based monitoring service application built with:
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI Library**: Mantine v8 (NOT Tailwind CSS)
+- **Styling**: CSS Modules for custom styling
+- **State Management**: Zustand stores
+- **Routing**: React Router v6
+- **Icons**: Tabler Icons
+
+## Core Development Principles
+
+### 1. NO Tailwind CSS
+- **NEVER** use Tailwind CSS classes
+- Always use Mantine components or CSS modules
+- If custom styling is needed, create CSS modules in the same folder as the component
+
+### 2. Component Organization
+- Each component should be in its own folder named after the component
+- Component file should have capitalized name (e.g., `AppLayout.tsx`)
+- Include `index.ts` file exporting the component
+- If CSS is needed, create `ComponentName.module.css` in the same folder
+
+### 3. Mantine Component Usage
+- Prefer Mantine components over custom HTML elements
+- Use appropriate Mantine components:
+  - `Stack` for vertical layouts with spacing
+  - `Group` for horizontal layouts
+  - `Title` for headings (with proper `order` prop)
+  - `Text` for paragraphs and labels
+  - `Button` for actions
+  - `Card` for content containers
+  - `Modal` for dialogs
+- `Table` for data tables
+  - `TextInput` for form inputs
+  - `Switch` for toggles
+
+### 4. CSS Modules Guidelines
+- Use CSS modules for component-specific styling
+- Follow BEM-like naming conventions
+- Keep styles scoped to the component
+- Use semantic class names
+
+### 5. Desktop-First CSS Approach
+- **ALWAYS use desktop-first approach** in CSS files
+- Write base styles for desktop/tablet first
+- Use media queries to override styles for mobile devices
+- Media query structure:
+  ```css
+  /* Desktop styles (default) */
+  .component {
+    width: 300px;
+    padding: 20px;
+  }
+  
+  /* Mobile overrides */
+  @media (max-width: 767px) {
+    .component {
+      width: 100%;
+      padding: 15px;
+    }
+  }
+  ```
+- Common breakpoints: `max-width: 767px` for mobile, `max-width: 1024px` for tablet
+
+### 6. TypeScript Best Practices
+- Always define proper types for props and state
+- Use `React.FC<ComponentProps>` for functional components
+- Export types from component files when needed
+- Avoid `any` type - use proper typing
+
+### 7. File Structure
+```
+src/
+├── components/
+│   ├── ComponentName/
+│   │   ├── ComponentName.tsx
+│   │   ├── ComponentName.module.css (if needed)
+│   │   └── index.ts
+├── pages/
+├── store/
+├── types.ts
+└── lib/
+```
+
+### 8. Import/Export Patterns
+- Use named exports for components
+- Use default exports for main component files
+- Import Mantine components from `@mantine/core`
+- Import icons from `@tabler/icons-react`
+- Use `@/` alias for internal imports
+
+### 9. State Management
+- Use Zustand stores for global state
+- Keep component state local when possible
+- Use `useUIStore` for UI-related state
+- Use `useAuthStore` for authentication state
+
+### 10. Accessibility
+- Always include `aria-label` for interactive elements
+- Use semantic HTML elements
+- Ensure proper keyboard navigation
+- Follow ARIA guidelines
+
+### 11. Performance
+- Use `React.memo` for expensive components when needed
+- Avoid unnecessary re-renders
+- Use proper dependency arrays in hooks
+- Lazy load components when appropriate
+
+### 12. Code Style
+- Use early returns for better readability
+- Use descriptive variable and function names
+- Event handlers should be named with "handle" prefix
+- Use const arrow functions for components
+- Keep components focused and single-responsibility
+
+### 13. Error Handling
+- Always handle potential errors gracefully
+- Use proper error boundaries
+- Provide user-friendly error messages
+- Log errors appropriately
+
+### 14. Testing Considerations
+- Write testable code
+- Keep components pure when possible
+- Use proper prop interfaces
+- Avoid side effects in render functions
+
+## Common Patterns
+
+### Component Template
+```tsx
+import React from 'react';
+import { MantineComponent } from '@mantine/core';
+import classes from './ComponentName.module.css';
+
+export type ComponentNameProps = {
+  // Define props here
+};
+
+const ComponentName: React.FC<ComponentNameProps> = ({ /* props */ }) => {
+  // Component logic here
+  
+  return (
+    <div className={classes.wrapper}>
+      {/* Component JSX */}
+    </div>
+  );
+};
+
+export default ComponentName;
+```
+
+### CSS Module Template (Desktop-First)
+```css
+/* Desktop styles (default) */
+.wrapper {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+  max-width: 1200px;
+}
+
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .wrapper {
+    max-width: 100%;
+    padding: 20px;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .wrapper {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+}
+```
+
+## Remember
+- **NEVER use Tailwind CSS**
+- **Always use Mantine components when possible**
+- **Create CSS modules for custom styling**
+- **Use desktop-first CSS approach**
+- **Follow the established project structure**
+- **Maintain TypeScript strict mode compliance**
+---
+

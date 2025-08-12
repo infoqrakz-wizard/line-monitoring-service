@@ -15,6 +15,8 @@ import NotificationsPage from '@/pages/Notifications';
 import Login from '@/pages/Login';
 import { WsProvider } from '@/ws/WsProvider';
 
+import '@mantine/core/styles.css';
+
 const queryClient = new QueryClient();
 
 const theme = createTheme({

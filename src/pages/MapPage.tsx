@@ -1,4 +1,5 @@
 import React from 'react';
+import { Stack, Title, Paper } from '@mantine/core';
 import { loadYMap } from '@/lib/ymap';
 
 const MapPage: React.FC = () => {
@@ -20,10 +21,16 @@ const MapPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="space-y-3">
-      <h1 className="text-xl font-semibold">Карта</h1>
-      <div ref={containerRef} className="w-full h-96 border rounded" aria-label="Yandex map container" />
-    </div>
+    <Stack gap="md">
+      <Title order={1} size="h3">Карта</Title>
+      <Paper 
+        ref={containerRef} 
+        withBorder 
+        p={0}
+        style={{ width: '100%', height: '384px' }}
+        aria-label="Yandex map container" 
+      />
+    </Stack>
   );
 };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Container, Stack, Title, Button } from '@mantine/core';
 import { useAuthStore } from '@/store/auth';
 
 const Login: React.FC = () => {
@@ -14,12 +15,19 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-10 space-y-4">
-      <h1 className="text-xl font-semibold text-center">Вход</h1>
-      <button onClick={handleLogin} className="w-full px-3 py-2 border rounded" aria-label="Login">
-        Войти как Admin (demo)
-      </button>
-    </div>
+    <Container size="xs" mt="xl">
+      <Stack gap="lg" align="center">
+        <Title order={1} size="h3" ta="center">Вход</Title>
+        <Button 
+          onClick={handleLogin} 
+          fullWidth 
+          size="md"
+          aria-label="Login"
+        >
+          Войти как Admin (demo)
+        </Button>
+      </Stack>
+    </Container>
   );
 };
 

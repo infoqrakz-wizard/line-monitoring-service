@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, Stack, Text } from '@mantine/core';
+import { Modal, Button, Stack } from '@mantine/core';
 
 export type DeleteConfirmModalProps = {
   opened: boolean;

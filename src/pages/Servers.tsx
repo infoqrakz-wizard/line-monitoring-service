@@ -1,4 +1,5 @@
 import React from 'react';
+import { Stack, Title, Group, Button } from '@mantine/core';
 import SearchInput from '@/components/SearchInput';
 import Table from '@/components/Table';
 import type { ServerItem } from '@/types';
@@ -13,12 +14,12 @@ const Servers: React.FC = () => {
   const data = mock.filter((s) => s.name.toLowerCase().includes(q.toLowerCase()));
 
   return (
-    <div className="space-y-3">
-      <h1 className="text-xl font-semibold">Серверы</h1>
-      <div className="flex items-center gap-3">
+    <Stack gap="md">
+      <Title order={1} size="h3">Серверы</Title>
+      <Group>
         <SearchInput value={q} onChange={setQ} placeholder="Поиск серверов" />
-        <button className="px-3 py-2 border rounded" aria-label="Create server">Добавить</button>
-      </div>
+        <Button variant="outline" aria-label="Create server">Добавить</Button>
+      </Group>
       <Table
         columns={[
           { key: 'name', header: 'Имя' },
@@ -28,7 +29,7 @@ const Servers: React.FC = () => {
         data={data}
         keyField="id"
       />
-    </div>
+    </Stack>
   );
 };
 

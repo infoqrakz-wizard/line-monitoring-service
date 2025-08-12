@@ -1,0 +1,33 @@
+/* Desktop styles (default) */
+.container {
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .header {
+    margin-bottom: 16px;
+    padding: 16px;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .container {
+    padding: 12px;
+  }
+  
+  .header {
+    margin-bottom: 12px;
+    padding: 12px;
+  }
+}
