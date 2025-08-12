@@ -1,2 +1,2 @@
-export { default } from './MonitoringTable';
-export * from './MonitoringTable';
+export { default } from "./MonitoringTable";
+export * from "./MonitoringTable";

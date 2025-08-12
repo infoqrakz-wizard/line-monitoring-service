@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router';
-import { Flex } from '@mantine/core';
-import classes from './AppLayout.module.css';
-import { useAuthStore } from '@/store/auth';
-import monitoringIconUrl from '../../assets/icons/monitoring.svg';
-import serversIconUrl from '../../assets/icons/servers.svg';
-import usersIconUrl from '../../assets/icons/users.svg';
-import mapIconUrl from '../../assets/icons/map.svg';
-import groupsIconUrl from '../../assets/icons/groups.svg';
-import notificationsIconUrl from '../../assets/icons/notifications.svg';
-import settingsIconUrl from '../../assets/icons/settings.svg';
-import logoutIconUrl from '../../assets/icons/logout.svg';
-import burgerIconUrl from '../../assets/icons/burger.svg';
+import React, { useState } from "react";
+import { Outlet, NavLink, useNavigate } from "react-router";
+import { Flex } from "@mantine/core";
+import classes from "./AppLayout.module.css";
+import { useAuthStore } from "@/store/auth";
+import monitoringIconUrl from "../../assets/icons/monitoring.svg";
+import serversIconUrl from "../../assets/icons/servers.svg";
+import usersIconUrl from "../../assets/icons/users.svg";
+import mapIconUrl from "../../assets/icons/map.svg";
+import groupsIconUrl from "../../assets/icons/groups.svg";
+import notificationsIconUrl from "../../assets/icons/notifications.svg";
+import settingsIconUrl from "../../assets/icons/settings.svg";
+import logoutIconUrl from "../../assets/icons/logout.svg";
+import burgerIconUrl from "../../assets/icons/burger.svg";
 
 const AppLayout: React.FC = () => {
   const logout = useAuthStore((s) => s.logout);
@@ -21,43 +21,106 @@ const AppLayout: React.FC = () => {
 
   const mainItems = [
     {
-      to: '/',
-      label: 'Мониторинг',
-      icon: <img src={monitoringIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+      to: "/",
+      label: "Мониторинг",
+      icon: (
+        <img
+          src={monitoringIconUrl}
+          className={classes.menuIcon}
+          width={24}
+          height={24}
+          alt=""
+          aria-hidden="true"
+        />
+      ),
     },
     {
-      to: '/servers',
-      label: 'Серверы',
-      icon: <img src={serversIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+      to: "/servers",
+      label: "Серверы",
+      icon: (
+        <img
+          src={serversIconUrl}
+          className={classes.menuIcon}
+          width={24}
+          height={24}
+          alt=""
+          aria-hidden="true"
+        />
+      ),
     },
     {
-      to: '/users',
-      label: 'Пользователи',
-      icon: <img src={usersIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+      to: "/users",
+      label: "Пользователи",
+      icon: (
+        <img
+          src={usersIconUrl}
+          className={classes.menuIcon}
+          width={24}
+          height={24}
+          alt=""
+          aria-hidden="true"
+        />
+      ),
     },
     {
-      to: '/map',
-      label: 'Карта',
-      icon: <img src={mapIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+      to: "/map",
+      label: "Карта",
+      icon: (
+        <img
+          src={mapIconUrl}
+          className={classes.menuIcon}
+          width={24}
+          height={24}
+          alt=""
+          aria-hidden="true"
+        />
+      ),
     },
     {
-      to: '/groups',
-      label: 'Группы',
-      icon: <img src={groupsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
-    }
+      to: "/groups",
+      label: "Группы",
+      icon: (
+        <img
+          src={groupsIconUrl}
+          className={classes.menuIcon}
+          width={24}
+          height={24}
+          alt=""
+          aria-hidden="true"
+        />
+      ),
+    },
   ];
 
   const bottomItems = [
     {
-      to: '/notifications',
-      label: 'Уведомления',
-      icon: <img src={notificationsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
+      to: "/notifications",
+      label: "Уведомления",
+      icon: (
+        <img
+          src={notificationsIconUrl}
+          className={classes.menuIcon}
+          width={24}
+          height={24}
+          alt=""
+          aria-hidden="true"
+        />
+      ),
     },
     {
-      to: '/settings',
-      label: 'Настройки аккаунта',
-      icon: <img src={settingsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" />
-    }
+      to: "/settings",
+      label: "Настройки аккаунта",
+      icon: (
+        <img
+          src={settingsIconUrl}
+          className={classes.menuIcon}
+          width={24}
+          height={24}
+          alt=""
+          aria-hidden="true"
+        />
+      ),
+    },
   ];
 
   const toggleSidebar = () => {
@@ -66,7 +129,7 @@ const AppLayout: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleOverlayClick = () => {
@@ -97,7 +160,13 @@ const AppLayout: React.FC = () => {
           <ul className={classes.menuList}>
             {mainItems.map((item) => (
               <li key={item.to} className={classes.menuItem}>
-                <NavLink to={item.to} onClick={handleNavItemClick} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
+                <NavLink
+                  to={item.to}
+                  onClick={handleNavItemClick}
+                  className={({ isActive }) =>
+                    `${classes.menuButton} ${isActive ? classes.active : ""}`
+                  }
+                >
                   <div className={classes.menuButtonInner}>
                     <div className={classes.menuButtonIcon}>{item.icon}</div>
                     <span className={classes.menuText}>{item.label}</span>
@@ -109,7 +178,14 @@ const AppLayout: React.FC = () => {
 
           <div className={classes.bottomMenu}>
             {bottomItems.map((item) => (
-              <NavLink key={item.to} to={item.to} onClick={handleNavItemClick} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={handleNavItemClick}
+                className={({ isActive }) =>
+                  `${classes.menuButton} ${isActive ? classes.active : ""}`
+                }
+              >
                 <div className={classes.menuButtonInner}>
                   <div className={classes.menuButtonIcon}>{item.icon}</div>
                   <span className={classes.menuText}>{item.label}</span>
@@ -117,10 +193,23 @@ const AppLayout: React.FC = () => {
               </NavLink>
             ))}
             {/* <Tooltip label="Выйти из аккаунта" position="right" offset={8}> */}
-            <button className={classes.menuButton} onClick={() => { handleLogout(); handleNavItemClick(); }} aria-label="Logout">
+            <button
+              className={classes.menuButton}
+              onClick={() => {
+                handleLogout();
+                handleNavItemClick();
+              }}
+              aria-label="Logout"
+            >
               <div className={classes.menuButtonInner}>
                 <div className={classes.menuButtonIcon}>
-                  <img src={logoutIconUrl} width={24} height={24} alt="" aria-hidden="true" />
+                  <img
+                    src={logoutIconUrl}
+                    width={24}
+                    height={24}
+                    alt=""
+                    aria-hidden="true"
+                  />
                 </div>
                 <span className={classes.menuText}>Выйти из аккаунта</span>
               </div>
@@ -130,12 +219,21 @@ const AppLayout: React.FC = () => {
         </nav>
       </aside>
 
-      <aside id="app-mobile-menu" className={`${classes.mobileMenuContainer} ${mobileMenuOpen ? classes.mobileMenuOpen : ''}`}>
+      <aside
+        id="app-mobile-menu"
+        className={`${classes.mobileMenuContainer} ${mobileMenuOpen ? classes.mobileMenuOpen : ""}`}
+      >
         <nav className={classes.mobileMenu}>
           <ul className={classes.menuList}>
             {mainItems.map((item) => (
               <li key={item.to} className={classes.menuItem}>
-                <NavLink to={item.to} onClick={handleNavItemClick} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
+                <NavLink
+                  to={item.to}
+                  onClick={handleNavItemClick}
+                  className={({ isActive }) =>
+                    `${classes.menuButton} ${isActive ? classes.active : ""}`
+                  }
+                >
                   <div className={classes.menuButtonInner}>
                     <div className={classes.menuButtonIcon}>{item.icon}</div>
                     <span className={classes.menuText}>{item.label}</span>
@@ -148,7 +246,14 @@ const AppLayout: React.FC = () => {
           <div className={classes.bottomMenu}>
             {bottomItems.map((item) => (
               <div key={item.to} className={classes.menuItem}>
-                <NavLink key={item.to} to={item.to} onClick={handleNavItemClick} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={handleNavItemClick}
+                  className={({ isActive }) =>
+                    `${classes.menuButton} ${isActive ? classes.active : ""}`
+                  }
+                >
                   <div className={classes.menuButtonInner}>
                     <div className={classes.menuButtonIcon}>{item.icon}</div>
                     <span className={classes.menuText}>{item.label}</span>
@@ -157,10 +262,23 @@ const AppLayout: React.FC = () => {
               </div>
             ))}
             {/* <Tooltip label="Выйти из аккаунта" position="right" offset={8}> */}
-            <button className={classes.menuButton} onClick={() => { handleLogout(); handleNavItemClick(); }} aria-label="Logout">
+            <button
+              className={classes.menuButton}
+              onClick={() => {
+                handleLogout();
+                handleNavItemClick();
+              }}
+              aria-label="Logout"
+            >
               <div className={classes.menuButtonInner}>
                 <div className={classes.menuButtonIcon}>
-                  <img src={logoutIconUrl} width={24} height={24} alt="" aria-hidden="true" />
+                  <img
+                    src={logoutIconUrl}
+                    width={24}
+                    height={24}
+                    alt=""
+                    aria-hidden="true"
+                  />
                 </div>
                 <span className={classes.menuText}>Выйти из аккаунта</span>
               </div>
@@ -170,7 +288,6 @@ const AppLayout: React.FC = () => {
         </nav>
       </aside>
 
-
       <header className={classes.header}>
         <div className={classes.logo} aria-label="Logo" />
         <Flex gap={16}>
@@ -179,7 +296,12 @@ const AppLayout: React.FC = () => {
             // onClick={toggleSidebar}
             type="button"
           >
-            <img src={notificationsIconUrl} width={24} height={24} alt="Notifications" />
+            <img
+              src={notificationsIconUrl}
+              width={24}
+              height={24}
+              alt="Notifications"
+            />
           </button>
           <button
             aria-label="Toggle sidebar"
@@ -189,7 +311,13 @@ const AppLayout: React.FC = () => {
             onClick={toggleSidebar}
             type="button"
           >
-            <img src={burgerIconUrl} width={24} height={24} alt="" aria-hidden="true" />
+            <img
+              src={burgerIconUrl}
+              width={24}
+              height={24}
+              alt=""
+              aria-hidden="true"
+            />
           </button>
         </Flex>
       </header>

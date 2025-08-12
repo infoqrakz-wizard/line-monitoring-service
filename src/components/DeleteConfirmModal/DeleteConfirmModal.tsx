@@ -1,5 +1,5 @@
-import React from 'react';
-import { Modal, Button, Stack } from '@mantine/core';
+import React from "react";
+import { Modal, Button, Stack } from "@mantine/core";
 
 export type DeleteConfirmModalProps = {
   opened: boolean;
@@ -8,12 +8,26 @@ export type DeleteConfirmModalProps = {
   onClose: () => void;
 };
 
-const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({ opened, title, onConfirm, onClose }) => {
+const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
+  opened,
+  title,
+  onConfirm,
+  onClose,
+}) => {
   return (
-    <Modal opened={opened} onClose={onClose} title={title ?? 'Вы уверены, что хотите удалить проблему?'} centered>
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={title ?? "Вы уверены, что хотите удалить проблему?"}
+      centered
+    >
       <Stack>
-        <Button color="dark" onClick={onConfirm}>Да, удалить</Button>
-        <Button variant="subtle" onClick={onClose}>Отменить</Button>
+        <Button color="dark" onClick={onConfirm}>
+          Да, удалить
+        </Button>
+        <Button variant="subtle" onClick={onClose}>
+          Отменить
+        </Button>
       </Stack>
     </Modal>
   );

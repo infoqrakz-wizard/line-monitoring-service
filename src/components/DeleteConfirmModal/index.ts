@@ -1,2 +1,2 @@
-export { default } from './DeleteConfirmModal';
-export * from './DeleteConfirmModal';
+export { default } from "./DeleteConfirmModal";
+export * from "./DeleteConfirmModal";

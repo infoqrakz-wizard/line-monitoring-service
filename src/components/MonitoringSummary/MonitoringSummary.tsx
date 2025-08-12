@@ -1,5 +1,5 @@
-import React from 'react';
-import classes from './MonitoringSummary.module.css';
+import React from "react";
+import classes from "./MonitoringSummary.module.css";
 
 export type MonitoringSummaryProps = {
   servers: number;
@@ -8,7 +8,12 @@ export type MonitoringSummaryProps = {
   current: number;
 };
 
-const MonitoringSummary: React.FC<MonitoringSummaryProps> = ({ servers, cameras, postponed, current }) => {
+const MonitoringSummary: React.FC<MonitoringSummaryProps> = ({
+  servers,
+  cameras,
+  postponed,
+  current,
+}) => {
   return (
     <div className={classes.items}>
       <div className={`${classes.item} ${classes.itemServers}`}>

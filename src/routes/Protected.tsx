@@ -1,7 +1,7 @@
-import React from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router';
-import { useAuthStore } from '@/store/auth';
-import type { Role } from '@/types';
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router";
+import { useAuthStore } from "@/store/auth";
+import type { Role } from "@/types";
 
 export type ProtectedProps = {
   allowedRoles?: Role[];
@@ -10,7 +10,7 @@ export type ProtectedProps = {
 const Protected: React.FC<ProtectedProps> = ({ allowedRoles }) => {
   const { isAuthenticated, role } = useAuthStore((s) => ({
     isAuthenticated: s.isAuthenticated,
-    role: s.role
+    role: s.role,
   }));
   const location = useLocation();
 

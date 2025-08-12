@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-export type Theme = 'light' | 'dark';
+export type Theme = "light" | "dark";
 
 export type UIState = {
   sidebarOpen: boolean;
@@ -10,6 +10,6 @@ export type UIState = {
 
 export const useUIStore = create<UIState>((set) => ({
   sidebarOpen: true,
-  theme: 'light',
-  setTheme: (theme) => set({ theme })
+  theme: "light",
+  setTheme: (theme) => set({ theme }),
 }));

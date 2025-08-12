@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import type { Role, User } from '@/types';
+import { create } from "zustand";
+import type { Role, User } from "@/types";
 
 export type AuthState = {
   user: User | null;
@@ -11,48 +11,59 @@ export type AuthState = {
   setToken: (token: string | null) => void;
 };
 
-const STORAGE_KEY = 'lms_auth';
+const STORAGE_KEY = "lms_auth";
 
-const readPersisted = (): Pick<AuthState, 'user' | 'token'> => {
+const readPersisted = (): Pick<AuthState, "user" | "token"> => {
   try {
     const text = localStorage.getItem(STORAGE_KEY);
-    if (!text) {return {
-      user: null,
-      token: null
-    };}
-    const parsed = JSON.parse(text) as { user: User | null; token: string | null };
+    if (!text) {
+      return {
+        user: null,
+        token: null,
+      };
+    }
+    const parsed = JSON.parse(text) as {
+      user: User | null;
+      token: string | null;
+    };
     return {
       user: parsed.user ?? null,
-      token: parsed.token ?? null
+      token: parsed.token ?? null,
     };
   } catch {
     return {
       user: null,
-      token: null
+      token: null,
     };
   }
 };
 
 export const useAuthStore = create<AuthState>((set) => {
-  const persisted = typeof window !== 'undefined' ? readPersisted() : {
-    user: null,
-    token: null
-  };
+  const persisted =
+    typeof window !== "undefined"
+      ? readPersisted()
+      : {
+          user: null,
+          token: null,
+        };
   return {
     user: persisted.user,
     token: persisted.token,
     isAuthenticated: Boolean(persisted.token && persisted.user),
     role: persisted.user?.role ?? null,
     login: ({ user, token }) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        user,
-        token
-      }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          user,
+          token,
+        }),
+      );
       set({
         user,
         token,
         isAuthenticated: true,
-        role: user.role
+        role: user.role,
       });
     },
     logout: () => {
@@ -61,19 +72,22 @@ export const useAuthStore = create<AuthState>((set) => {
         user: null,
         token: null,
         isAuthenticated: false,
-        role: null
+        role: null,
       });
     },
     setToken: (token) => {
       const current = readPersisted();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        user: current.user,
-        token
-      }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          user: current.user,
+          token,
+        }),
+      );
       set({
         token,
-        isAuthenticated: Boolean(token && current.user)
+        isAuthenticated: Boolean(token && current.user),
       });
-    }
+    },
   };
 });

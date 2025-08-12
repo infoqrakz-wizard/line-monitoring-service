@@ -1,8 +1,8 @@
-import React from 'react';
-import { Button, Checkbox, Stack, Title, Tabs } from '@mantine/core';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
-import SearchInput from '@/components/SearchInput';
-import classes from './Users.module.css';
+import React from "react";
+import { Button, Checkbox, Stack, Title, Tabs } from "@mantine/core";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
+import SearchInput from "@/components/SearchInput";
+import classes from "./Users.module.css";
 
 type UserItem = {
   id: string;
@@ -16,161 +16,183 @@ type UserItem = {
 
 const mockUsers: UserItem[] = [
   {
-    id: 'u1',
-    login: 'admin',
+    id: "u1",
+    login: "admin",
     isAdmin: true,
-    description: 'описание пользователя',
+    description: "описание пользователя",
     servers: [
-      'Калинина, 374',
-      'Чкалова, 21',
-      'Гагарина, 45',
-      'Ленина, 456',
-      'Красная, 45',
-      'Энтузиастов, 4567',
-      'Чкалова, 21',
-      'Гагарина, 45',
-      'Ленина, 456',
-      'Красная, 45',
-      'Энтузиастов, 4567',
-      'Чкалова, 21',
-      'Гагарина, 45',
-      'Ленина, 456',
-      'Красная, 45',
-      'Энтузиастов, 4567',
+      "Калинина, 374",
+      "Чкалова, 21",
+      "Гагарина, 45",
+      "Ленина, 456",
+      "Красная, 45",
+      "Энтузиастов, 4567",
+      "Чкалова, 21",
+      "Гагарина, 45",
+      "Ленина, 456",
+      "Красная, 45",
+      "Энтузиастов, 4567",
+      "Чкалова, 21",
+      "Гагарина, 45",
+      "Ленина, 456",
+      "Красная, 45",
+      "Энтузиастов, 4567",
     ],
     actionsCount: 457,
     deletable: false,
   },
   {
-    id: 'u2',
-    login: 'user 456',
-    description: 'описание пользователя',
+    id: "u2",
+    login: "user 456",
+    description: "описание пользователя",
     servers: [
-      'Калинина, 374',
-      'Чкалова, 21',
-      'Гагарина, 45',
-      'Ленина, 456',
-      'Красная, 45',
-      'Энтузиастов, 4567',
-      'Чкалова, 21',
-      'Гагарина, 45',
-      'Ленина, 456',
+      "Калинина, 374",
+      "Чкалова, 21",
+      "Гагарина, 45",
+      "Ленина, 456",
+      "Красная, 45",
+      "Энтузиастов, 4567",
+      "Чкалова, 21",
+      "Гагарина, 45",
+      "Ленина, 456",
     ],
     actionsCount: 7,
     deletable: true,
   },
   {
-    id: 'u3',
-    login: 'monica',
-    description: 'описание пользователя',
-    servers: ['Калинина, 374'],
+    id: "u3",
+    login: "monica",
+    description: "описание пользователя",
+    servers: ["Калинина, 374"],
     actionsCount: 17,
-    deletable: true
+    deletable: true,
   },
   {
-    id: 'u4',
-    login: 'star',
-    description: 'описание пользователя',
+    id: "u4",
+    login: "star",
+    description: "описание пользователя",
     servers: [
-      'Калинина, 374','Чкалова, 21','Гагарина, 45','Ленина, 456','Красная, 45','Энтузиастов, 4567','Чкалова, 21','Гагарина, 45','Ленина, 456','Красная, 45','Энтузиастов, 4567','Чкалова, 21','Гагарина, 45','Ленина, 456','Красная, 45','Энтузиастов, 4567'
+      "Калинина, 374",
+      "Чкалова, 21",
+      "Гагарина, 45",
+      "Ленина, 456",
+      "Красная, 45",
+      "Энтузиастов, 4567",
+      "Чкалова, 21",
+      "Гагарина, 45",
+      "Ленина, 456",
+      "Красная, 45",
+      "Энтузиастов, 4567",
+      "Чкалова, 21",
+      "Гагарина, 45",
+      "Ленина, 456",
+      "Красная, 45",
+      "Энтузиастов, 4567",
     ],
     actionsCount: 1,
-    deletable: true
+    deletable: true,
   },
   {
-    id: 'u5',
-    login: 'root',
-    description: 'описание пользователя',
-    servers: ['Калинина, 374'],
+    id: "u5",
+    login: "root",
+    description: "описание пользователя",
+    servers: ["Калинина, 374"],
     actionsCount: 1,
-    deletable: true
+    deletable: true,
   },
 ];
 
-type LogItem = { id: string; kind: 'success' | 'error' | 'warning' | 'pending'; text: string; time: string; date: string };
+type LogItem = {
+  id: string;
+  kind: "success" | "error" | "warning" | "pending";
+  text: string;
+  time: string;
+  date: string;
+};
 
 const logItems: LogItem[] = [
   {
-    id: 'l1',
-    kind: 'success',
-    text: 'Пользователь «user456» удален на Чкалова, 270',
-    time: '14:13:45',
-    date: '20.05.2025'
+    id: "l1",
+    kind: "success",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
   },
   {
-    id: 'l2',
-    kind: 'error',
-    text: 'Не удалось добавить «user456» на Чкалова, 270',
-    time: '14:13:45',
-    date: '20.05.2025'
+    id: "l2",
+    kind: "error",
+    text: "Не удалось добавить «user456» на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
   },
   {
-    id: 'l3',
-    kind: 'warning',
-    text: 'Пользователь «user456» не найден на Чкалова, 270',
-    time: '14:13:45',
-    date: '20.05.2025'
+    id: "l3",
+    kind: "warning",
+    text: "Пользователь «user456» не найден на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
   },
   {
-    id: 'l4',
-    kind: 'success',
-    text: 'Пользователь «user456» удален на Чкалова, 270',
-    time: '14:13:45',
-    date: '20.05.2025'
+    id: "l4",
+    kind: "success",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
   },
   {
-    id: 'l5',
-    kind: 'error',
-    text: 'Не удалось добавить «user456» на Чкалова, 270',
-    time: '14:13:45',
-    date: '20.05.2025'
+    id: "l5",
+    kind: "error",
+    text: "Не удалось добавить «user456» на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
   },
   {
-    id: 'l6',
-    kind: 'warning',
-    text: 'Пользователь «user456» не найден на Чкалова, 270',
-    time: '14:13:45',
-    date: '20.05.2025'
+    id: "l6",
+    kind: "warning",
+    text: "Пользователь «user456» не найден на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
   },
 ];
 
 const pendingItems: LogItem[] = [
   {
-    id: 'p1',
-    kind: 'pending',
-    text: 'Пользователь «user456» удален на Чкалова, 270',
-    time: '14:13:45',
-    date: '20.05.2025'
+    id: "p1",
+    kind: "pending",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
   },
   {
-    id: 'p2',
-    kind: 'pending',
-    text: 'Пользователь «user456» удален на Чкалова, 270',
-    time: '14:13:45',
-    date: '20.05.2025'
+    id: "p2",
+    kind: "pending",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
   },
   {
-    id: 'p3',
-    kind: 'pending',
-    text: 'Пользователь «user456» удален на Чкалова, 270',
-    time: '14:13:45',
-    date: '20.05.2025'
+    id: "p3",
+    kind: "pending",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
   },
 ];
 
 const Users: React.FC = () => {
-  const [q, setQ] = React.useState('');
+  const [q, setQ] = React.useState("");
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
-  const [expandedServers, setExpandedServers] = React.useState<Record<string, boolean>>({});
+  const [expandedServers, setExpandedServers] = React.useState<
+    Record<string, boolean>
+  >({});
 
   const filtered = React.useMemo(() => {
     const query = q.toLowerCase();
     return mockUsers.filter((u) =>
-      [
-        u.login,
-        u.description ?? '',
-        u.servers.join(' '),
-      ].join(' ').toLowerCase().includes(query)
+      [u.login, u.description ?? "", u.servers.join(" ")]
+        .join(" ")
+        .toLowerCase()
+        .includes(query),
     );
   }, [q]);
 
@@ -207,7 +229,7 @@ const Users: React.FC = () => {
   const handleToggleExpand = (id: string) => {
     setExpandedServers((prev) => ({
       ...prev,
-      [id]: !prev[id]
+      [id]: !prev[id],
     }));
   };
 
@@ -221,7 +243,8 @@ const Users: React.FC = () => {
         <div className={classes.serverList}>
           {items.map((addr, idx) => (
             <span key={`${user.id}-srv-${idx}`} className={classes.serverItem}>
-              {addr}{idx < items.length - 1 ? ' •' : ''}
+              {addr}
+              {idx < items.length - 1 ? " •" : ""}
             </span>
           ))}
         </div>
@@ -230,9 +253,9 @@ const Users: React.FC = () => {
             type="button"
             className={classes.serverMore}
             onClick={() => handleToggleExpand(user.id)}
-            aria-label={isExpanded ? 'Скрыть' : 'Показать все'}
+            aria-label={isExpanded ? "Скрыть" : "Показать все"}
           >
-            {isExpanded ? 'Скрыть' : 'См. все'}
+            {isExpanded ? "Скрыть" : "См. все"}
           </button>
         )}
       </div>
@@ -242,25 +265,51 @@ const Users: React.FC = () => {
   return (
     <Stack className={classes.wrapper} gap="md">
       <div className={classes.header}>
-        <Title order={1} size="h3">Пользователи</Title>
+        <Title order={1} size="h3">
+          Пользователи
+        </Title>
         <div className={classes.actionsDesktop}>
-          <Button variant="filled" leftSection={<IconPlus size={16} />} aria-label="Добавить пользователя">
+          <Button
+            variant="filled"
+            leftSection={<IconPlus size={16} />}
+            aria-label="Добавить пользователя"
+          >
             Добавить пользователя
           </Button>
-          <SearchInput value={q} onChange={setQ} placeholder="Найти пользователя..." />
+          <SearchInput
+            value={q}
+            onChange={setQ}
+            placeholder="Найти пользователя..."
+          />
         </div>
       </div>
 
       <div className={classes.actionsMobile}>
-        <SearchInput value={q} onChange={setQ} placeholder="Найти пользователя..." fullWidth />
-        <Button variant="filled" leftSection={<IconPlus size={16} />} aria-label="Добавить пользователя" className={classes.addMobile}>
+        <SearchInput
+          value={q}
+          onChange={setQ}
+          placeholder="Найти пользователя..."
+          fullWidth
+        />
+        <Button
+          variant="filled"
+          leftSection={<IconPlus size={16} />}
+          aria-label="Добавить пользователя"
+          className={classes.addMobile}
+        >
           Добавить пользователя
         </Button>
       </div>
 
-      <Tabs defaultValue="users" className={classes.tabsRoot} keepMounted={false}>
+      <Tabs
+        defaultValue="users"
+        className={classes.tabsRoot}
+        keepMounted={false}
+      >
         <Tabs.List className={classes.tabsList}>
-          <Tabs.Tab value="users">Пользователи <span className={classes.count}>({shownCount})</span></Tabs.Tab>
+          <Tabs.Tab value="users">
+            Пользователи <span className={classes.count}>({shownCount})</span>
+          </Tabs.Tab>
           <Tabs.Tab value="logs">Логи событий</Tabs.Tab>
           <Tabs.Tab value="postponed">Отложенные действия</Tabs.Tab>
         </Tabs.List>
@@ -278,37 +327,71 @@ const Users: React.FC = () => {
               disabled={selectedCount === 0}
               aria-label="Удалить пользователей"
             >
-              Удалить пользователей <span className={classes.count}>({selectedCount})</span>
+              Удалить пользователей{" "}
+              <span className={classes.count}>({selectedCount})</span>
             </Button>
           </div>
 
-          <div className={classes.table} role="table" aria-label="Список пользователей">
+          <div
+            className={classes.table}
+            role="table"
+            aria-label="Список пользователей"
+          >
             <div className={`${classes.row} ${classes.headerRow}`} role="row">
-              <div className={`${classes.col} ${classes.inputCol}`} role="columnheader" aria-hidden="true" />
-              <div className={`${classes.col} ${classes.userCol}`} role="columnheader">Пользователь (логин)</div>
-              <div className={`${classes.col} ${classes.serverCol}`} role="columnheader">Сервер</div>
-              <div className={`${classes.col} ${classes.deleteCol}`} role="columnheader" aria-hidden="true" />
+              <div
+                className={`${classes.col} ${classes.inputCol}`}
+                role="columnheader"
+                aria-hidden="true"
+              />
+              <div
+                className={`${classes.col} ${classes.userCol}`}
+                role="columnheader"
+              >
+                Пользователь (логин)
+              </div>
+              <div
+                className={`${classes.col} ${classes.serverCol}`}
+                role="columnheader"
+              >
+                Сервер
+              </div>
+              <div
+                className={`${classes.col} ${classes.deleteCol}`}
+                role="columnheader"
+                aria-hidden="true"
+              />
             </div>
 
             {filtered.map((u) => {
               const isSelected = selectedIds.has(u.id);
               return (
                 <div key={u.id} className={classes.row} role="row">
-                  <div className={`${classes.col} ${classes.inputCol}`} role="cell">
+                  <div
+                    className={`${classes.col} ${classes.inputCol}`}
+                    role="cell"
+                  >
                     <Checkbox
                       checked={isSelected}
-                      onChange={(e) => handleToggleOne(u.id, e.currentTarget.checked)}
+                      onChange={(e) =>
+                        handleToggleOne(u.id, e.currentTarget.checked)
+                      }
                       aria-label={`Выбрать пользователя ${u.login}`}
                       disabled={u.deletable === false}
                     />
                   </div>
 
-                  <div className={`${classes.col} ${classes.userCol}`} role="cell">
+                  <div
+                    className={`${classes.col} ${classes.userCol}`}
+                    role="cell"
+                  >
                     <div className={classes.userInfo}>
                       <p className={classes.userName}>
-                        {u.login} {u.isAdmin && <span aria-label="Администратор">⭐</span>}
+                        {u.login}{" "}
+                        {u.isAdmin && (
+                          <span aria-label="Администратор">⭐</span>
+                        )}
                       </p>
-                      {typeof u.actionsCount === 'number' && (
+                      {typeof u.actionsCount === "number" && (
                         <div className={classes.badge}>{u.actionsCount}</div>
                       )}
                     </div>
@@ -317,11 +400,17 @@ const Users: React.FC = () => {
                     )}
                   </div>
 
-                  <div className={`${classes.col} ${classes.serverCol}`} role="cell">
+                  <div
+                    className={`${classes.col} ${classes.serverCol}`}
+                    role="cell"
+                  >
                     {renderServers(u)}
                   </div>
 
-                  <div className={`${classes.col} ${classes.deleteCol}`} role="cell">
+                  <div
+                    className={`${classes.col} ${classes.deleteCol}`}
+                    role="cell"
+                  >
                     <Button
                       className={classes.deleteIcon}
                       variant="light"
@@ -341,7 +430,10 @@ const Users: React.FC = () => {
         <Tabs.Panel value="logs">
           <div className={classes.logsList}>
             {logItems.map((l) => (
-              <div key={l.id} className={`${classes.logItem} ${classes[l.kind]}`}>
+              <div
+                key={l.id}
+                className={`${classes.logItem} ${classes[l.kind]}`}
+              >
                 <div className={classes.logIcon} aria-hidden="true" />
                 <div className={classes.logText}>{l.text}</div>
                 <div className={classes.logTime}>
@@ -357,7 +449,10 @@ const Users: React.FC = () => {
         <Tabs.Panel value="postponed">
           <div className={classes.logsList}>
             {pendingItems.map((l) => (
-              <div key={l.id} className={`${classes.logItem} ${classes[l.kind]}`}>
+              <div
+                key={l.id}
+                className={`${classes.logItem} ${classes[l.kind]}`}
+              >
                 <div className={classes.logIcon} aria-hidden="true" />
                 <div className={classes.logText}>{l.text}</div>
                 <div className={classes.logTime}>
@@ -375,5 +470,3 @@ const Users: React.FC = () => {
 };
 
 export default Users;
-
-

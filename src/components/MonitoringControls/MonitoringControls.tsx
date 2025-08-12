@@ -1,9 +1,9 @@
-import React from 'react';
-import { Button, Group, TextInput } from '@mantine/core';
-import { IconSearch } from '@tabler/icons-react';
-import classes from './MonitoringControls.module.css';
+import React from "react";
+import { Button, Group, TextInput } from "@mantine/core";
+import { IconSearch } from "@tabler/icons-react";
+import classes from "./MonitoringControls.module.css";
 
-export type MonitoringView = 'current' | 'postponed';
+export type MonitoringView = "current" | "postponed";
 
 export type MonitoringControlsProps = {
   view: MonitoringView;
@@ -12,22 +12,27 @@ export type MonitoringControlsProps = {
   onChangeQuery: (value: string) => void;
 };
 
-const MonitoringControls: React.FC<MonitoringControlsProps> = ({ view, onChangeView, query, onChangeQuery }) => {
+const MonitoringControls: React.FC<MonitoringControlsProps> = ({
+  view,
+  onChangeView,
+  query,
+  onChangeQuery,
+}) => {
   return (
     <div className={classes.wrapper}>
       <Group className={classes.buttons} gap={4} wrap="nowrap">
         <Button
           size="md"
-          variant={view === 'current' ? 'filled' : 'default'}
-          className={`${classes.btn} ${view === 'current' ? classes.active : ''}`}
-          onClick={() => onChangeView('current')}
+          variant={view === "current" ? "filled" : "default"}
+          className={`${classes.btn} ${view === "current" ? classes.active : ""}`}
+          onClick={() => onChangeView("current")}
         >
           Актуальные <span className={classes.onlyDesk}>проблемы</span>
         </Button>
         <Button
-          variant={view === 'postponed' ? 'filled' : 'default'}
-          className={`${classes.btn} ${view === 'postponed' ? classes.active : ''}`}
-          onClick={() => onChangeView('postponed')}
+          variant={view === "postponed" ? "filled" : "default"}
+          className={`${classes.btn} ${view === "postponed" ? classes.active : ""}`}
+          onClick={() => onChangeView("postponed")}
         >
           Отложенные <span className={classes.onlyDesk}>проблемы</span>
         </Button>

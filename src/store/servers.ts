@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import type { ServerItem } from '@/types';
+import { create } from "zustand";
+import type { ServerItem } from "@/types";
 import {
   listServers,
   createServer as apiCreateServer,
@@ -7,8 +7,8 @@ import {
   deleteServer as apiDeleteServer,
   type CreateServerRequest,
   type UpdateServerRequest,
-  type PaginatedResponse
-} from '@/api/servers';
+  type PaginatedResponse,
+} from "@/api/servers";
 
 export type ServersState = {
   items: ServerItem[];
@@ -20,7 +20,11 @@ export type ServersState = {
   totalPages: number;
   fetchServers: (params?: { limit?: number; offset?: number }) => Promise<void>;
   createServer: (payload: CreateServerRequest) => Promise<ServerItem>;
-  updateServer: (url: string, port: number, patch: UpdateServerRequest) => Promise<ServerItem>;
+  updateServer: (
+    url: string,
+    port: number,
+    patch: UpdateServerRequest,
+  ) => Promise<ServerItem>;
   deleteServer: (url: string, port: number) => Promise<void>;
   setItems: (items: ServerItem[]) => void;
   clearError: () => void;
@@ -39,7 +43,7 @@ export const useServersStore = create<ServersState>((set, get) => ({
   fetchServers: async (params) => {
     set({
       loading: true,
-      error: null
+      error: null,
     });
     try {
       const response: PaginatedResponse<ServerItem> = await listServers(params);
@@ -51,7 +55,8 @@ export const useServersStore = create<ServersState>((set, get) => ({
         totalPages: response.totalPages,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to load servers';
+      const message =
+        error instanceof Error ? error.message : "Failed to load servers";
       set({ error: message });
     } finally {
       set({ loading: false });
@@ -68,23 +73,28 @@ export const useServersStore = create<ServersState>((set, get) => ({
 
   updateServer: async (url, port, patch) => {
     const updated = await apiUpdateServer(url, port, patch);
-    const items = get().items.map((s) => (s.url === url && s.port === port ? {
-      ...s,
-      ...updated
-    } : s));
+    const items = get().items.map((s) =>
+      s.url === url && s.port === port
+        ? {
+            ...s,
+            ...updated,
+          }
+        : s,
+    );
     set({ items });
     return updated;
   },
 
   deleteServer: async (url, port) => {
     await apiDeleteServer(url, port);
-    const items = get().items.filter((s) => !(s.url === url && s.port === port));
+    const items = get().items.filter(
+      (s) => !(s.url === url && s.port === port),
+    );
     set({ items });
   },
 
   setItems: (items) => set({ items }),
   clearError: () => set({ error: null }),
-  findByUrlPort: (url, port) => get().items.find((s) => s.url === url && s.port === port),
+  findByUrlPort: (url, port) =>
+    get().items.find((s) => s.url === url && s.port === port),
 }));
-
-

@@ -1,20 +1,35 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Stack, Title, Group, Button, SimpleGrid, ActionIcon, Tooltip, LoadingOverlay, Badge } from '@mantine/core';
-import { IconPencil, IconTrash, IconPlus } from '@tabler/icons-react';
-import SearchInput from '@/components/SearchInput';
-import Table from '@/components/Table';
-import ServerCard from '@/components/ServerCard';
-import type { ServerStatus, ServerItemWithMonitoring, ServerMonitoringData } from '@/types';
-import { useServersStore } from '@/store/servers';
-import { useMonitoringStore } from '@/store/monitoring';
-import Modal from '@/components/Modal/Modal';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Stack,
+  Title,
+  Group,
+  Button,
+  SimpleGrid,
+  ActionIcon,
+  Tooltip,
+  LoadingOverlay,
+  Badge,
+} from "@mantine/core";
+import { IconPencil, IconTrash, IconPlus } from "@tabler/icons-react";
+import SearchInput from "@/components/SearchInput";
+import Table from "@/components/Table";
+import ServerCard from "@/components/ServerCard";
+import type {
+  ServerStatus,
+  ServerItemWithMonitoring,
+  ServerMonitoringData,
+} from "@/types";
+import { useServersStore } from "@/store/servers";
+import { useMonitoringStore } from "@/store/monitoring";
+import Modal from "@/components/Modal/Modal";
 
-import classes from './Servers.module.css';
-import { useNavigate } from 'react-router';
+import classes from "./Servers.module.css";
+import { useNavigate } from "react-router";
 
 const Servers: React.FC = () => {
-  const [q, setQ] = useState('');
-  const { items, loading, error, fetchServers, deleteServer } = useServersStore();
+  const [q, setQ] = useState("");
+  const { items, loading, error, fetchServers, deleteServer } =
+    useServersStore();
   const {
     servers: monitoringServers,
     loading: monitoringLoading,
@@ -28,16 +43,19 @@ const Servers: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [activeFilter, setActiveFilter] = useState<
+    "all" | "active" | "inactive"
+  >("all");
 
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
-  const [selectedServer, setSelectedServer] = useState<ServerItemWithMonitoring | null>(null);
+  const [selectedServer, setSelectedServer] =
+    useState<ServerItemWithMonitoring | null>(null);
 
-  const handleClickFilter = (filter: 'all' | 'active' | 'inactive') => {
-    if (filter === 'active' && activeFilter === 'active') {
-      setActiveFilter('all');
-    } else if (filter === 'inactive' && activeFilter === 'inactive') {
-      setActiveFilter('all');
+  const handleClickFilter = (filter: "all" | "active" | "inactive") => {
+    if (filter === "active" && activeFilter === "active") {
+      setActiveFilter("all");
+    } else if (filter === "inactive" && activeFilter === "inactive") {
+      setActiveFilter("all");
     } else {
       setActiveFilter(filter);
     }
@@ -45,14 +63,18 @@ const Servers: React.FC = () => {
 
   // Объединяем данные серверов с мониторингом
   const serversWithMonitoring = useMemo((): ServerItemWithMonitoring[] => {
-    if (!items || !monitoringServers) return [];
+    if (!items || !monitoringServers) {
+      return [];
+    }
 
     return items.map((server): ServerItemWithMonitoring => {
-      const monitoringData = monitoringServers.find((m) => m.id === `${server.url}:${server.port}`);
+      const monitoringData = monitoringServers.find(
+        (m) => m.id === `${server.url}:${server.port}`,
+      );
       return {
         ...server,
         monitoring: monitoringData?.sections.main || undefined,
-        status: monitoringData ? getServerStatus(monitoringData) : 'red',
+        status: monitoringData ? getServerStatus(monitoringData) : "red",
       };
     });
   }, [items, monitoringServers, getServerStatus]);
@@ -61,23 +83,23 @@ const Servers: React.FC = () => {
     return serversWithMonitoring.filter((s) => {
       let matchesFilter = true;
 
-      if (activeFilter === 'active') {
-        matchesFilter = s.enabled && s.status === 'green';
-      } else if (activeFilter === 'inactive') {
-        matchesFilter = !s.enabled || s.status === 'red';
+      if (activeFilter === "active") {
+        matchesFilter = s.enabled && s.status === "green";
+      } else if (activeFilter === "inactive") {
+        matchesFilter = !s.enabled || s.status === "red";
       }
 
-      const matchesSearch = q === '' || s.name.toLowerCase().includes(q.toLowerCase());
+      const matchesSearch =
+        q === "" || s.name.toLowerCase().includes(q.toLowerCase());
 
       return matchesFilter && matchesSearch;
     });
   }, [serversWithMonitoring, activeFilter, q]);
 
-
-
-  
   const handleClickDeleteServer = async (url: string, port: number) => {
-    const server = serversWithMonitoring.find((s) => s.url === url && s.port === port);
+    const server = serversWithMonitoring.find(
+      (s) => s.url === url && s.port === port,
+    );
     if (server) {
       setIsRemoveModalOpen(true);
       setSelectedServer(server);
@@ -94,11 +116,11 @@ const Servers: React.FC = () => {
 
   const getStatusDotClass = (status?: ServerStatus) => {
     switch (status) {
-      case 'green':
+      case "green":
         return classes.dotOnline;
-      case 'yellow':
+      case "yellow":
         return classes.dotWarning;
-      case 'red':
+      case "red":
         return classes.dotOffline;
       default:
         return classes.dotOffline;
@@ -106,9 +128,12 @@ const Servers: React.FC = () => {
   };
 
   const formatCamerasDisplay = (monitoring?: ServerMonitoringData) => {
-    if (!monitoring) return '-';
+    if (!monitoring) {
+      return "-";
+    }
 
-    const { totalCameras, enabledCameras, enabledWithProblemStream } = monitoring;
+    const { totalCameras, enabledCameras, enabledWithProblemStream } =
+      monitoring;
     const workingCameras = enabledCameras - enabledWithProblemStream;
 
     return (
@@ -127,7 +152,9 @@ const Servers: React.FC = () => {
   };
 
   const formatHddStatus = (monitoring?: ServerMonitoringData) => {
-    if (!monitoring) return '-';
+    if (!monitoring) {
+      return "-";
+    }
 
     if (monitoring.lastErrorTime === null) {
       return (
@@ -171,9 +198,9 @@ const Servers: React.FC = () => {
       {(error || monitoringError) && (
         <div
           style={{
-            color: 'red',
-            padding: '16px',
-            textAlign: 'center',
+            color: "red",
+            padding: "16px",
+            textAlign: "center",
           }}
         >
           Ошибка: {error || monitoringError}
@@ -187,43 +214,55 @@ const Servers: React.FC = () => {
         <div className={classes.controlsRowDesktop}>
           <div className={classes.legendGroup}>
             <div
-              className={`${classes.legendItem} ${activeFilter === 'active' ? classes.activeFilter : ''}`}
-              onClick={() => handleClickFilter('active')}
+              className={`${classes.legendItem} ${activeFilter === "active" ? classes.activeFilter : ""}`}
+              onClick={() => handleClickFilter("active")}
             >
               <span className={classes.dotOnline} />
               Доступные
             </div>
             <div
-              className={`${classes.legendItem} ${activeFilter === 'inactive' ? classes.activeFilter : ''}`}
-              onClick={() => handleClickFilter('inactive')}
+              className={`${classes.legendItem} ${activeFilter === "inactive" ? classes.activeFilter : ""}`}
+              onClick={() => handleClickFilter("inactive")}
             >
               <span className={classes.dotOffline} />
               Выключенные
             </div>
           </div>
-          <Button variant="filled" aria-label="Добавить сервер" leftSection={<IconPlus size={16} />}
-            onClick={() => navigate('/servers/create')}
+          <Button
+            variant="filled"
+            aria-label="Добавить сервер"
+            leftSection={<IconPlus size={16} />}
+            onClick={() => navigate("/servers/create")}
           >
             Добавить сервер
           </Button>
-          <SearchInput value={q} onChange={setQ} placeholder="Найти сервер..." />
+          <SearchInput
+            value={q}
+            onChange={setQ}
+            placeholder="Найти сервер..."
+          />
         </div>
       </div>
 
       <div className={classes.controlsColumnMobile}>
-        <SearchInput value={q} onChange={setQ} placeholder="Найти сервер..." fullWidth />
+        <SearchInput
+          value={q}
+          onChange={setQ}
+          placeholder="Найти сервер..."
+          fullWidth
+        />
         <div className={classes.filtersAndAddRow}>
           <div className={classes.legendRowMobile}>
             <div
-              className={`${classes.legendItem} ${activeFilter === 'active' ? classes.activeFilter : ''}`}
-              onClick={() => handleClickFilter('active')}
+              className={`${classes.legendItem} ${activeFilter === "active" ? classes.activeFilter : ""}`}
+              onClick={() => handleClickFilter("active")}
             >
               <span className={classes.dotOnline} />
               Доступные
             </div>
             <div
-              className={`${classes.legendItem} ${activeFilter === 'inactive' ? classes.activeFilter : ''}`}
-              onClick={() => handleClickFilter('inactive')}
+              className={`${classes.legendItem} ${activeFilter === "inactive" ? classes.activeFilter : ""}`}
+              onClick={() => handleClickFilter("inactive")}
             >
               <span className={classes.dotOffline} />
               Выключенные
@@ -232,7 +271,7 @@ const Servers: React.FC = () => {
               variant="filled"
               aria-label="Добавить сервер"
               leftSection={<IconPlus size={16} />}
-              onClick={() => navigate('/servers/create')}
+              onClick={() => navigate("/servers/create")}
             >
               Добавить сервер
             </Button>
@@ -244,8 +283,8 @@ const Servers: React.FC = () => {
         <Table
           columns={[
             {
-              key: 'name',
-              header: 'Имя сервера',
+              key: "name",
+              header: "Имя сервера",
               render: (row: ServerItemWithMonitoring) => (
                 <Group gap="xs">
                   <span className={getStatusDotClass(row.status)} />
@@ -254,28 +293,32 @@ const Servers: React.FC = () => {
               ),
             },
             {
-              key: 'urlPort',
-              header: 'URL:Порт',
-              render: (row: ServerItemWithMonitoring) => `${row.url}:${row.port}`,
+              key: "urlPort",
+              header: "URL:Порт",
+              render: (row: ServerItemWithMonitoring) =>
+                `${row.url}:${row.port}`,
             },
             {
-              key: 'cameras',
-              header: 'Камеры',
-              render: (row: ServerItemWithMonitoring) => formatCamerasDisplay(row.monitoring),
+              key: "cameras",
+              header: "Камеры",
+              render: (row: ServerItemWithMonitoring) =>
+                formatCamerasDisplay(row.monitoring),
             },
             {
-              key: 'hdd',
-              header: 'HDD',
-              render: (row: ServerItemWithMonitoring) => formatHddStatus(row.monitoring),
+              key: "hdd",
+              header: "HDD",
+              render: (row: ServerItemWithMonitoring) =>
+                formatHddStatus(row.monitoring),
             },
             {
-              key: 'uptime',
-              header: 'Uptime',
-              render: (row: ServerItemWithMonitoring) => row.monitoring?.uptime || '-',
+              key: "uptime",
+              header: "Uptime",
+              render: (row: ServerItemWithMonitoring) =>
+                row.monitoring?.uptime || "-",
             },
             {
-              key: 'actions',
-              header: 'Действия',
+              key: "actions",
+              header: "Действия",
               render: (row: ServerItemWithMonitoring) => (
                 <Group gap="xs">
                   <Tooltip label="Редактировать">
@@ -311,7 +354,11 @@ const Servers: React.FC = () => {
           spacing="md"
         >
           {filtered.map((s) => (
-            <ServerCard key={s.id} server={s} onDelete={handleClickDeleteServer} />
+            <ServerCard
+              key={s.id}
+              server={s}
+              onDelete={handleClickDeleteServer}
+            />
           ))}
         </SimpleGrid>
       </div>
@@ -321,10 +368,10 @@ const Servers: React.FC = () => {
         title="Вы уверены, что хотите удалить сервер?"
         confirmText="Удалить"
         cancelText="Отмена"
-        onConfirm={() => { }}
+        onConfirm={() => {}}
         onClose={() => {
-          setIsRemoveModalOpen(false)
-          setSelectedServer(null)
+          setIsRemoveModalOpen(false);
+          setSelectedServer(null);
         }}
       />
     </Stack>
