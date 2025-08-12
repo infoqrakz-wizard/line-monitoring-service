@@ -25,7 +25,9 @@
       "@/routes/*": ["src/routes/*"],
       "@/components/*": ["src/components/*"],
       "@/pages/*": ["src/pages/*"],
-      "@/types": ["src/types"]
+      "@/types": ["src/types"],
+      "@/api": ["src/api"],
+      "@/api/*": ["src/api/*"]
     }
   },
   "include": ["src"],

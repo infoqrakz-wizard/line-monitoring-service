@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/store/auth';
 
-const API_URL = import.meta.env.VITE_API_URL ?? '';
+const API_URL = (import.meta.env.VITE_API_URL as string) ?? '';
 
 export type ApiError = {
   status: number;
@@ -30,7 +30,7 @@ export const apiFetch = async <T = unknown>(path: string, init?: RequestInit): P
   return (await res.text()) as unknown as T;
 };
 
-export const api = {
+export const request = {
   get: <T = unknown>(path: string, init?: RequestInit) => apiFetch<T>(path, { ...init, method: 'GET' }),
   post: <T = unknown>(path: string, body?: unknown, init?: RequestInit) =>
     apiFetch<T>(path, { ...init, method: 'POST', body: body ? JSON.stringify(body) : undefined }),

@@ -4,7 +4,10 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev:server": "tsx watch server/index.ts",
+    "dev:client": "vite",
+    "dev": "concurrently -k -n SERVER,CLIENT \"npm:dev:server\" \"npm:dev:client\"",
+    "build:client": "tsc -b && vite build",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty",
@@ -26,20 +29,28 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
-    "@types/node": "^22.5.4",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.2.1",
     "@types/react": "^18.3.8",
     "@types/react-dom": "^18.3.0",
+    "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.2.0",
+    "cors": "^2.8.5",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "express": "^5.1.0",
     "postcss": "^8.5.6",
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
     "prettier": "^3.6.2",
-    "typescript": "^5.5.4",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.1",
-    "vite": "^5.4.1"
+    "vite": "^5.4.1",
+    "ws": "^8.18.3"
   }
 }

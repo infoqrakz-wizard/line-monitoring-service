@@ -5,9 +5,10 @@ import type { ServerItem } from '@/types';
 
 export type ServerCardProps = {
   server: ServerItem;
+  onDelete?: (url: string, port: number) => void;
 };
 
-const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
+const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
   const statusColor = server.status === 'online' ? 'green' : 'red';
 
   return (
@@ -30,8 +31,8 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
       </Group>
       <Divider my={6} />
       <Group justify="space-between">
-        <Text size="sm" c="dimmed">IP адрес</Text>
-        <Text size="sm">{server.ip}</Text>
+        <Text size="sm" c="dimmed">URL</Text>
+        <Text size="sm">{server.url}</Text>
       </Group>
       <Divider my={6} />
       <Group justify="space-between">
@@ -41,7 +42,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
       <Divider my={6} />
       <Group justify="space-between">
         <Text size="sm" c="dimmed">Имя сервера</Text>
-        <Text size="sm">{server.serverName ?? '-'}</Text>
+        <Text size="sm">{server.name ?? '-'}</Text>
       </Group>
 
       <Group mt="md" justify="flex-start" gap="xs">
@@ -51,7 +52,12 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
           </ActionIcon>
         </Tooltip>
         <Tooltip label="Удалить">
-          <ActionIcon variant="light" color="red" aria-label="Удалить">
+          <ActionIcon 
+            variant="light" 
+            color="red" 
+            aria-label="Удалить"
+            onClick={() => onDelete?.(server.url, server.port)}
+          >
             <IconTrash size={16} />
           </ActionIcon>
         </Tooltip>
