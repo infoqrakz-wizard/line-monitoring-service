@@ -17,6 +17,7 @@ const MonitoringControls: React.FC<MonitoringControlsProps> = ({ view, onChangeV
     <div className={classes.wrapper}>
       <Group className={classes.buttons} gap={4} wrap="nowrap">
         <Button
+          size="md"
           variant={view === 'current' ? 'filled' : 'default'}
           className={`${classes.btn} ${view === 'current' ? classes.active : ''}`}
           onClick={() => onChangeView('current')}

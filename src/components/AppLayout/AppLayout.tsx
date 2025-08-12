@@ -3,15 +3,15 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Flex } from '@mantine/core';
 import classes from './AppLayout.module.css';
 import { useAuthStore } from '@/store/auth';
-import monitoringIconUrl from './icons/monitoring.svg';
-import serversIconUrl from './icons/servers.svg';
-import usersIconUrl from './icons/users.svg';
-import mapIconUrl from './icons/map.svg';
-import groupsIconUrl from './icons/groups.svg';
-import notificationsIconUrl from './icons/notifications.svg';
-import settingsIconUrl from './icons/settings.svg';
-import logoutIconUrl from './icons/logout.svg';
-import burgerIconUrl from './icons/burger.svg';
+import monitoringIconUrl from '../../assets/icons/monitoring.svg';
+import serversIconUrl from '../../assets/icons/servers.svg';
+import usersIconUrl from '../../assets/icons/users.svg';
+import mapIconUrl from '../../assets/icons/map.svg';
+import groupsIconUrl from '../../assets/icons/groups.svg';
+import notificationsIconUrl from '../../assets/icons/notifications.svg';
+import settingsIconUrl from '../../assets/icons/settings.svg';
+import logoutIconUrl from '../../assets/icons/logout.svg';
+import burgerIconUrl from '../../assets/icons/burger.svg';
 
 const AppLayout: React.FC = () => {
   const logout = useAuthStore((s) => s.logout);
