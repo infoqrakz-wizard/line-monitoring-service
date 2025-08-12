@@ -1,0 +1,7 @@
+.wrapper{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.buttons{display:flex;align-items:center;gap:4px}
+.btn{display:flex;align-items:center;gap:6px;min-width:250px;padding:6px 20px 6px 14px;background:#1D1D1D;color:#fff;opacity:.24;border-radius:12px}
+.active{opacity:1}
+.onlyDesk{margin-left:6px}
+.search{min-width:310px}
+@media (max-width:1280px){.wrapper{flex-direction:column;align-items:flex-start}.buttons{width:100%;margin-bottom:15px}.btn{min-width:calc(50% - 2px);width:100%;justify-content:center}.search{width:100%}}

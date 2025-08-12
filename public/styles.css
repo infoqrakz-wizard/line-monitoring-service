@@ -1,0 +1,17 @@
+/* Global styles placeholder. Put your shared styles here later. */
+
+:root {
+  --text-color: #1D1D1D;
+  --bg: #FFFFFF;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text-color);
+  background: var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
