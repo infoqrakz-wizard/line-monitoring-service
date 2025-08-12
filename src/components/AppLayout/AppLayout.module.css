@@ -31,7 +31,6 @@
     height: 52px;
     min-width: 52px;
     min-height: 52px;
-    /* margin-bottom: 30px; */
 }
 
 .menu {
@@ -134,42 +133,59 @@
     background: var(--color-white);
 }
 
-/* Desktop styles (default) */
-@media(min-width: 1025px) {
-    .menuButton:hover .menuButtonInner {
-        justify-content: flex-start;
-        padding: 4px 16px 4px 16px;
-        gap: 4px;
-        background: var(--color-white);
-        box-shadow: var(--shadow-medium);
-        border-radius: var(--border-radius-medium);
-        min-width: 150px;
-        text-align: left;
-        position: absolute;
-        left: 0;
+/* Desktop hover effects (default) */
+.menuButton:hover .menuButtonInner {
+    justify-content: flex-start;
+    padding: 4px 16px 4px 16px;
+    gap: 4px;
+    background: var(--color-white);
+    box-shadow: var(--shadow-medium);
+    border-radius: var(--border-radius-medium);
+    min-width: 150px;
+    text-align: left;
+    position: absolute;
+    left: 0;
+}
 
+.active .menuButtonInner {
+    background: var(--color-secondary);
+}
+
+.active.menuButton:hover .menuButtonInner {
+    color: var(--color-white);
+    background: var(--color-secondary);
+}
+
+.menuButton:hover .menuText {
+    display: block;
+}
+
+.active:hover .menuText {
+    color: var(--color-white);
+}
+
+/* Mobile overlay - always available */
+.mobileOverlay {
+    display: none;
+}
+
+/* Tablet styles */
+@media (max-width: 1024px) {
+    .wrapper {
+        grid-template-columns: 140px 1fr;
     }
 
-    .active .menuButtonInner {
-        background: var(--color-secondary);
+    .sidebar {
+        padding: 15px;
     }
 
-    .active.menuButton:hover .menuButtonInner {
-        color: var(--color-white);
-        background: var(--color-secondary);
-    }
-
-    .menuButton:hover .menuText {
-        display: block;
-    }
-
-    .active:hover .menuText {
-        color: var(--color-white);
+    .content {
+        padding: 15px;
     }
 }
 
 /* Mobile styles */
-@media(max-width: 767px) {
+@media (max-width: 767px) {
     .wrapper {
         grid-template-columns: 1fr;
         grid-template-rows: 72px 1fr;
@@ -259,39 +275,6 @@
         padding: 15px;
     }
 
-    /* Mobile overlay */
-    .mobileOverlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
-}
-
-/* Tablet styles */
-@media(min-width: 768px) and (max-width: 1024px) {
-    .wrapper {
-        grid-template-columns: 140px 1fr;
-    }
-
-    .sidebar {
-        padding: 15px;
-    }
-
-    .content {
-        padding: 15px;
-    }
-}
-
-/* Mobile overlay - always available */
-.mobileOverlay {
-    display: none;
-}
-
-@media(max-width: 767px) {
     .mobileOverlay {
         display: block;
     }
