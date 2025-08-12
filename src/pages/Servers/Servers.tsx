@@ -1,226 +1,293 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Stack, Title, Group, Button, SimpleGrid, ActionIcon, Tooltip, LoadingOverlay } from '@mantine/core';
+import { Stack, Title, Group, Button, SimpleGrid, ActionIcon, Tooltip, LoadingOverlay, Badge } from '@mantine/core';
 import { IconPencil, IconTrash, IconPlus } from '@tabler/icons-react';
 import SearchInput from '@/components/SearchInput';
 import Table from '@/components/Table';
 import ServerCard from '@/components/ServerCard';
-import type { ServerItem } from '@/types';
+import type { ServerStatus } from '@/types';
 import { useServersStore } from '@/store/servers';
+import { useMonitoringStore } from '@/store/monitoring';
 
 import classes from './Servers.module.css';
 
-// const mock: ServerItem[] = [
-//   {
-//     id: '1',
-//     name: 'IPC-F665P',
-//     ip: '34.182.173.247',
-//     status: 'online',
-//     password: 'pass01',
-//     port: '2222',
-//     serverName: 'server02'
-//   },
-//   {
-//     id: '2',
-//     name: 'IPC-F665P',
-//     ip: '34.182.173.247',
-//     status: 'online',
-//     password: 'pass01',
-//     port: 'H.264',
-//     serverName: '-'
-//   },
-//   {
-//     id: '3',
-//     name: 'IPC-F665P',
-//     ip: '34.182.173.247',
-//     status: 'online',
-//     password: 'pass01',
-//     port: 'H.264',
-//     serverName: '-'
-//   },
-//   {
-//     id: '4',
-//     name: 'IPC-F665P',
-//     ip: '34.182.173.247',
-//     status: 'online',
-//     password: 'pass01',
-//     port: 'H.264',
-//     serverName: '-'
-//   },
-//   {
-//     id: '5',
-//     name: 'IPC-F665P',
-//     ip: '34.182.173.247',
-//     status: 'online',
-//     password: 'pass01',
-//     port: 'H.264',
-//     serverName: '-'
-//   },
-//   {
-//     id: '6',
-//     name: 'IPC-F665P',
-//     ip: '34.182.173.247',
-//     status: 'online',
-//     password: 'pass01',
-//     port: 'H.264',
-//     serverName: '-'
-//   },
-//   {
-//     id: '7',
-//     name: 'IPC-F665P',
-//     ip: '34.182.173.247',
-//     status: 'offline',
-//     password: 'pass01',
-//     port: 'MJPEG/H.264',
-//     serverName: '-'
-//   },
-// ];
-
 const Servers: React.FC = () => {
-  const [q, setQ] = useState('');
-  const { items, loading, error, fetchServers, deleteServer } = useServersStore();
+    const [q, setQ] = useState('');
+    const { items, loading, error, fetchServers, deleteServer } = useServersStore();
+    const {
+        servers: monitoringServers,
+        loading: monitoringLoading,
+        error: monitoringError,
+        subscribeToServers,
+        unsubscribe,
+        getServerStatus,
+        connect,
+        isConnected,
+    } = useMonitoringStore();
 
-  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
+    const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
-  const handleClickFilter = (filter: 'all' | 'active' | 'inactive') => {
-    if (filter === 'active' && activeFilter === 'active') {
-      setActiveFilter('all');
-    } else if (filter === 'inactive' && activeFilter === 'inactive') {
-      setActiveFilter('all');
-    } else {
-      setActiveFilter(filter);
-    }
-  };
+    const handleClickFilter = (filter: 'all' | 'active' | 'inactive') => {
+        if (filter === 'active' && activeFilter === 'active') {
+            setActiveFilter('all');
+        } else if (filter === 'inactive' && activeFilter === 'inactive') {
+            setActiveFilter('all');
+        } else {
+            setActiveFilter(filter);
+        }
+    };
 
-  const filtered = useMemo(() => {
-    return items?.filter((s) => {
-      if (activeFilter === 'active') {
-        return s.enabled;
-      } else if (activeFilter === 'inactive') {
-        return !s.enabled;
-      } else {
-        return items;
-        // return s.name.toLowerCase().includes(q.toLowerCase());
-      }
-    }) ?? [];
-  }, [items, activeFilter]);
+    // Объединяем данные серверов с мониторингом
+    const serversWithMonitoring = useMemo(() => {
+        if (!items || !monitoringServers) return [];
 
-  const handleDeleteServer = async (url: string, port: number) => {
-    await deleteServer(url, port);
-  };
+        return items.map((server) => {
+            const monitoringData = monitoringServers.find((m) => m.id === `${server.url}:${server.port}`);
+            return {
+                ...server,
+                monitoring: monitoringData?.sections.main || null,
+                status: monitoringData ? getServerStatus(monitoringData) : ('red' as ServerStatus),
+            };
+        });
+    }, [items, monitoringServers, getServerStatus]);
 
+    const filtered = useMemo(() => {
+        return serversWithMonitoring.filter((s) => {
+            let matchesFilter = true;
 
-  useEffect(() => {
-    void fetchServers();
-  }, [fetchServers]);
+            if (activeFilter === 'active') {
+                matchesFilter = s.enabled && s.status === 'green';
+            } else if (activeFilter === 'inactive') {
+                matchesFilter = !s.enabled || s.status === 'red';
+            }
 
-  return (
-    <Stack className={classes.wrapper} gap="md" pos="relative">
-      <LoadingOverlay visible={loading} />
-      {error && (
-        <div style={{
-          color: 'red',
-          padding: '16px',
-          textAlign: 'center'
-        }}>
-          Ошибка: {error}
-        </div>
-      )}
-      <div className={classes.header}>
-        <Title order={1} size="h3">Серверы</Title>
+            const matchesSearch = q === '' || s.name.toLowerCase().includes(q.toLowerCase());
 
-        <div className={classes.controlsRowDesktop}>
-          <div className={classes.legendGroup}>
-            <div className={`${classes.legendItem} ${activeFilter === 'active' ? classes.activeFilter : ''}`} onClick={() => handleClickFilter('active')}>
-              <span className={classes.dotOnline} />
-              Доступные
+            return matchesFilter && matchesSearch;
+        });
+    }, [serversWithMonitoring, activeFilter, q]);
+
+    const handleDeleteServer = async (url: string, port: number) => {
+        await deleteServer(url, port);
+    };
+
+    const getStatusDotClass = (status: ServerStatus) => {
+        switch (status) {
+            case 'green':
+                return classes.dotOnline;
+            case 'yellow':
+                return classes.dotWarning;
+            case 'red':
+                return classes.dotOffline;
+            default:
+                return classes.dotOffline;
+        }
+    };
+
+    const formatCamerasDisplay = (monitoring: any) => {
+        if (!monitoring) return '-';
+
+        const { totalCameras, enabledCameras, enabledWithProblemStream } = monitoring;
+        const workingCameras = enabledCameras - enabledWithProblemStream;
+
+        return (
+            <Group gap="xs">
+                <Badge color="dark" size="sm">
+                    {totalCameras}
+                </Badge>
+                <Badge color="green" size="sm">
+                    {workingCameras}
+                </Badge>
+                <Badge color="red" size="sm">
+                    {enabledWithProblemStream}
+                </Badge>
+            </Group>
+        );
+    };
+
+    const formatHddStatus = (monitoring: any) => {
+        if (!monitoring) return '-';
+
+        if (monitoring.lastErrorTime === null) {
+            return (
+                <Badge color="green" size="sm">
+                    OK
+                </Badge>
+            );
+        } else {
+            const errorDate = new Date(monitoring.lastErrorTime).toLocaleDateString();
+            return (
+                <Badge color="red" size="sm">
+                    {errorDate}
+                </Badge>
+            );
+        }
+    };
+
+    useEffect(() => {
+        void fetchServers();
+    }, [fetchServers]);
+
+    // Подключаемся к WebSocket при монтировании компонента
+    useEffect(() => {
+        connect();
+        return () => {
+            unsubscribe();
+        };
+    }, [connect, unsubscribe]);
+
+    // Подписываемся на мониторинг серверов когда они загружены
+    useEffect(() => {
+        if (items && items.length > 0 && isConnected) {
+            const serverIds = items.map((server) => `${server.url}:${server.port}`);
+            subscribeToServers(serverIds);
+        }
+    }, [items, subscribeToServers, isConnected]);
+
+    return (
+        <Stack className={classes.wrapper} gap="md" pos="relative">
+            <LoadingOverlay visible={loading || monitoringLoading} />
+            {(error || monitoringError) && (
+                <div
+                    style={{
+                        color: 'red',
+                        padding: '16px',
+                        textAlign: 'center',
+                    }}
+                >
+                    Ошибка: {error || monitoringError}
+                </div>
+            )}
+            <div className={classes.header}>
+                <Title order={1} size="h3">
+                    Серверы
+                </Title>
+
+                <div className={classes.controlsRowDesktop}>
+                    <div className={classes.legendGroup}>
+                        <div
+                            className={`${classes.legendItem} ${activeFilter === 'active' ? classes.activeFilter : ''}`}
+                            onClick={() => handleClickFilter('active')}
+                        >
+                            <span className={classes.dotOnline} />
+                            Доступные
+                        </div>
+                        <div
+                            className={`${classes.legendItem} ${activeFilter === 'inactive' ? classes.activeFilter : ''}`}
+                            onClick={() => handleClickFilter('inactive')}
+                        >
+                            <span className={classes.dotOffline} />
+                            Выключенные
+                        </div>
+                    </div>
+                    <Button variant="filled" aria-label="Добавить сервер" leftSection={<IconPlus size={16} />}>
+                        Добавить сервер
+                    </Button>
+                    <SearchInput value={q} onChange={setQ} placeholder="Найти сервер..." />
+                </div>
             </div>
-            <div className={`${classes.legendItem} ${activeFilter === 'inactive' ? classes.activeFilter : ''}`} onClick={() => handleClickFilter('inactive')}>
-              <span className={classes.dotOffline} />
-              Выключенные
-            </div>
-          </div>
-          <Button variant="filled" aria-label="Добавить сервер" leftSection={<IconPlus size={16} />}>Добавить сервер</Button>
-          <SearchInput value={q} onChange={setQ} placeholder="Найти сервер..." />
-        </div>
-      </div>
 
-      <div className={classes.controlsColumnMobile}>
-        <SearchInput value={q} onChange={setQ} placeholder="Найти сервер..." fullWidth />
-        <div className={classes.filtersAndAddRow}>
-          <div className={classes.legendRowMobile}>
-            <div className={`${classes.legendItem} ${activeFilter === 'active' ? classes.activeFilter : ''}`} onClick={() => handleClickFilter('active')}>
-              <span className={classes.dotOnline} />
-              Доступные
+            <div className={classes.controlsColumnMobile}>
+                <SearchInput value={q} onChange={setQ} placeholder="Найти сервер..." fullWidth />
+                <div className={classes.filtersAndAddRow}>
+                    <div className={classes.legendRowMobile}>
+                        <div
+                            className={`${classes.legendItem} ${activeFilter === 'active' ? classes.activeFilter : ''}`}
+                            onClick={() => handleClickFilter('active')}
+                        >
+                            <span className={classes.dotOnline} />
+                            Доступные
+                        </div>
+                        <div
+                            className={`${classes.legendItem} ${activeFilter === 'inactive' ? classes.activeFilter : ''}`}
+                            onClick={() => handleClickFilter('inactive')}
+                        >
+                            <span className={classes.dotOffline} />
+                            Выключенные
+                        </div>
+                        <Button variant="filled" aria-label="Добавить сервер" leftSection={<IconPlus size={16} />}>
+                            Добавить сервер
+                        </Button>
+                    </div>
+                </div>
             </div>
-            <div className={`${classes.legendItem} ${activeFilter === 'inactive' ? classes.activeFilter : ''}`} onClick={() => handleClickFilter('inactive')}>
-              <span className={classes.dotOffline} />
-              Выключенные
+
+            <div className={classes.desktopTable}>
+                <Table
+                    columns={[
+                        {
+                            key: 'name',
+                            header: 'Имя сервера',
+                            render: (row: any) => (
+                                <Group gap="xs">
+                                    <span className={getStatusDotClass(row.status)} />
+                                    <strong>{row.name}</strong>
+                                </Group>
+                            ),
+                        },
+                        {
+                            key: 'urlPort',
+                            header: 'URL:Порт',
+                            render: (row: any) => `${row.url}:${row.port}`,
+                        },
+                        {
+                            key: 'cameras',
+                            header: 'Камеры',
+                            render: (row: any) => formatCamerasDisplay(row.monitoring),
+                        },
+                        {
+                            key: 'hdd',
+                            header: 'HDD',
+                            render: (row: any) => formatHddStatus(row.monitoring),
+                        },
+                        {
+                            key: 'uptime',
+                            header: 'Uptime',
+                            render: (row: any) => row.monitoring?.uptime || '-',
+                        },
+                        {
+                            key: 'actions',
+                            header: 'Действия',
+                            render: (row: any) => (
+                                <Group gap="xs">
+                                    <Tooltip label="Редактировать">
+                                        <ActionIcon variant="light" aria-label="Редактировать">
+                                            <IconPencil size={16} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                    <Tooltip label="Удалить">
+                                        <ActionIcon
+                                            variant="light"
+                                            color="red"
+                                            aria-label="Удалить"
+                                            onClick={() => handleDeleteServer(row.url, row.port)}
+                                        >
+                                            <IconTrash size={16} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                </Group>
+                            ),
+                        },
+                    ]}
+                    data={filtered}
+                    keyField="id"
+                />
             </div>
-            <Button variant="filled" aria-label="Добавить сервер" leftSection={<IconPlus size={16} />}>Добавить сервер</Button>
-          </div>
-        </div>
-      </div>
 
-      <div className={classes.desktopTable}>
-        <Table
-          columns={[
-            {
-              key: 'name',
-              header: 'Логин',
-              render: (row: ServerItem) => (
-                <Group gap="xs">
-                  <span className={row.enabled ? classes.dotOnline : classes.dotOffline} />
-                  <strong>{row.name}</strong>
-                </Group>
-              )
-            },
-            {
-              key: 'password',
-              header: 'Пароль',
-              render: (row: ServerItem) => row.password ?? '-'
-            },
-            {
-              key: 'url',
-              header: 'URL'
-            },
-            {
-              key: 'port',
-              header: 'Порт',
-              render: (row: ServerItem) => row.port ?? '-'
-            },
-            {
-              key: 'serverName',
-              header: 'Имя сервера',
-              render: (row: ServerItem) => row.name ?? '-'
-            },
-            {
-              key: 'actions',
-              header: 'Действия',
-              render: (row: ServerItem) => (
-                <Group gap="xs">
-                  <Tooltip label="Редактировать"><ActionIcon variant="light" aria-label="Редактировать"><IconPencil size={16} /></ActionIcon></Tooltip>
-                  <Tooltip label="Удалить"><ActionIcon variant="light" color="red" aria-label="Удалить" onClick={() => handleDeleteServer(row.url, row.port)}><IconTrash size={16} /></ActionIcon></Tooltip>
-                </Group>
-              )
-            },
-          ]}
-          data={filtered}
-          keyField="id"
-        />
-      </div>
-
-      <div className={classes.mobileCards}>
-        <SimpleGrid cols={{
-          base: 1,
-          sm: 2
-        }} spacing="md">
-          {filtered.map((s) => (
-            <ServerCard key={s.id} server={s} onDelete={handleDeleteServer} />
-          ))}
-        </SimpleGrid>
-      </div>
-    </Stack>
-  );
+            <div className={classes.mobileCards}>
+                <SimpleGrid
+                    cols={{
+                        base: 1,
+                        sm: 2,
+                    }}
+                    spacing="md"
+                >
+                    {filtered.map((s) => (
+                        <ServerCard key={s.id} server={s} onDelete={handleDeleteServer} />
+                    ))}
+                </SimpleGrid>
+            </div>
+        </Stack>
+    );
 };
 
 export default Servers;

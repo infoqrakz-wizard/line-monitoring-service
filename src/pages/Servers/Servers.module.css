@@ -1,120 +1,125 @@
 /* Desktop styles (default) */
 .wrapper {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .controlsRowDesktop {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
-  align-items: center;
-  gap: 16px;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: center;
+    gap: 16px;
 }
 
 .legendGroup {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
 
 .legendItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #676767;
-  font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #676767;
+    font-weight: 600;
 }
 
 .filtersGroup {
-  display: flex;
-  gap: 8px;
+    display: flex;
+    gap: 8px;
 }
 
 .desktopTable {
-  display: block;
+    display: block;
 }
 
 .mobileCards {
-  display: none;
+    display: none;
 }
 
 .dotOnline,
-.dotOffline {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.dotOffline,
+.dotWarning {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
 }
 
 .dotOnline {
-  background: #2ecc71;
+    background: #2ecc71;
 }
 
 .dotOffline {
-  background: #e74c3c;
+    background: #e74c3c;
+}
+
+.dotWarning {
+    background: #f39c12;
 }
 
 .controlsColumnMobile {
-  display: none;
+    display: none;
 }
 
 .header {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .legendItem {
-  box-sizing: content-box;
-  padding: 15px 20px 15px 14px;
-  cursor: pointer;
-  border-radius: 12px;
-  border: 1px solid transparent;
+    box-sizing: content-box;
+    padding: 15px 20px 15px 14px;
+    cursor: pointer;
+    border-radius: 12px;
+    border: 1px solid transparent;
 }
 
 .legendItem:hover,
 .activeFilter {
-  border-color: #000;
+    border-color: #000;
 }
 
 /* Tablet */
 @media (max-width: 1024px) {
-  .controlsRowDesktop {
-    grid-template-columns: auto 1fr auto;
-  }
-  .controlsRowDesktop {
-    display: none;
-  }
-  .controlsColumnMobile {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+    .controlsRowDesktop {
+        grid-template-columns: auto 1fr auto;
+    }
+    .controlsRowDesktop {
+        display: none;
+    }
+    .controlsColumnMobile {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
 
-  .filtersAndAddRow {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
+    .filtersAndAddRow {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
 
-  .legendRowMobile {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-  }
+    .legendRowMobile {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
 
-  .filtersGroup {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
+    .filtersGroup {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
 
-  .desktopTable {
-    display: none;
-  }
+    .desktopTable {
+        display: none;
+    }
 
-  .mobileCards {
-    display: block;
-  }
+    .mobileCards {
+        display: block;
+    }
 }
