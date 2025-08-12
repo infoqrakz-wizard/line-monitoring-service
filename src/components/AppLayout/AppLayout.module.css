@@ -23,7 +23,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url('./logo.svg');
+    background-image: url('./icons/logo.svg');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -47,7 +47,6 @@
 
 .menuList {
     list-style: none;
-    margin: 0 0 64px;
     padding: 0;
 }
 
@@ -75,6 +74,18 @@
     min-height: 24px;
 }
 
+.menuIcon {
+    display: block;
+    width: 24px;
+    height: 24px;
+}
+
+.menuButtonIcon img {
+    min-width: 24px;
+    min-height: 24px;
+}
+
+
 .menuButtonInner {
     display: flex;
     align-items: center;
@@ -92,6 +103,11 @@
     background: var(--color-secondary);
     border-radius: var(--border-radius-medium);
     color: var(--color-white);
+}
+
+/* Make SVG icons turn white when item is active */
+.active .menuIcon {
+    filter: brightness(0) invert(1);
 }
 
 .bottomMenu {
@@ -113,8 +129,7 @@
 }
 
 .burger {
-    border: 1px solid #ddd;
-    border-radius: 8px;
+
     padding: 6px 10px;
     background: #fff;
     cursor: pointer;
@@ -169,20 +184,36 @@
     display: none;
 }
 
+.mobileMenuContainer {
+    display: none;
+    z-index: 100;
+    border-radius: 0px 0px 14px 14px;
+}
+
 /* Tablet styles */
-@media (max-width: 1024px) {
+/* @media (max-width: 1024px) {
     .wrapper {
         grid-template-columns: 140px 1fr;
     }
 
     .sidebar {
-        padding: 15px;
+        display: none;
     }
 
     .content {
         padding: 15px;
     }
-}
+
+    .mobileMenuContainer.mobileMenuOpen {
+        display: block;
+        background: var(--color-white);
+
+        width: 100%;
+        z-index: 999;
+        position: absolute;
+        top: 72px;
+    }
+} */
 
 /* Mobile styles */
 @media (max-width: 767px) {
@@ -192,22 +223,11 @@
     }
 
     .sidebar {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 280px;
-        height: 100vh;
-        background: var(--color-background);
-        z-index: 1000;
-        transition: left 0.3s ease;
-        flex-direction: column;
-        justify-content: flex-start;
-        padding: 20px;
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        display: none;
     }
 
     .sidebarOpen {
-        left: 0;
+        transform: translateY(0);
     }
 
     .header {
@@ -220,48 +240,80 @@
         display: flex;
         width: 100%;
         height: auto;
-        margin-top: 20px;
+        margin-top: 0;
+        background: var(--color-white);
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .mobileMenuContainer.mobileMenuOpen {
+        display: block;
+        background: var(--color-white);
+
+        width: 100%;
+        z-index: 999;
+        position: absolute;
+        top: 72px;
     }
 
     .menuList {
-        margin: 0 0 40px;
+        margin: 0;
         width: 100%;
     }
 
     .menuItem {
         width: 100%;
+        border-bottom: 1px solid var(--color-border);
     }
 
     .menuButton {
         width: 100%;
         height: auto;
-        padding: 12px;
+        padding: 16px;
         justify-content: flex-start;
+    }
+
+    .menuButton:hover .menuButtonInner {
+        background: var(--color-white);
+        box-shadow: none;
+    }
+
+    .menuButton:hover .menuButtonInner,
+    .active .menuButtonInner {
+        background: var(--color-white);
+        box-shadow: none;
     }
 
     .menuText {
         display: block;
-        margin-left: 12px;
-        font-size: 16px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #1D1D1D;
+        margin-left: 0;
     }
 
     .menuButtonInner {
         width: 100%;
         justify-content: flex-start;
-        gap: 12px;
+        gap: 16px;
         min-height: auto;
         min-width: auto;
     }
 
+    /* No active chip background on mobile */
     .active .menuButtonInner {
-        background: var(--color-secondary);
-        color: var(--color-white);
+        background: transparent;
+        color: inherit;
+    }
+
+    .active .menuIcon {
+        filter: unset;
     }
 
     .bottomMenu {
-        border-top: 1px solid var(--color-border);
-        margin-top: 20px;
-        padding-top: 20px;
+        margin-top: 0;
+        padding-top: 0;
         width: 100%;
     }
 
@@ -277,5 +329,12 @@
 
     .mobileOverlay {
         display: block;
+        position: fixed;
+        top: 72px; /* do not cover the header */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 999; /* below sidebar (1000), above content */
     }
 }

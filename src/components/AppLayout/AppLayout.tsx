@@ -1,40 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { ActionIcon, Flex, Tooltip } from '@mantine/core';
-import {
-  IconBell,
-  IconChartHistogram,
-  IconFolders,
-  IconLogout,
-  IconMap2,
-  IconNotification,
-  IconServer,
-  IconSettings,
-  IconUsers
-} from '@tabler/icons-react';
+import { Flex } from '@mantine/core';
 import classes from './AppLayout.module.css';
-import { useUIStore } from '@/store/ui';
 import { useAuthStore } from '@/store/auth';
+import monitoringIconUrl from './icons/monitoring.svg';
+import serversIconUrl from './icons/servers.svg';
+import usersIconUrl from './icons/users.svg';
+import mapIconUrl from './icons/map.svg';
+import groupsIconUrl from './icons/groups.svg';
+import notificationsIconUrl from './icons/notifications.svg';
+import settingsIconUrl from './icons/settings.svg';
+import logoutIconUrl from './icons/logout.svg';
+import burgerIconUrl from './icons/burger.svg';
 
 const AppLayout: React.FC = () => {
-  const sidebarOpen = useUIStore((s) => s.sidebarOpen);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const mainItems = [
-    { to: '/', label: 'Мониторинг', icon: <IconChartHistogram size={24} /> },
-    { to: '/servers', label: 'Серверы', icon: <IconServer size={24} /> },
-    { to: '/users', label: 'Пользователи', icon: <IconUsers size={24} /> },
-    { to: '/map', label: 'Карта', icon: <IconMap2 size={24} /> },
-    { to: '/groups', label: 'Группы', icon: <IconFolders size={24} /> }
+    { to: '/', label: 'Мониторинг', icon: <img src={monitoringIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
+    { to: '/servers', label: 'Серверы', icon: <img src={serversIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
+    { to: '/users', label: 'Пользователи', icon: <img src={usersIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
+    { to: '/map', label: 'Карта', icon: <img src={mapIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
+    { to: '/groups', label: 'Группы', icon: <img src={groupsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> }
   ];
 
   const bottomItems = [
-    { to: '/notifications', label: 'Уведомления', icon: <IconBell size={24} /> },
-    { to: '/settings', label: 'Настройки аккаунта', icon: <IconSettings size={24} /> }
+    { to: '/notifications', label: 'Уведомления', icon: <img src={notificationsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> },
+    { to: '/settings', label: 'Настройки аккаунта', icon: <img src={settingsIconUrl} className={classes.menuIcon} width={24} height={24} alt="" aria-hidden="true" /> }
   ];
 
-  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const toggleSidebar = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   const handleLogout = () => {
     logout();
@@ -42,7 +42,13 @@ const AppLayout: React.FC = () => {
   };
 
   const handleOverlayClick = () => {
-    if (sidebarOpen) {
+    if (mobileMenuOpen) {
+      toggleSidebar();
+    }
+  };
+
+  const handleNavItemClick = () => {
+    if (mobileMenuOpen) {
       toggleSidebar();
     }
   };
@@ -50,20 +56,20 @@ const AppLayout: React.FC = () => {
   return (
     <div className={classes.wrapper}>
       {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div 
-          className={classes.mobileOverlay} 
+      {mobileMenuOpen && (
+        <div
+          className={classes.mobileOverlay}
           onClick={handleOverlayClick}
           aria-label="Close menu"
         />
       )}
-      <aside className={`${classes.sidebar} ${sidebarOpen ? classes.sidebarOpen : ''}`}>
+      <aside id="app-sidebar" className={`${classes.sidebar}`}>
         <div className={classes.logo} />
         <nav className={classes.menu}>
           <ul className={classes.menuList}>
             {mainItems.map((item) => (
               <li key={item.to} className={classes.menuItem}>
-                <NavLink to={item.to} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
+                <NavLink to={item.to} onClick={handleNavItemClick} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
                   <div className={classes.menuButtonInner}>
                     <div className={classes.menuButtonIcon}>{item.icon}</div>
                     <span className={classes.menuText}>{item.label}</span>
@@ -75,7 +81,7 @@ const AppLayout: React.FC = () => {
 
           <div className={classes.bottomMenu}>
             {bottomItems.map((item) => (
-              <NavLink key={item.to} to={item.to} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
+              <NavLink key={item.to} to={item.to} onClick={handleNavItemClick} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
                 <div className={classes.menuButtonInner}>
                   <div className={classes.menuButtonIcon}>{item.icon}</div>
                   <span className={classes.menuText}>{item.label}</span>
@@ -83,26 +89,80 @@ const AppLayout: React.FC = () => {
               </NavLink>
             ))}
             {/* <Tooltip label="Выйти из аккаунта" position="right" offset={8}> */}
-              <button className={classes.menuButton} onClick={handleLogout} aria-label="Logout">
-                <div className={classes.menuButtonInner}>
-                  <div className={classes.menuButtonIcon}>
-                    <div className={classes.menuButtonIcon}>
-                      <IconLogout size={24} />
-                    </div>
-                  </div>
-                  <span className={classes.menuText}>Выйти из аккаунта</span>
+            <button className={classes.menuButton} onClick={() => { handleLogout(); handleNavItemClick(); }} aria-label="Logout">
+              <div className={classes.menuButtonInner}>
+                <div className={classes.menuButtonIcon}>
+                  <img src={logoutIconUrl} width={24} height={24} alt="" aria-hidden="true" />
                 </div>
-              </button>
+                <span className={classes.menuText}>Выйти из аккаунта</span>
+              </div>
+            </button>
             {/* </Tooltip> */}
           </div>
         </nav>
       </aside>
+
+      <aside id="app-mobile-menu" className={`${classes.mobileMenuContainer} ${mobileMenuOpen ? classes.mobileMenuOpen : ''}`}>
+        <nav className={classes.mobileMenu}>
+          <ul className={classes.menuList}>
+            {mainItems.map((item) => (
+              <li key={item.to} className={classes.menuItem}>
+                <NavLink to={item.to} onClick={handleNavItemClick} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
+                  <div className={classes.menuButtonInner}>
+                    <div className={classes.menuButtonIcon}>{item.icon}</div>
+                    <span className={classes.menuText}>{item.label}</span>
+                  </div>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+
+          <div className={classes.bottomMenu}>
+            {bottomItems.map((item) => (
+              <div className={classes.menuItem}>
+
+                <NavLink key={item.to} to={item.to} onClick={handleNavItemClick} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
+                  <div className={classes.menuButtonInner}>
+                    <div className={classes.menuButtonIcon}>{item.icon}</div>
+                    <span className={classes.menuText}>{item.label}</span>
+                  </div>
+                </NavLink>
+              </div>
+            ))}
+            {/* <Tooltip label="Выйти из аккаунта" position="right" offset={8}> */}
+            <button className={classes.menuButton} onClick={() => { handleLogout(); handleNavItemClick(); }} aria-label="Logout">
+              <div className={classes.menuButtonInner}>
+                <div className={classes.menuButtonIcon}>
+                  <img src={logoutIconUrl} width={24} height={24} alt="" aria-hidden="true" />
+                </div>
+                <span className={classes.menuText}>Выйти из аккаунта</span>
+              </div>
+            </button>
+            {/* </Tooltip> */}
+          </div>
+        </nav>
+      </aside>
+
+
       <header className={classes.header}>
-        <div className={classes.headerBrand}>Line Monitoring Service</div>
-        <Flex>
-          <IconNotification size={24} />
-          <button aria-label="Toggle sidebar" className={classes.burger} onClick={toggleSidebar}>
-            ☰
+        <div className={classes.logo} aria-label="Logo" />
+        <Flex gap={16}>
+          <button
+            // className={classes.burger}
+            // onClick={toggleSidebar}
+            type="button"
+          >
+            <img src={notificationsIconUrl} width={24} height={24} alt="Notifications" />
+          </button>
+          <button
+            aria-label="Toggle sidebar"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="app-sidebar"
+            className={classes.burger}
+            onClick={toggleSidebar}
+            type="button"
+          >
+            <img src={burgerIconUrl} width={24} height={24} alt="" aria-hidden="true" />
           </button>
         </Flex>
       </header>
