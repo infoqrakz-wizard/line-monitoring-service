@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Group, Title } from '@mantine/core';
+import { Flex, Title } from '@mantine/core';
 import MonitoringSummary from '@/components/MonitoringSummary';
 import MonitoringControls, { MonitoringView } from '@/components/MonitoringControls';
 import MonitoringTable, { ProblemRow } from '@/components/MonitoringTable';

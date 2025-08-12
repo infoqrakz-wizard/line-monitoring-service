@@ -119,8 +119,7 @@ const AppLayout: React.FC = () => {
 
           <div className={classes.bottomMenu}>
             {bottomItems.map((item) => (
-              <div className={classes.menuItem}>
-
+              <div key={item.to} className={classes.menuItem}>
                 <NavLink key={item.to} to={item.to} onClick={handleNavItemClick} className={({ isActive }) => `${classes.menuButton} ${isActive ? classes.active : ''}`}>
                   <div className={classes.menuButtonInner}>
                     <div className={classes.menuButtonIcon}>{item.icon}</div>

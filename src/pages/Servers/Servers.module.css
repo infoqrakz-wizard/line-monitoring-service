@@ -1,0 +1,106 @@
+/* Desktop styles (default) */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.controlsRowDesktop {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.legendGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #676767;
+  font-weight: 600;
+}
+
+.filtersGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.desktopTable {
+  display: block;
+}
+
+.mobileCards {
+  display: none;
+}
+
+.dotOnline,
+.dotOffline {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dotOnline {
+  background: #2ecc71;
+}
+
+.dotOffline {
+  background: #e74c3c;
+}
+
+.controlsColumnMobile {
+  display: none;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+/* Tablet */
+@media (max-width: 1024px) {
+  .controlsRowDesktop {
+    grid-template-columns: auto 1fr auto;
+  }
+  .controlsRowDesktop {
+    display: none;
+  }
+  .controlsColumnMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .filtersAndAddRow {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .legendRowMobile {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .filtersGroup {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .desktopTable {
+    display: none;
+  }
+
+  .mobileCards {
+    display: block;
+  }
+}

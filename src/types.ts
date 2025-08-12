@@ -20,6 +20,9 @@ export type ServerItem = {
   ip: string;
   status: 'online' | 'offline';
   groupId?: string;
+  password?: string;
+  port?: string;
+  serverName?: string;
 };
 
 export type GroupItem = {

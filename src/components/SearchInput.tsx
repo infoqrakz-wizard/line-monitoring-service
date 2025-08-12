@@ -6,9 +6,10 @@ export type SearchInputProps = {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  fullWidth?: boolean;
 };
 
-const SearchInput: React.FC<SearchInputProps> = ({ value, onChange, placeholder }) => {
+const SearchInput: React.FC<SearchInputProps> = ({ value, onChange, placeholder, fullWidth }) => {
   return (
     <TextInput
       type="search"
@@ -19,7 +20,8 @@ const SearchInput: React.FC<SearchInputProps> = ({ value, onChange, placeholder 
       leftSection={<IconSearch size={16} />}
       styles={{
         input: {
-          maxWidth: '320px'
+          maxWidth: fullWidth ? '100%' : '320px',
+          width: fullWidth ? '100%' : undefined
         }
       }}
     />

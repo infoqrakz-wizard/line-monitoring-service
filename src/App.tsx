@@ -1,12 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Button, MantineProvider, createTheme } from '@mantine/core';
+import { MantineProvider, createTheme } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import AppLayout from '@/components/AppLayout';
 import Protected from '@/routes/Protected';
 import Monitoring from '@/pages/Monitoring/Monitoring';
-import Servers from '@/pages/Servers';
+import Servers from '@/pages/Servers/Servers';
 import Users from '@/pages/Users';
 import MapPage from '@/pages/MapPage';
 import Groups from '@/pages/Groups';
