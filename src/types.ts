@@ -35,6 +35,7 @@ export type GroupItem = {
     serverIds: string[];
 };
 
+// Мониторинг серверов
 export type ServerStatus = 'green' | 'yellow' | 'red';
 
 export type ServerMonitoringData = {
@@ -61,21 +62,36 @@ export type ServerWithMonitoring = {
     updated_at: number;
 };
 
+export type MonitoringData = {
+    servers: ServerWithMonitoring[];
+    notFound: string[];
+    total: number;
+    at: number;
+};
+
 export type MonitoringResponse = {
     at: string;
     type: string;
-    data: {
-        servers: ServerWithMonitoring[];
-        notFound: string[];
-        total: number;
-        at: number;
-    };
+    data: MonitoringData;
 };
 
+// WebSocket типы
 export type SubscribeRequest = {
     type: 'subscribe';
     payload: {
         servers: string[];
         sections: string[];
     };
+};
+
+export type UnsubscribeRequest = {
+    type: 'unsubscribe';
+};
+
+export type WebSocketMessage = SubscribeRequest | UnsubscribeRequest;
+
+// Расширенный тип сервера с данными мониторинга
+export type ServerItemWithMonitoring = ServerItem & {
+    monitoring?: ServerMonitoringData;
+    status?: ServerStatus;
 };

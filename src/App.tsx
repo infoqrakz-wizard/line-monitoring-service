@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider, createTheme } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
@@ -13,6 +13,7 @@ import Groups from '@/pages/Groups';
 import Settings from '@/pages/Settings';
 import NotificationsPage from '@/pages/Notifications';
 import Login from '@/pages/Login';
+import CreateServer from '@/pages/Servers/CreateServer/CreateServer';
 import { WsProvider } from '@/ws/WsProvider';
 
 import '@mantine/core/styles.css';
@@ -55,6 +56,7 @@ const App: React.FC = () => {
                 <Route element={<AppLayout />}>
                   <Route index element={<Monitoring />} />
                   <Route path="servers" element={<Servers />} />
+                  <Route path="servers/create" element={<CreateServer />} />
                   <Route path="users" element={<Users />} />
                   <Route path="map" element={<MapPage />} />
                   <Route path="groups" element={<Groups />} />

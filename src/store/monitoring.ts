@@ -1,5 +1,11 @@
 import { create } from 'zustand';
-import type { ServerWithMonitoring, MonitoringResponse, SubscribeRequest, ServerStatus } from '@/types';
+import type {
+    ServerWithMonitoring,
+    MonitoringResponse,
+    SubscribeRequest,
+    UnsubscribeRequest,
+    ServerStatus,
+} from '@/types';
 
 export type MonitoringState = {
     servers: ServerWithMonitoring[];
@@ -39,8 +45,10 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
 
         ws.onmessage = (event) => {
             try {
-                const data: MonitoringResponse = JSON.parse(event.data);
-                set({ servers: data.data.servers, error: null });
+                const response: MonitoringResponse = JSON.parse(event.data);
+                if (response.type === 'snapshot' && response.data) {
+                    set({ servers: response.data.servers, error: null });
+                }
             } catch (error) {
                 console.error('Failed to parse monitoring message:', error);
                 set({ error: 'Ошибка парсинга данных' });
@@ -112,7 +120,7 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
 
         if (!socket || !isConnected) return;
 
-        const unsubscribeMessage = {
+        const unsubscribeMessage: UnsubscribeRequest = {
             type: 'unsubscribe',
         };
 

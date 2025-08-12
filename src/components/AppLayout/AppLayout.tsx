@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from 'react-router';
 import { Flex } from '@mantine/core';
 import classes from './AppLayout.module.css';
 import { useAuthStore } from '@/store/auth';

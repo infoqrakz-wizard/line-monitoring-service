@@ -1,13 +1,10 @@
 import React from 'react';
 import { Card, Text, Badge, Group, Divider, ActionIcon, Tooltip } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
-import type { ServerItem, ServerStatus } from '@/types';
+import type { ServerItemWithMonitoring, ServerStatus, ServerMonitoringData } from '@/types';
 
 export type ServerCardProps = {
-    server: ServerItem & {
-        monitoring?: any;
-        status?: ServerStatus;
-    };
+    server: ServerItemWithMonitoring;
     onDelete?: (url: string, port: number) => void;
 };
 
@@ -38,7 +35,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
         }
     };
 
-    const formatCamerasDisplay = (monitoring: any) => {
+    const formatCamerasDisplay = (monitoring?: ServerMonitoringData) => {
         if (!monitoring) return '-';
 
         const { totalCameras, enabledCameras, enabledWithProblemStream } = monitoring;
@@ -59,7 +56,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
         );
     };
 
-    const formatHddStatus = (monitoring: any) => {
+    const formatHddStatus = (monitoring?: ServerMonitoringData) => {
         if (!monitoring) return '-';
 
         if (monitoring.lastErrorTime === null) {
