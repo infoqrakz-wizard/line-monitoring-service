@@ -7,6 +7,7 @@ export type SearchInputProps = {
   onChange: (value: string) => void;
   placeholder?: string;
   fullWidth?: boolean;
+  disabled?: boolean;
 };
 
 const SearchInput: React.FC<SearchInputProps> = ({
@@ -14,6 +15,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   onChange,
   placeholder,
   fullWidth,
+  disabled,
 }) => {
   return (
     <TextInput
@@ -23,6 +25,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
       placeholder={placeholder ?? "Поиск..."}
       aria-label="Поиск"
       leftSection={<IconSearch size={16} />}
+      disabled={disabled}
       styles={{
         input: {
           maxWidth: fullWidth ? "100%" : "320px",

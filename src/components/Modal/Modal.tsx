@@ -1,37 +1,64 @@
-import { Modal } from "@mantine/core";
+import React from "react";
+import { createPortal } from "react-dom";
 import classes from "./Modal.module.css";
-import { describe } from "node:test";
 
-export default function ModalComponent({
-  opened,
-  title,
-  confirmText,
-  cancelText,
-  onClose,
-  onConfirm,
-}: {
+export type BaseModalProps = {
   opened: boolean;
-  title: string;
-  confirmText: string;
-  cancelText: string;
   onClose: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <Modal opened={opened} onClose={onClose} withCloseButton={false}>
-      <div className={classes.content}>
-        <p className={classes.title}>{title}</p>
-        <div className={classes.buttons}>
-          <button className={classes.btnDelete} onClick={onConfirm}>
-            {confirmText}
-          </button>
-          {cancelText && (
-            <button className={classes.btnCancel} onClick={onClose}>
-              {cancelText}
-            </button>
-          )}
-        </div>
+  title?: string;
+  children: React.ReactNode;
+  closeOnBackdrop?: boolean;
+};
+
+const ModalComponent: React.FC<BaseModalProps> = ({
+  opened,
+  onClose,
+  title,
+  children,
+  closeOnBackdrop = true,
+}) => {
+  React.useEffect(() => {
+    if (!opened) {
+      return;
+    }
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handler);
+    const { body } = document;
+    const prevOverflow = body.style.overflow;
+    body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handler);
+      body.style.overflow = prevOverflow;
+    };
+  }, [opened, onClose]);
+
+  const content = (
+    <div
+      className={classes.modal}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title || "Modal"}
+      onClick={(e) => {
+        if (closeOnBackdrop && e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className={classes.content} tabIndex={-1}>
+        {title ? <p className={classes.title}>{title}</p> : null}
+        {children}
       </div>
-    </Modal>
+    </div>
   );
-}
+
+  if (!opened) {
+    return null;
+  }
+  return createPortal(content, document.body);
+};
+
+export default ModalComponent;

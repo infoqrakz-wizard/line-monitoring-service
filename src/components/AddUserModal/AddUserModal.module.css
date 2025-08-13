@@ -1,0 +1,92 @@
+/* Desktop styles (default) */
+.form { min-width: 520px; }
+.footer { margin-top: 8px; }
+
+.error {
+  padding: 12px;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.errorText {
+  color: #c53030;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .form { min-width: 460px; }
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .form { min-width: 0; }
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal_content {
+  text-align: center;
+  max-width: 612px;
+  width: 100%;
+
+  padding: 54px 50px;
+  background: #FFFFFF;
+  box-shadow: 0px 4px 12px rgba(144, 144, 144, 0.08);
+  border-radius: 12px;
+}
+
+.modal_body {
+  padding: 0;
+}
+
+.modal_title {
+  margin-bottom: 48px;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 28px;
+  color: #1D1D1D;
+}
+
+.btn_delete {
+  display: block;
+  margin: 0 auto 8px;
+  border: none;
+  cursor: pointer;
+
+  padding: 20px 40px;
+  width: 240px;
+  background: #1D1D1D;
+  border-radius: 12px;
+
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 14px;
+  color: #FFFFFF;
+}
+
+.btn_cancel {
+  background: none;
+  border: none;
+  color: #000;
+  cursor: pointer;
+  padding: 20px 40px;
+  width: 240px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 14px;
+}

@@ -17,6 +17,7 @@
     padding: 20px;
     background: var(--color-background);
     height: 100vh;
+    z-index: 20;
 }
 
 .logo {

@@ -6,6 +6,7 @@ export type DeleteConfirmModalProps = {
   title?: string;
   onConfirm: () => void;
   onClose: () => void;
+  loading?: boolean;
 };
 
 const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
@@ -13,6 +14,7 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   title,
   onConfirm,
   onClose,
+  loading = false,
 }) => {
   return (
     <Modal
@@ -21,11 +23,23 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
       title={title ?? "Вы уверены, что хотите удалить проблему?"}
       centered
     >
-      <Stack>
-        <Button color="dark" onClick={onConfirm}>
+      <Stack gap="md">
+        <Button 
+          color="red" 
+          onClick={onConfirm}
+          variant="filled"
+          loading={loading}
+          disabled={loading}
+          aria-label="Да, удалить"
+        >
           Да, удалить
         </Button>
-        <Button variant="subtle" onClick={onClose}>
+        <Button 
+          variant="subtle" 
+          onClick={onClose}
+          disabled={loading}
+          aria-label="Отменить"
+        >
           Отменить
         </Button>
       </Stack>

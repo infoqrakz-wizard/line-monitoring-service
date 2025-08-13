@@ -1,16 +1,27 @@
 import { create } from "zustand";
-import type { User } from "@/types";
-import { request } from "@/lib/request";
+import { users as usersApi } from "@/api";
+import type {
+  UserItem as ApiUserItem,
+  CreateUserRequest,
+  UpdateUserRequest,
+  PaginatedUsersResponse,
+} from "@/api/user";
 
 export type UsersState = {
-  items: User[];
+  items: ApiUserItem[];
   loading: boolean;
   error: string | null;
-  fetchUsers: () => Promise<void>;
-  createUser: (payload: Omit<User, "id">) => Promise<User>;
-  updateUser: (id: string, patch: Partial<Omit<User, "id">>) => Promise<User>;
-  deleteUser: (id: string) => Promise<void>;
-  setItems: (items: User[]) => void;
+  fetchUsers: (params?: {
+    limit?: number;
+    offset?: number;
+  }) => Promise<PaginatedUsersResponse>;
+  createUser: (payload: CreateUserRequest) => Promise<ApiUserItem>;
+  updateUser: (
+    id: string | number,
+    patch: UpdateUserRequest,
+  ) => Promise<ApiUserItem>;
+  deleteUser: (id: string | number) => Promise<void>;
+  setItems: (items: ApiUserItem[]) => void;
   clearError: () => void;
 };
 
@@ -19,34 +30,47 @@ export const useUsersStore = create<UsersState>((set, get) => ({
   loading: false,
   error: null,
 
-  fetchUsers: async () => {
+  fetchUsers: async (params) => {
     set({
       loading: true,
       error: null,
     });
     try {
-      const list = await request.get<User[]>("/users");
-      set({ items: list });
+      const res = await usersApi.listUsers({
+        limit: params?.limit,
+        offset: params?.offset,
+      });
+      set({
+        items: res,
+      });
+      return res;
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to load users";
-      set({ error: message });
+      set({
+        error: message,
+      });
+      throw error;
     } finally {
-      set({ loading: false });
+      set({
+        loading: false,
+      });
     }
   },
 
   createUser: async (payload) => {
-    const created = await request.post<User>("/users", payload);
-    set({ items: [created, ...get().items] });
+    const created = await usersApi.createUser(payload);
+    set({
+      items: [created, ...get().items],
+    });
     return created;
   },
 
   updateUser: async (id, patch) => {
-    const updated = await request.put<User>(`/users/${id}`, patch);
+    const updated = await usersApi.updateUser(id, patch);
     set({
       items: get().items.map((u) =>
-        u.id === id
+        String(u.id) === String(id)
           ? {
               ...u,
               ...updated,
@@ -58,8 +82,10 @@ export const useUsersStore = create<UsersState>((set, get) => ({
   },
 
   deleteUser: async (id) => {
-    await request.delete(`/users/${id}`);
-    set({ items: get().items.filter((u) => u.id !== id) });
+    await usersApi.deleteUser(id);
+    set({
+      items: get().items.filter((u) => String(u.id) !== String(id)),
+    });
   },
 
   setItems: (items) => set({ items }),

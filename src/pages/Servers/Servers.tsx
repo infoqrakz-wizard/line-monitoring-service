@@ -385,14 +385,23 @@ const Servers: React.FC = () => {
       <Modal
         opened={isRemoveModalOpen}
         title="Вы уверены, что хотите удалить сервер?"
-        confirmText="Удалить"
-        cancelText="Отмена"
-        onConfirm={handleDeleteServer}
         onClose={() => {
           setIsRemoveModalOpen(false);
           setSelectedServer(null);
         }}
-      />
+      >
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+          <Button variant="subtle" onClick={() => {
+            setIsRemoveModalOpen(false);
+            setSelectedServer(null);
+          }}>
+            Отмена
+          </Button>
+          <Button color="red" onClick={handleDeleteServer}>
+            Удалить
+          </Button>
+        </div>
+      </Modal>
     </Stack>
   );
 };
