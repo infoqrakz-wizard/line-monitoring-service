@@ -161,7 +161,9 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
             variant="light"
             aria-label="Редактировать"
             onClick={() =>
-              navigate(`/servers/${server.url}/${server.port}/edit`)
+              navigate(
+                `/servers/edit?url=${encodeURIComponent(server.url)}&port=${encodeURIComponent(server.port.toString())}`,
+              )
             }
           >
             <IconPencil size={16} />

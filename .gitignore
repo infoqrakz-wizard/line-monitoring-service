@@ -98,3 +98,8 @@ coverage/
 .nyc_output/
 
 design/
+deploy.sh
+deploy-quick.sh
+line-monitoring-service-*.tar.gz
+
+tsconfig.tsbuildinfo
