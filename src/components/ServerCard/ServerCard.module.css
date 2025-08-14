@@ -1,0 +1,86 @@
+.cardWrapper {
+    display: contents;
+
+    .card {
+        display: block;
+        /* max-width: calc(50% - 7.5px);
+        width: 100%; */
+        border: none;
+        border-radius: 12px;
+        padding: 16px;
+        background: rgba(241, 241, 241, 1);
+    }
+
+    .statusIndicator {
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        width: 15px;
+        height: 15px;
+        margin: 0;
+        border-radius: 50%;
+    }
+
+    .serverName {
+        margin-bottom: 15px;
+        line-height: 16px;
+        color: #676767 !important;
+        opacity: 0.6;
+    }
+
+    .serverNameValue {
+        font-weight: 800;
+        font-size: 16px;
+        line-height: 16px;
+        color: #1D1D1D;
+        margin-bottom: 10px;
+    }
+
+    .mobileRow {
+        padding-top: 20px;
+    }
+
+    .tableKeyName {
+        font-weight: 600;
+        color: #676767 !important;
+        flex-shrink: 0;
+        margin-right: 10px;
+        font-size: 14px;
+        line-height: 16px;
+    }
+
+    .tableValue {
+        color: rgba(29, 29, 29, 1) !important;
+        font-size: 14px;
+        line-height: 16px;
+        font-weight: 600;
+    }
+
+    .divider {
+        margin: 10px 0 20px;
+        border-top: 1px solid rgba(207, 207, 207, 1) !important;
+    }
+
+    .actions {
+        justify-content: end;
+        gap: 16px;
+    }
+
+    .editBtn {
+        align-items: center;
+        display: inline-flex;
+        flex-direction: row;
+        gap: 10px;
+        color: #676767;
+        font-weight: 800;
+    }
+
+    .deleteBtn {
+        width: auto;
+        padding: 0 6px !important;
+    }
+
+    .deleteIcon {
+        padding-inline: 10px !important;
+    }
+}

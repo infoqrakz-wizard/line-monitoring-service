@@ -37,6 +37,15 @@
     min-height: 52px;
 }
 
+@media (max-width: 767px) {
+    .logo {
+        width: 35px;
+        height: 26px;
+        min-width: 35px;
+        min-height: 26px;
+    }
+}
+
 .menu {
     display: flex;
     flex-direction: column;
@@ -134,8 +143,6 @@
 }
 
 .burger {
-
-    padding: 6px 10px;
     background: #fff;
     cursor: pointer;
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MantineProvider, createTheme } from "@mantine/core";
+import { MantineProvider, createTheme, px, rgba } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import AppLayout from "@/components/AppLayout";
 import Protected from "@/routes/Protected";
@@ -36,6 +36,24 @@ const BLACK_BUTTON_STYLES = {
       background: "#2D2D2D",
     },
   },
+
+  white: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: px(44),
+    height: px(44),
+    border: "none",
+    borderRadius: 12,
+    cursor: "pointer",
+    transition: ".3s",
+    gap: 10,
+    backgroundColor: "rgba(255, 255, 255, 1)",
+    backgroundPosition: "left 14px center",
+    textAlign: "right",
+    padding: "6px 14px",
+    width: "auto",
+  },
 };
 
 const theme = createTheme({
@@ -57,6 +75,10 @@ const theme = createTheme({
           // Стили для серверной кнопки
           ...(params.variant === "black" && {
             ...BLACK_BUTTON_STYLES.black,
+          }),
+
+          ...(params.variant === "white" && {
+            ...BLACK_BUTTON_STYLES.white,
           }),
         },
       }),

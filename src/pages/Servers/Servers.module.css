@@ -158,6 +158,8 @@
     .controlsRowDesktopInner {
         display: flex;
         width: 100%;
+        flex-wrap: wrap;
+        gap: 30px;
     }
 
     .searchInputDesktopContainer {
@@ -170,9 +172,9 @@
         width: 100%;
     }
 
-    .addServerButton {
+    /* .addServerButton {
         margin-left: 30px;
-    }
+    } */
 
 /* } */
 /* @media (max-width: 1024px) { */

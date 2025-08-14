@@ -9,9 +9,7 @@ import {
   Badge,
   Table,
 } from "@mantine/core";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
 import SearchInput from "@/components/SearchInput/SearchInput";
-import ServerCard from "@/components/ServerCard";
 import type {
   ServerStatus,
   ServerItemWithMonitoring,
@@ -27,6 +25,7 @@ import PageHeader from "@/components/PageHeader";
 import IconPlus from "@/assets/icons/plus.svg?react";
 
 import classes from "./Servers.module.css";
+import ServerCard from "@/components/ServerCard/index";
 
 const Servers: React.FC = () => {
   const [q, setQ] = useState("");
