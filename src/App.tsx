@@ -21,7 +21,7 @@ import "modern-css-reset/dist/reset.min.css";
 
 const queryClient = new QueryClient();
 
-const BLACK_BUTTON_STYLES = {
+const BUTTON_STYLES = {
   black: {
     display: "flex",
     justifyContent: "center",
@@ -30,11 +30,17 @@ const BLACK_BUTTON_STYLES = {
     gap: "12px",
     minHeight: "46px",
     fontWeight: 800,
-    background: "#1D1D1D",
+    backgroundColor: "#1D1D1D",
     color: "#FFFFFF",
     "&:hover": {
       background: "#2D2D2D",
     },
+  },
+
+  blackDisabled: {
+    backgroundColor: "rgba(29, 29, 29, 1)",
+    cursor: "not-allowed",
+    opacity: 0.3,
   },
 
   white: {
@@ -63,25 +69,33 @@ const theme = createTheme({
     Button: {
       styles: (
         theme: { colors: Record<string, string[]> },
-        params: { variant?: string },
-      ) => ({
-        root: {
-          backgroundColor:
-            params.variant === "filled" ? theme.colors["dark"][9] : undefined,
-          "&:hover": {
+        params: { variant?: string; disabled?: boolean },
+      ) => {
+        const style = {
+          root: {
             backgroundColor:
-              params.variant === "filled" ? "#ddd" : "transparent",
-          },
-          // Стили для серверной кнопки
-          ...(params.variant === "black" && {
-            ...BLACK_BUTTON_STYLES.black,
-          }),
+              params.variant === "filled" ? theme.colors["dark"][9] : undefined,
+            "&:hover": {
+              backgroundColor:
+                params.variant === "filled" ? "#ddd" : "transparent",
+            },
+            // Стили для серверной кнопки
+            ...(params.variant === "black" && {
+              ...BUTTON_STYLES.black,
+            }),
+            ...(params.variant === "black" &&
+              params.disabled && {
+                ...BUTTON_STYLES.blackDisabled,
+              }),
 
-          ...(params.variant === "white" && {
-            ...BLACK_BUTTON_STYLES.white,
-          }),
-        },
-      }),
+            ...(params.variant === "white" && {
+              ...BUTTON_STYLES.white,
+            }),
+          },
+        };
+        console.log("button styles", params, style);
+        return style;
+      },
     },
   },
   defaultRadius: 12,
