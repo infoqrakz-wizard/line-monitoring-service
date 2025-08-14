@@ -21,12 +21,28 @@ import "modern-css-reset/dist/reset.min.css";
 
 const queryClient = new QueryClient();
 
+const BLACK_BUTTON_STYLES = {
+  black: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "11px 20px 11px 14px",
+    gap: "12px",
+    minHeight: "46px",
+    fontWeight: 800,
+    background: "#1D1D1D",
+    color: "#FFFFFF",
+    "&:hover": {
+      background: "#2D2D2D",
+    },
+  },
+};
+
 const theme = createTheme({
   fontFamily:
     "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, Apple Color Emoji, Segoe UI Emoji",
   components: {
     Button: {
-      // Subscribe to theme and component params
       styles: (
         theme: { colors: Record<string, string[]> },
         params: { variant?: string },
@@ -38,6 +54,10 @@ const theme = createTheme({
             backgroundColor:
               params.variant === "filled" ? "#ddd" : "transparent",
           },
+          // Стили для серверной кнопки
+          ...(params.variant === "black" && {
+            ...BLACK_BUTTON_STYLES.black,
+          }),
         },
       }),
     },
@@ -45,7 +65,6 @@ const theme = createTheme({
   defaultRadius: 12,
   primaryColor: "blue",
 });
-
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>

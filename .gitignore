@@ -103,3 +103,4 @@ deploy-quick.sh
 line-monitoring-service-*.tar.gz
 
 tsconfig.tsbuildinfo
+tsconfig.node.tsbuildinfo

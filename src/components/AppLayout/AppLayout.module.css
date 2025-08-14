@@ -148,7 +148,7 @@
 .content {
     grid-column: 2/3;
     grid-row: 1/2;
-    padding: 30px;
+    padding: 40px 30px;
     overflow-y: auto;
     background: var(--color-white);
 }
@@ -195,31 +195,11 @@
     border-radius: 0px 0px 14px 14px;
 }
 
-/* Tablet styles */
-/* @media (max-width: 1024px) {
-    .wrapper {
-        grid-template-columns: 140px 1fr;
-    }
-
-    .sidebar {
-        display: none;
-    }
-
+@media screen and (max-width: 1280px) {
     .content {
-        padding: 15px;
+        padding: 0px 30px 40px;
     }
-
-    .mobileMenuContainer.mobileMenuOpen {
-        display: block;
-        background: var(--color-white);
-
-        width: 100%;
-        z-index: 999;
-        position: absolute;
-        top: 72px;
-    }
-} */
-
+}
 /* Mobile styles */
 @media (max-width: 767px) {
     .wrapper {

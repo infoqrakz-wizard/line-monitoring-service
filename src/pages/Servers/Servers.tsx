@@ -9,7 +9,7 @@ import {
   Badge,
   Table,
 } from "@mantine/core";
-import { IconPencil, IconTrash, IconPlus } from "@tabler/icons-react";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import ServerCard from "@/components/ServerCard";
 import type {
@@ -21,10 +21,12 @@ import { useServersStore } from "@/store/servers";
 import { useMonitoringStore } from "@/store/monitoring";
 import Modal from "@/components/Modal/Modal";
 
-import classes from "./Servers.module.css";
 import { useNavigate } from "react-router";
 import ActionButton from "@/components/ActionButton";
 import PageHeader from "@/components/PageHeader";
+import IconPlus from "@/assets/icons/plus.svg?react";
+
+import classes from "./Servers.module.css";
 
 const Servers: React.FC = () => {
   const [q, setQ] = useState("");
@@ -204,7 +206,7 @@ const Servers: React.FC = () => {
   }, [items, subscribeToServers, isConnected]);
 
   return (
-    <Stack className={classes.wrapper} gap="md" pos="relative">
+    <Stack className={classes.wrapper} gap="0" pos="relative">
       <LoadingOverlay visible={loading || monitoringLoading} />
       {(error || monitoringError) && (
         <div
@@ -221,34 +223,41 @@ const Servers: React.FC = () => {
         title="Серверы"
         rightSide={
           <div className={classes.controlsRowDesktop}>
-            <div className={classes.legendGroup}>
-              <div
-                className={`${classes.legendItem} ${activeFilter === "active" ? classes.activeFilter : ""}`}
-                onClick={() => handleClickFilter("active")}
-              >
-                <span className={classes.dotOnline} />
-                Доступные
+            <div className={classes.controlsRowDesktopInner}>
+              <div className={classes.legendGroup}>
+                <div
+                  className={`${classes.legendItem} ${activeFilter === "active" ? classes.activeFilter : ""}`}
+                  onClick={() => handleClickFilter("active")}
+                >
+                  <span className={classes.dotOnline} />
+                  Доступные
+                </div>
+                <div
+                  className={`${classes.legendItem} ${activeFilter === "inactive" ? classes.activeFilter : ""}`}
+                  onClick={() => handleClickFilter("inactive")}
+                >
+                  <span className={classes.dotOffline} />
+                  Выключенные
+                </div>
               </div>
-              <div
-                className={`${classes.legendItem} ${activeFilter === "inactive" ? classes.activeFilter : ""}`}
-                onClick={() => handleClickFilter("inactive")}
+              <Button
+                className={classes.addServerButton}
+                variant="black"
+                aria-label="Добавить сервер"
+                leftSection={<IconPlus />}
+                onClick={() => navigate("/servers/create")}
               >
-                <span className={classes.dotOffline} />
-                Выключенные
-              </div>
+                Добавить сервер
+              </Button>
             </div>
-            <Button
-              variant="filled"
-              aria-label="Добавить сервер"
-              leftSection={<IconPlus size={16} />}
-              onClick={() => navigate("/servers/create")}
-            >
-              Добавить сервер
-            </Button>
             <SearchInput
               value={q}
               onChange={setQ}
               placeholder="Найти сервер..."
+              containerClassName={classes.searchInputDesktopContainer}
+              className={classes.searchInputDesktop}
+              inputClassName={classes.searchInputDesktopInput}
+              rootClassName={classes.searchInputDesktopRoot}
             />
           </div>
         }
@@ -280,7 +289,7 @@ const Servers: React.FC = () => {
             <Button
               variant="filled"
               aria-label="Добавить сервер"
-              leftSection={<IconPlus size={16} />}
+              leftSection={<IconPlus />}
               onClick={() => navigate("/servers/create")}
             >
               Добавить сервер
@@ -290,7 +299,7 @@ const Servers: React.FC = () => {
       </div>
 
       <div className={classes.desktopTable}>
-        <Table className={classes.table}>
+        <Table className={classes.table} withTableBorder withColumnBorders>
           <Table.Thead className={classes.thead}>
             <Table.Tr className={classes.tr}>
               <Table.Th className={classes.th}>Имя сервера</Table.Th>
@@ -326,44 +335,21 @@ const Servers: React.FC = () => {
                   <Group gap="xs">
                     <Tooltip label="Редактировать">
                       <ActionButton
+                        className={classes.editIcon}
                         onClick={() =>
                           navigate(
                             `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
                           )
                         }
-                      >
-                        <IconPencil size={24} />
-                      </ActionButton>
-                      {/* <ActionIcon
-                        variant="light"
-                        aria-label="Редактировать"
-                        onClick={() =>
-                          navigate(
-                            `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
-                          )
-                        }
-                      >
-                        <IconPencil size={16} />
-                      </ActionIcon> */}
+                      />
                     </Tooltip>
                     <Tooltip label="Удалить">
                       <ActionButton
+                        className={classes.deleteIcon}
                         onClick={() =>
                           handleClickDeleteServer(row.url, row.port)
                         }
-                      >
-                        <IconTrash size={24} />
-                      </ActionButton>
-                      {/* <ActionIcon
-                        variant="light"
-                        color="red"
-                        aria-label="Удалить"
-                        onClick={() =>
-                          handleClickDeleteServer(row.url, row.port)
-                        }
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon> */}
+                      />
                     </Tooltip>
                   </Group>
                 </Table.Td>

@@ -17,12 +17,20 @@
     min-height: 48px;
     border: 1px solid #CFCFCF;
     border-radius: 12px;
-    background-image: url('../../assets/icons/search.svg');
-    background-repeat: no-repeat;
-    background-position: left 10px center;
-    background-size: 32px 32px;
     font-weight: 500;
     font-size: 14px;
     line-height: 16px;
     color: rgba(29, 29, 29, 1);
+}
+
+.container .input::placeholder {
+    color: #676767;
+}
+
+.searchIcon {
+    margin-left: 10px;
+}
+
+.container .section {
+    width: 40px;
 }
