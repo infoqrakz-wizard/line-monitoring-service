@@ -212,3 +212,10 @@
         display: block;
     }
 }
+
+@media (max-width: 767px) {
+    .addServerButton {
+        width: 100% !important;
+        max-width: 450px;
+    }
+}

@@ -262,41 +262,6 @@ const Servers: React.FC = () => {
         }
       />
 
-      <div className={classes.controlsColumnMobile}>
-        <SearchInput
-          value={q}
-          onChange={setQ}
-          placeholder="Найти сервер..."
-          fullWidth
-        />
-        <div className={classes.filtersAndAddRow}>
-          <div className={classes.legendRowMobile}>
-            <div
-              className={`${classes.legendItem} ${activeFilter === "active" ? classes.activeFilter : ""}`}
-              onClick={() => handleClickFilter("active")}
-            >
-              <span className={classes.dotOnline} />
-              Доступные
-            </div>
-            <div
-              className={`${classes.legendItem} ${activeFilter === "inactive" ? classes.activeFilter : ""}`}
-              onClick={() => handleClickFilter("inactive")}
-            >
-              <span className={classes.dotOffline} />
-              Выключенные
-            </div>
-            <Button
-              variant="filled"
-              aria-label="Добавить сервер"
-              leftSection={<IconPlus />}
-              onClick={() => navigate("/servers/create")}
-            >
-              Добавить сервер
-            </Button>
-          </div>
-        </div>
-      </div>
-
       <div className={classes.desktopTable}>
         <Table className={classes.table} withTableBorder withColumnBorders>
           <Table.Thead className={classes.thead}>
