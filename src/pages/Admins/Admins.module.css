@@ -68,13 +68,26 @@
   background: #fff;
 }
 
+.row:nth-child(even) {
+  background: #f8f9fa;
+}
+
 .row:not(:last-child) {
   border-bottom: 1px solid #e9ecef;
 }
 
-.headerRow {
-  background: #f8f9fa;
+.headerCol {
   font-weight: 600;
+  font-size: 18px;
+  line-height: 24px;
+  color: #1D1D1D;
+  padding: 15px 30px !important;
+}
+
+.headerRow {
+  background: #CFCFCF;
+  font-weight: 600;
+  padding: 0 !important;
 }
 
 .col {}

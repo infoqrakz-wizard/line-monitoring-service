@@ -24,8 +24,8 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
       centered
     >
       <Stack gap="md">
-        <Button 
-          color="red" 
+        <Button
+          color="red"
           onClick={onConfirm}
           variant="filled"
           loading={loading}
@@ -34,8 +34,8 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
         >
           Да, удалить
         </Button>
-        <Button 
-          variant="subtle" 
+        <Button
+          variant="subtle"
           onClick={onClose}
           disabled={loading}
           aria-label="Отменить"

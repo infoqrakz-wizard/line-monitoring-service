@@ -67,17 +67,17 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
         <Badge color="green" size="xs">
           {workingCameras}
         </Badge>
-        <Badge color="red" size="xs">
-          {Number.isInteger(enabledWithProblemStream)
-            ? enabledWithProblemStream
-            : "-"}
-        </Badge>
+        {enabledWithProblemStream && (
+          <Badge color="red" size="xs">
+            {enabledWithProblemStream}
+          </Badge>
+        )}
       </Group>
     );
   };
 
   const formatHddStatus = (monitoring?: ServerMonitoringData) => {
-    if (!monitoring) {
+    if (!monitoring || !monitoring.ok) {
       return "-";
     }
 
@@ -98,6 +98,8 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
   };
 
   const statusColor = getStatusColor(server.status || "red");
+  const arhiveDatesCount =
+    server.archiveState?.result.state.storages[0].archive.dates_count;
 
   return (
     <div className={classes.cardWrapper}>
@@ -154,6 +156,15 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
           </Text>
           <Text size="sm" className={classes.tableValue}>
             {server.monitoring?.uptime || "-"}
+          </Text>
+        </Group>
+        <Divider className={classes.divider} />
+        <Group justify="space-between">
+          <Text fw={600} size="sm" className={classes.tableKeyName}>
+            Глубина архива
+          </Text>
+          <Text size="sm" className={classes.tableValue}>
+            {`${arhiveDatesCount ? `${arhiveDatesCount}д.` : "-"}`}
           </Text>
         </Group>
         <Divider className={classes.divider} />

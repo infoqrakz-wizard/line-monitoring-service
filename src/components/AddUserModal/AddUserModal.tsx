@@ -24,7 +24,7 @@ export type AddUserModalProps = {
   error?: string | null;
   onClearError?: () => void;
   // Новые пропсы для редактирования
-  mode?: 'create' | 'edit';
+  mode?: "create" | "edit";
   initialData?: UserData;
   userId?: string;
 };
@@ -36,7 +36,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   loading,
   error,
   onClearError,
-  mode = 'create',
+  mode = "create",
   initialData,
 }) => {
   const [email, setEmail] = React.useState("");
@@ -44,8 +44,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   const [isAdmin, setIsAdmin] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
 
-  const isEditMode = mode === 'edit';
-  const canSubmit = isEditMode 
+  const isEditMode = mode === "edit";
+  const canSubmit = isEditMode
     ? Boolean(email) && !submitting && !loading // В режиме редактирования пароль не обязателен
     : Boolean(email) && Boolean(password) && !submitting && !loading;
 
@@ -99,7 +99,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     }
   };
 
-  const modalTitle = isEditMode ? "Редактировать пользователя" : "Добавить пользователя";
+  const modalTitle = isEditMode
+    ? "Редактировать пользователя"
+    : "Добавить пользователя";
   const submitButtonText = isEditMode ? "Сохранить" : "Добавить";
 
   return (
@@ -115,13 +117,25 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             aria-label="Логин"
           />
           <PasswordInput
-            label={isEditMode ? "Новый пароль (оставьте пустым, чтобы не менять)" : "Пароль"}
-            placeholder={isEditMode ? "Введите новый пароль или оставьте пустым" : "Введите пароль"}
+            label={
+              isEditMode
+                ? "Новый пароль (оставьте пустым, чтобы не менять)"
+                : "Пароль"
+            }
+            placeholder={
+              isEditMode
+                ? "Введите новый пароль или оставьте пустым"
+                : "Введите пароль"
+            }
             value={password}
             onChange={(e) => setPassword(e.currentTarget.value)}
             required={!isEditMode}
             aria-label={isEditMode ? "Новый пароль" : "Пароль"}
-            description={isEditMode ? "Оставьте пустым, если не хотите менять пароль" : undefined}
+            description={
+              isEditMode
+                ? "Оставьте пустым, если не хотите менять пароль"
+                : undefined
+            }
           />
           <Group justify="space-between" align="center">
             <Switch

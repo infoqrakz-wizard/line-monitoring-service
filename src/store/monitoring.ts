@@ -120,7 +120,7 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       type: "subscribe",
       payload: {
         servers: serverIds,
-        sections: ["main"],
+        sections: ["main", "archiveState"],
       },
     };
 

@@ -108,8 +108,8 @@ const AppLayout: React.FC = () => {
       ),
     },
     {
-      to: "/settings",
-      label: "Настройки аккаунта",
+      to: "/admins",
+      label: "Пользователи",
       icon: (
         <img
           src={settingsIconUrl}

@@ -54,10 +54,33 @@ export type ServerMonitoringData = {
   updated_at: number;
 };
 
+export type ArchiveState = {
+  id: number;
+  result: {
+    state: {
+      storages: Array<{
+        archive: {
+          dates_count: number;
+          first_date: [number, number, number];
+          last_date: [number, number, number];
+        };
+        available: boolean;
+        free_space: number;
+        path: string;
+        write: {
+          datarate: number;
+          queue_size: number;
+        };
+      }>;
+    };
+  };
+};
+
 export type ServerWithMonitoring = {
   id: string;
   sections: {
     main: ServerMonitoringData;
+    archiveState: ArchiveState;
   };
   updated_at: number;
 };
@@ -93,5 +116,6 @@ export type WebSocketMessage = SubscribeRequest | UnsubscribeRequest;
 // Расширенный тип сервера с данными мониторинга
 export type ServerItemWithMonitoring = ServerItem & {
   monitoring?: ServerMonitoringData;
+  archiveState?: ArchiveState;
   status?: ServerStatus;
 };

@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   TextInput,
-  PasswordInput,
   NumberInput,
   Button,
   Group,
@@ -216,7 +215,8 @@ const CreateServer: React.FC = () => {
       [field]: value,
     }));
 
-    // Clear error when user starts typing
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     if (errors[field]) {
       setErrors((prev) => ({
         ...prev,
@@ -392,7 +392,6 @@ const CreateServer: React.FC = () => {
           formData.maps?.y &&
           formData.maps?.x !== 0 &&
           formData.maps?.y !== 0,
-
       );
 
   return (

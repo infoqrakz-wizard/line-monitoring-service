@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MantineProvider, createTheme, px, rgba } from "@mantine/core";
+import { MantineProvider, createTheme, px } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import AppLayout from "@/components/AppLayout";
 import Protected from "@/routes/Protected";
@@ -10,7 +10,7 @@ import Servers from "@/pages/Servers/Servers";
 import Users from "@/pages/Users";
 import MapPage from "@/pages/MapPage";
 import Groups from "@/pages/Groups";
-import Settings from "@/pages/Settings";
+import Admins from "@/pages/Admins";
 import NotificationsPage from "@/pages/Notifications";
 import Login from "@/pages/Login";
 import CreateServer from "@/pages/Servers/CreateServer/CreateServer";
@@ -118,7 +118,7 @@ const App: React.FC = () => {
                   <Route path="users" element={<Users />} />
                   <Route path="map" element={<MapPage />} />
                   <Route path="groups" element={<Groups />} />
-                  <Route path="settings" element={<Settings />} />
+                  <Route path="admins" element={<Admins />} />
                   <Route path="notifications" element={<NotificationsPage />} />
                 </Route>
               </Route>

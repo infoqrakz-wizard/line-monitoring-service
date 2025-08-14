@@ -75,6 +75,7 @@ const Servers: React.FC = () => {
       return {
         ...server,
         monitoring: monitoringData?.sections.main || undefined,
+        archiveState: monitoringData?.sections.archiveState || undefined,
         status: monitoringData ? getServerStatus(monitoringData) : "red",
       };
     });
@@ -148,23 +149,29 @@ const Servers: React.FC = () => {
     }
     return (
       <Group gap="xs">
-        <Badge color="dark" size="sm">
-          {Number.isInteger(totalCameras) ? totalCameras : "-"}
-        </Badge>
-        <Badge color="green" size="sm">
-          {workingCameras}
-        </Badge>
-        <Badge color="red" size="sm">
-          {Number.isInteger(enabledWithProblemStream)
-            ? enabledWithProblemStream
-            : "-"}
-        </Badge>
+        <Tooltip label="Камер всего">
+          <Badge color="dark" size="sm">
+            {Number.isInteger(totalCameras) ? totalCameras : "-"}
+          </Badge>
+        </Tooltip>
+        <Tooltip label="Активные">
+          <Badge color="green" size="sm">
+            {workingCameras}
+          </Badge>
+        </Tooltip>
+        {enabledWithProblemStream && (
+          <Tooltip label="С проблемами">
+            <Badge color="red" size="sm">
+              {enabledWithProblemStream}
+            </Badge>
+          </Tooltip>
+        )}
       </Group>
     );
   };
 
   const formatHddStatus = (monitoring?: ServerMonitoringData) => {
-    if (!monitoring) {
+    if (!monitoring || !monitoring.ok) {
       return "-";
     }
 
@@ -263,7 +270,12 @@ const Servers: React.FC = () => {
       />
 
       <div className={classes.desktopTable}>
-        <Table className={classes.table} withTableBorder withColumnBorders>
+        <Table
+          className={classes.table}
+          withTableBorder
+          withColumnBorders
+          striped
+        >
           <Table.Thead className={classes.thead}>
             <Table.Tr className={classes.tr}>
               <Table.Th className={classes.th}>Имя сервера</Table.Th>
@@ -271,54 +283,63 @@ const Servers: React.FC = () => {
               <Table.Th className={classes.th}>Камеры</Table.Th>
               <Table.Th className={classes.th}>HDD</Table.Th>
               <Table.Th className={classes.th}>Uptime</Table.Th>
+              <Table.Th className={classes.th}>Глубина архива</Table.Th>
               <Table.Th className={classes.th}>Действия</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {filtered.map((row) => (
-              <Table.Tr key={row.id}>
-                <Table.Td className={classes.td}>
-                  <Group gap="xs">
-                    <span className={getStatusDotClass(row.status)} />
-                    <strong>{row.name}</strong>
-                  </Group>
-                </Table.Td>
-                <Table.Td
-                  className={classes.td}
-                >{`${row.url}:${row.port}`}</Table.Td>
-                <Table.Td className={classes.td}>
-                  {formatCamerasDisplay(row.monitoring)}
-                </Table.Td>
-                <Table.Td className={classes.td}>
-                  {formatHddStatus(row.monitoring)}
-                </Table.Td>
-                <Table.Td className={classes.td}>
-                  {row.monitoring?.uptime || "-"}
-                </Table.Td>
-                <Table.Td className={classes.td}>
-                  <Group gap="xs">
-                    <Tooltip label="Редактировать">
-                      <ActionButton
-                        className={classes.editIcon}
-                        onClick={() =>
-                          navigate(
-                            `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
-                          )
-                        }
-                      />
-                    </Tooltip>
-                    <Tooltip label="Удалить">
-                      <ActionButton
-                        className={classes.deleteIcon}
-                        onClick={() =>
-                          handleClickDeleteServer(row.url, row.port)
-                        }
-                      />
-                    </Tooltip>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
+            {filtered.map((row) => {
+              const arhiveDatesCount =
+                row.archiveState?.result.state.storages[0].archive.dates_count;
+
+              return (
+                <Table.Tr key={row.id}>
+                  <Table.Td className={classes.td}>
+                    <Group gap="xs">
+                      <span className={getStatusDotClass(row.status)} />
+                      <strong>{row.name}</strong>
+                    </Group>
+                  </Table.Td>
+                  <Table.Td
+                    className={classes.td}
+                  >{`${row.url}:${row.port}`}</Table.Td>
+                  <Table.Td className={classes.td}>
+                    {formatCamerasDisplay(row.monitoring)}
+                  </Table.Td>
+                  <Table.Td className={classes.td}>
+                    {formatHddStatus(row.monitoring)}
+                  </Table.Td>
+                  <Table.Td className={classes.td}>
+                    {row.monitoring?.uptime || "-"}
+                  </Table.Td>
+                  <Table.Td className={classes.td}>
+                    {`${arhiveDatesCount ? `${arhiveDatesCount} д.` : "-"}`}
+                  </Table.Td>
+                  <Table.Td className={classes.td}>
+                    <Group gap="xs">
+                      <Tooltip label="Редактировать">
+                        <ActionButton
+                          className={classes.editIcon}
+                          onClick={() =>
+                            navigate(
+                              `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
+                            )
+                          }
+                        />
+                      </Tooltip>
+                      <Tooltip label="Удалить">
+                        <ActionButton
+                          className={classes.deleteIcon}
+                          onClick={() =>
+                            handleClickDeleteServer(row.url, row.port)
+                          }
+                        />
+                      </Tooltip>
+                    </Group>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })}
           </Table.Tbody>
         </Table>
       </div>
