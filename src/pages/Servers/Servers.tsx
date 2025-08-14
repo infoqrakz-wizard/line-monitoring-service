@@ -1,18 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Stack,
-  Title,
   Group,
   Button,
   SimpleGrid,
-  ActionIcon,
   Tooltip,
   LoadingOverlay,
   Badge,
+  Table,
 } from "@mantine/core";
 import { IconPencil, IconTrash, IconPlus } from "@tabler/icons-react";
-import SearchInput from "@/components/SearchInput";
-import Table from "@/components/Table";
+import SearchInput from "@/components/SearchInput/SearchInput";
 import ServerCard from "@/components/ServerCard";
 import type {
   ServerStatus,
@@ -25,6 +23,8 @@ import Modal from "@/components/Modal/Modal";
 
 import classes from "./Servers.module.css";
 import { useNavigate } from "react-router";
+import ActionButton from "@/components/ActionButton";
+import PageHeader from "@/components/PageHeader";
 
 const Servers: React.FC = () => {
   const [q, setQ] = useState("");
@@ -217,43 +217,42 @@ const Servers: React.FC = () => {
           Ошибка: {error || monitoringError}
         </div>
       )}
-      <div className={classes.header}>
-        <Title order={1} size="h3">
-          Серверы
-        </Title>
-
-        <div className={classes.controlsRowDesktop}>
-          <div className={classes.legendGroup}>
-            <div
-              className={`${classes.legendItem} ${activeFilter === "active" ? classes.activeFilter : ""}`}
-              onClick={() => handleClickFilter("active")}
-            >
-              <span className={classes.dotOnline} />
-              Доступные
+      <PageHeader
+        title="Серверы"
+        rightSide={
+          <div className={classes.controlsRowDesktop}>
+            <div className={classes.legendGroup}>
+              <div
+                className={`${classes.legendItem} ${activeFilter === "active" ? classes.activeFilter : ""}`}
+                onClick={() => handleClickFilter("active")}
+              >
+                <span className={classes.dotOnline} />
+                Доступные
+              </div>
+              <div
+                className={`${classes.legendItem} ${activeFilter === "inactive" ? classes.activeFilter : ""}`}
+                onClick={() => handleClickFilter("inactive")}
+              >
+                <span className={classes.dotOffline} />
+                Выключенные
+              </div>
             </div>
-            <div
-              className={`${classes.legendItem} ${activeFilter === "inactive" ? classes.activeFilter : ""}`}
-              onClick={() => handleClickFilter("inactive")}
+            <Button
+              variant="filled"
+              aria-label="Добавить сервер"
+              leftSection={<IconPlus size={16} />}
+              onClick={() => navigate("/servers/create")}
             >
-              <span className={classes.dotOffline} />
-              Выключенные
-            </div>
+              Добавить сервер
+            </Button>
+            <SearchInput
+              value={q}
+              onChange={setQ}
+              placeholder="Найти сервер..."
+            />
           </div>
-          <Button
-            variant="filled"
-            aria-label="Добавить сервер"
-            leftSection={<IconPlus size={16} />}
-            onClick={() => navigate("/servers/create")}
-          >
-            Добавить сервер
-          </Button>
-          <SearchInput
-            value={q}
-            onChange={setQ}
-            placeholder="Найти сервер..."
-          />
-        </div>
-      </div>
+        }
+      />
 
       <div className={classes.controlsColumnMobile}>
         <SearchInput
@@ -291,77 +290,87 @@ const Servers: React.FC = () => {
       </div>
 
       <div className={classes.desktopTable}>
-        <Table
-          columns={[
-            {
-              key: "name",
-              header: "Имя сервера",
-              render: (row: ServerItemWithMonitoring) => (
-                <Group gap="xs">
-                  <span className={getStatusDotClass(row.status)} />
-                  <strong>{row.name}</strong>
-                </Group>
-              ),
-            },
-            {
-              key: "urlPort",
-              header: "URL:Порт",
-              render: (row: ServerItemWithMonitoring) =>
-                `${row.url}:${row.port}`,
-            },
-            {
-              key: "cameras",
-              header: "Камеры",
-              render: (row: ServerItemWithMonitoring) =>
-                formatCamerasDisplay(row.monitoring),
-            },
-            {
-              key: "hdd",
-              header: "HDD",
-              render: (row: ServerItemWithMonitoring) =>
-                formatHddStatus(row.monitoring),
-            },
-            {
-              key: "uptime",
-              header: "Uptime",
-              render: (row: ServerItemWithMonitoring) =>
-                row.monitoring?.uptime || "-",
-            },
-            {
-              key: "actions",
-              header: "Действия",
-              render: (row: ServerItemWithMonitoring) => (
-                <Group gap="xs">
-                  <Tooltip label="Редактировать">
-                    <ActionIcon
-                      variant="light"
-                      aria-label="Редактировать"
-                      onClick={() =>
-                        navigate(
-                          `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
-                        )
-                      }
-                    >
-                      <IconPencil size={16} />
-                    </ActionIcon>
-                  </Tooltip>
-                  <Tooltip label="Удалить">
-                    <ActionIcon
-                      variant="light"
-                      color="red"
-                      aria-label="Удалить"
-                      onClick={() => handleClickDeleteServer(row.url, row.port)}
-                    >
-                      <IconTrash size={16} />
-                    </ActionIcon>
-                  </Tooltip>
-                </Group>
-              ),
-            },
-          ]}
-          data={filtered}
-          keyField="id"
-        />
+        <Table className={classes.table}>
+          <Table.Thead className={classes.thead}>
+            <Table.Tr className={classes.tr}>
+              <Table.Th className={classes.th}>Имя сервера</Table.Th>
+              <Table.Th className={classes.th}>URL:Порт</Table.Th>
+              <Table.Th className={classes.th}>Камеры</Table.Th>
+              <Table.Th className={classes.th}>HDD</Table.Th>
+              <Table.Th className={classes.th}>Uptime</Table.Th>
+              <Table.Th className={classes.th}>Действия</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {filtered.map((row) => (
+              <Table.Tr key={row.id}>
+                <Table.Td className={classes.td}>
+                  <Group gap="xs">
+                    <span className={getStatusDotClass(row.status)} />
+                    <strong>{row.name}</strong>
+                  </Group>
+                </Table.Td>
+                <Table.Td
+                  className={classes.td}
+                >{`${row.url}:${row.port}`}</Table.Td>
+                <Table.Td className={classes.td}>
+                  {formatCamerasDisplay(row.monitoring)}
+                </Table.Td>
+                <Table.Td className={classes.td}>
+                  {formatHddStatus(row.monitoring)}
+                </Table.Td>
+                <Table.Td className={classes.td}>
+                  {row.monitoring?.uptime || "-"}
+                </Table.Td>
+                <Table.Td className={classes.td}>
+                  <Group gap="xs">
+                    <Tooltip label="Редактировать">
+                      <ActionButton
+                        onClick={() =>
+                          navigate(
+                            `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
+                          )
+                        }
+                      >
+                        <IconPencil size={24} />
+                      </ActionButton>
+                      {/* <ActionIcon
+                        variant="light"
+                        aria-label="Редактировать"
+                        onClick={() =>
+                          navigate(
+                            `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
+                          )
+                        }
+                      >
+                        <IconPencil size={16} />
+                      </ActionIcon> */}
+                    </Tooltip>
+                    <Tooltip label="Удалить">
+                      <ActionButton
+                        onClick={() =>
+                          handleClickDeleteServer(row.url, row.port)
+                        }
+                      >
+                        <IconTrash size={24} />
+                      </ActionButton>
+                      {/* <ActionIcon
+                        variant="light"
+                        color="red"
+                        aria-label="Удалить"
+                        onClick={() =>
+                          handleClickDeleteServer(row.url, row.port)
+                        }
+                      >
+                        <IconTrash size={16} />
+                      </ActionIcon> */}
+                    </Tooltip>
+                  </Group>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
       </div>
 
       <div className={classes.mobileCards}>
@@ -390,11 +399,21 @@ const Servers: React.FC = () => {
           setSelectedServer(null);
         }}
       >
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-          <Button variant="subtle" onClick={() => {
-            setIsRemoveModalOpen(false);
-            setSelectedServer(null);
-          }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            justifyContent: "flex-end",
+            marginTop: "16px",
+          }}
+        >
+          <Button
+            variant="subtle"
+            onClick={() => {
+              setIsRemoveModalOpen(false);
+              setSelectedServer(null);
+            }}
+          >
             Отмена
           </Button>
           <Button color="red" onClick={handleDeleteServer}>

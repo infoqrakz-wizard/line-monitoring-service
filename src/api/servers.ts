@@ -8,6 +8,10 @@ export type CreateServerRequest = {
   password: string;
   name: string;
   enabled: boolean;
+  maps: {
+    x: number;
+    y: number;
+  };
 };
 
 export type UpdateServerRequest = Partial<CreateServerRequest>;
@@ -73,6 +77,6 @@ export const deleteServer = async (
   url: string,
   port: number,
 ): Promise<void> => {
-  const query = buildQueryString({ urlPort: buildUrlPort(url, port) });
-  await request.delete<void>(`/servers${query}`);
+  // const query = buildQueryString({ urlPort: buildUrlPort(url, port) });
+  await request.delete<void>(`/servers?urlPort=${url}:${port}`);
 };

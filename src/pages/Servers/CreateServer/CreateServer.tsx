@@ -23,6 +23,10 @@ export type CreateServerFormData = {
   password: string;
   ipAddress: string;
   port: number | "";
+  maps: {
+    x: number;
+    y: number;
+  };
 };
 
 const CreateServer: React.FC = () => {
@@ -40,6 +44,10 @@ const CreateServer: React.FC = () => {
     password: "",
     ipAddress: "",
     port: "",
+    maps: {
+      x: 0,
+      y: 0,
+    },
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +74,7 @@ const CreateServer: React.FC = () => {
         password: "",
         ipAddress: fromStore.url,
         port: fromStore.port,
+        maps: fromStore.maps,
       });
       return;
     }
@@ -79,6 +88,7 @@ const CreateServer: React.FC = () => {
           password: "",
           ipAddress: server.url,
           port: server.port,
+          maps: server.maps,
         });
       })
       .catch(() => {
@@ -123,6 +133,7 @@ const CreateServer: React.FC = () => {
         username: formData.login,
         password: formData.password,
         enabled: true,
+        maps: formData.maps,
       });
       void navigate("/servers");
     } catch (error) {
@@ -143,6 +154,19 @@ const CreateServer: React.FC = () => {
       }
       setError("Не удалось создать сервер");
     }
+  };
+
+  const handleMapsChange = (
+    field: keyof CreateServerFormData["maps"],
+    value: string | number,
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      maps: {
+        ...prev.maps,
+        [field]: value,
+      },
+    }));
   };
 
   const handleUpdateServer = async () => {
@@ -197,16 +221,22 @@ const CreateServer: React.FC = () => {
   const isFormValid = isEditMode
     ? Boolean(
         formData.serverName.trim() &&
+          !formData.serverName.includes(":") &&
           formData.login.trim() &&
           formData.ipAddress.trim() &&
-          formData.port !== "",
+          formData.port !== "" &&
+          formData.maps?.x !== 0 &&
+          formData.maps?.y !== 0,
       )
     : Boolean(
         formData.serverName.trim() &&
+          !formData.serverName.includes(":") &&
           formData.login.trim() &&
           formData.password.trim() &&
           formData.ipAddress.trim() &&
-          formData.port !== "",
+          formData.port !== "" &&
+          formData.maps?.x !== 0 &&
+          formData.maps?.y !== 0,
       );
 
   return (
@@ -244,6 +274,27 @@ const CreateServer: React.FC = () => {
           />
 
           <TextInput
+            label="URL или IP-адрес"
+            placeholder="Введите URL или IP-адрес"
+            value={formData.ipAddress}
+            onChange={(e) => handleInputChange("ipAddress", e.target.value)}
+            required
+            size="md"
+          />
+
+          <NumberInput
+            label="Порт"
+            placeholder="Введите порт"
+            value={formData.port}
+            onChange={(value) => handleInputChange("port", value || "")}
+            required
+            hideControls
+            size="md"
+            min={1}
+            max={65535}
+          />
+
+          <TextInput
             label="Логин"
             placeholder="Введите логин"
             value={formData.login}
@@ -263,20 +314,22 @@ const CreateServer: React.FC = () => {
             size="md"
           />
 
-          <TextInput
-            label="URL или IP-адрес"
-            placeholder="Введите URL или IP-адрес"
-            value={formData.ipAddress}
-            onChange={(e) => handleInputChange("ipAddress", e.target.value)}
-            required
-            size="md"
-          />
-
           <NumberInput
-            label="Порт"
-            placeholder="Введите порт"
-            value={formData.port}
-            onChange={(value) => handleInputChange("port", value || "")}
+            label="Координаты (x)"
+            placeholder="Введите координату x"
+            value={formData.maps.x}
+            onChange={(value) => handleMapsChange("x", value || "")}
+            required
+            hideControls
+            size="md"
+            min={1}
+            max={65535}
+          />
+          <NumberInput
+            label="Координаты (y)"
+            placeholder="Введите координату y"
+            value={formData.maps.y}
+            onChange={(value) => handleMapsChange("y", value || "")}
             required
             hideControls
             size="md"

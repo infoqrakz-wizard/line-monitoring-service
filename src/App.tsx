@@ -17,6 +17,7 @@ import CreateServer from "@/pages/Servers/CreateServer/CreateServer";
 import { WsProvider } from "@/ws/WsProvider";
 
 import "@mantine/core/styles.css";
+import "modern-css-reset/dist/reset.min.css";
 
 const queryClient = new QueryClient();
 

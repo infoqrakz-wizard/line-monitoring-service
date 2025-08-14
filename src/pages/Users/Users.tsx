@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useMemo, useState } from "react";
 import { Button, Checkbox, Stack, Title, Tabs } from "@mantine/core";
 import { IconPlus, IconTrash, IconEdit } from "@tabler/icons-react";
-import SearchInput from "@/components/SearchInput";
+import SearchInput from "@/components/SearchInput/SearchInput";
 import { useUsersStore } from "@/store/users";
 import { AddUserModal, UserData } from "@/components/AddUserModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal/DeleteConfirmModal";
@@ -368,11 +368,11 @@ const Users: FC = () => {
 
         <Tabs.Panel value="users">
           <div className={classes.topBar}>
-            <Checkbox
+            {/* <Checkbox
               label="Выбрать всех"
               onChange={(e) => handleToggleAll(e.currentTarget.checked)}
               disabled={deleteLoading}
-            />
+            /> */}
             {/* <Button
               leftSection={<IconTrash size={16} />}
               variant="light"
@@ -405,14 +405,14 @@ const Users: FC = () => {
                 className={`${classes.col} ${classes.userCol}`}
                 role="columnheader"
               >
-                Пользователь (логин)
+                Пользователь
               </div>
-              <div
+              {/* <div
                 className={`${classes.col} ${classes.serverCol}`}
                 role="columnheader"
               >
                 Сервер
-              </div>
+              </div> */}
               <div
                 className={`${classes.col} ${classes.actionsCol}`}
                 role="columnheader"
@@ -423,10 +423,10 @@ const Users: FC = () => {
             </div>
 
             {filtered.map((u) => {
-              const isSelected = selectedIds.has(u.id);
+              // const isSelected = selectedIds.has(u.id);
               return (
                 <div key={u.id} className={classes.row} role="row">
-                  <div
+                  {/* <div
                     className={`${classes.col} ${classes.inputCol}`}
                     role="cell"
                   >
@@ -438,7 +438,7 @@ const Users: FC = () => {
                       aria-label={`Выбрать пользователя ${u.login}`}
                       disabled={u.deletable === false || deleteLoading}
                     />
-                  </div>
+                  </div> */}
 
                   <div
                     className={`${classes.col} ${classes.userCol}`}
@@ -464,7 +464,7 @@ const Users: FC = () => {
                     className={`${classes.col} ${classes.serverCol}`}
                     role="cell"
                   >
-                    {renderServers(u)}
+                    {/* {renderServers(u)} */}
                   </div>
 
                   <div

@@ -25,7 +25,7 @@ export type ServerItem = {
   maps: {
     x: number;
     y: number;
-  } | null;
+  };
   date_update: string;
 };
 
