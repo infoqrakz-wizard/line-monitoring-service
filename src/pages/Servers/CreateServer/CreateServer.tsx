@@ -16,6 +16,7 @@ import { useServersStore } from "@/store/servers";
 import { parseApiError } from "@/lib/request";
 import { getServer as apiGetServer } from "@/api/servers";
 import type { ServerItem } from "@/types";
+import PageHeader from "@/components/PageHeader";
 
 export type CreateServerFormData = {
   serverName: string;
@@ -23,7 +24,7 @@ export type CreateServerFormData = {
   password: string;
   ipAddress: string;
   port: number | "";
-  maps: {
+  maps?: {
     x: number;
     y: number;
   };
@@ -80,7 +81,13 @@ const CreateServer: React.FC = () => {
     }
     setIsLoadingDetails(true);
     apiGetServer(urlParam, portNum)
-      .then((server) => {
+      .then((data) => {
+        const server = data.servers[0];
+        if (!server) {
+          setError("Сервер не найден");
+          return;
+        }
+
         setOriginalServer(server);
         setFormData({
           serverName: server.name,
@@ -156,17 +163,22 @@ const CreateServer: React.FC = () => {
     }
   };
 
-  const handleMapsChange = (
-    field: keyof CreateServerFormData["maps"],
-    value: string | number,
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      maps: {
-        ...prev.maps,
-        [field]: value,
-      },
-    }));
+  const handleMapsChange = (field: "x" | "y", value: string | number) => {
+    setFormData((prev) => {
+      const updatedMaps = prev.maps
+        ? { ...prev.maps }
+        : {
+            x: 0,
+            y: 0,
+          };
+      return {
+        ...prev,
+        maps: {
+          ...updatedMaps,
+          [field]: value,
+        },
+      };
+    });
   };
 
   const handleUpdateServer = async () => {
@@ -240,15 +252,11 @@ const CreateServer: React.FC = () => {
       );
 
   return (
-    <div className={classes.container} style={{ position: "relative" }}>
+    <div>
       {isEditMode && (
         <LoadingOverlay visible={isLoadingDetails} zIndex={1000} />
       )}
-      <div className={classes.header}>
-        <Title order={1} size="h3">
-          Серверы
-        </Title>
-      </div>
+      <PageHeader title="Сервер" />
 
       <div className={classes.subHeader}>
         <button
@@ -264,78 +272,103 @@ const CreateServer: React.FC = () => {
       </div>
       <form onSubmit={handleSubmit} className={classes.form}>
         <Stack gap="md">
-          <TextInput
-            label="Имя сервера"
-            placeholder="Введите имя сервера"
-            value={formData.serverName}
-            onChange={(e) => handleInputChange("serverName", e.target.value)}
-            required
-            size="md"
-          />
+          <div className={classes.formField}>
+            <label className={classes.formFieldLabel}>Имя сервера</label>
+            <div className={classes.formFieldInput}>
+              <TextInput
+                value={formData.serverName}
+                onChange={(e) =>
+                  handleInputChange("serverName", e.target.value)
+                }
+                required
+                size="md"
+              />
+            </div>
+          </div>
 
-          <TextInput
-            label="URL или IP-адрес"
-            placeholder="Введите URL или IP-адрес"
-            value={formData.ipAddress}
-            onChange={(e) => handleInputChange("ipAddress", e.target.value)}
-            required
-            size="md"
-          />
+          <div className={classes.formField}>
+            <label className={classes.formFieldLabel}>URL или IP-адрес</label>
+            <div className={classes.formFieldInput}>
+              <TextInput
+                value={formData.ipAddress}
+                onChange={(e) => handleInputChange("ipAddress", e.target.value)}
+                required
+                size="md"
+              />
+            </div>
+          </div>
 
-          <NumberInput
-            label="Порт"
-            placeholder="Введите порт"
-            value={formData.port}
-            onChange={(value) => handleInputChange("port", value || "")}
-            required
-            hideControls
-            size="md"
-            min={1}
-            max={65535}
-          />
+          <div className={classes.formField}>
+            <label className={classes.formFieldLabel}>Порт</label>
+            <div className={classes.formFieldInput}>
+              <NumberInput
+                value={formData.port}
+                onChange={(value) => handleInputChange("port", value || "")}
+                required
+                hideControls
+                size="md"
+                min={1}
+                max={65535}
+              />
+            </div>
+          </div>
 
-          <TextInput
-            label="Логин"
-            placeholder="Введите логин"
-            value={formData.login}
-            onChange={(e) => handleInputChange("login", e.target.value)}
-            required
-            size="md"
-          />
+          <div className={classes.formField}>
+            <label className={classes.formFieldLabel}>Логин</label>
+            <div className={classes.formFieldInput}>
+              <TextInput
+                value={formData.login}
+                onChange={(e) => handleInputChange("login", e.target.value)}
+                required
+                size="md"
+              />
+            </div>
+          </div>
 
-          <PasswordInput
-            label="Пароль"
-            placeholder={
-              isEditMode ? "Оставьте пустым, чтобы не менять" : "Введите пароль"
-            }
-            value={formData.password}
-            onChange={(e) => handleInputChange("password", e.target.value)}
-            required={!isEditMode}
-            size="md"
-          />
+          <div className={classes.formField}>
+            <label className={classes.formFieldLabel}>Пароль</label>
+            <div className={classes.formFieldInput}>
+              <PasswordInput
+                placeholder={
+                  isEditMode ? "Оставьте пустым, чтобы не менять" : ""
+                }
+                value={formData.password}
+                onChange={(e) => handleInputChange("password", e.target.value)}
+                required={!isEditMode}
+                size="md"
+              />
+            </div>
+          </div>
 
-          <NumberInput
-            label="Координаты (x)"
-            placeholder="Введите координату x"
-            value={formData.maps.x}
-            onChange={(value) => handleMapsChange("x", value || "")}
-            required
-            hideControls
-            size="md"
-            min={1}
-            max={65535}
-          />
-          <NumberInput
-            label="Координаты (y)"
-            placeholder="Введите координату y"
-            value={formData.maps.y}
-            onChange={(value) => handleMapsChange("y", value || "")}
-            required
-            hideControls
-            size="md"
-            min={1}
-            max={65535}
-          />
+          <div className={classes.formField}>
+            <label className={classes.formFieldLabel}>Координаты (x)</label>
+            <div className={classes.formFieldInput}>
+              <NumberInput
+                value={formData.maps?.x}
+                onChange={(value) => handleMapsChange("x", value || "")}
+                required
+                hideControls
+                size="md"
+                min={1}
+                max={65535}
+              />
+            </div>
+          </div>
+
+          <div className={classes.formField}>
+            <label className={classes.formFieldLabel}>Координаты (y)</label>
+            <div className={classes.formFieldInput}>
+              <NumberInput
+                value={formData.maps?.y}
+                onChange={(value) => handleMapsChange("y", value || "")}
+                required
+                hideControls
+                size="md"
+                min={1}
+                max={65535}
+              />
+            </div>
+          </div>
 
           {error && (
             <Text c="red" size="sm" role="alert">

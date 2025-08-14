@@ -5,7 +5,7 @@ export default function PageHeader({
   rightSide,
   title,
 }: {
-  rightSide: React.ReactNode;
+  rightSide?: React.ReactNode;
   title: string;
 }) {
   return (

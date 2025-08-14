@@ -129,7 +129,7 @@ const AppLayout: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    void navigate("/login");
   };
 
   const handleOverlayClick = () => {

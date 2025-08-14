@@ -8,7 +8,7 @@ export type CreateServerRequest = {
   password: string;
   name: string;
   enabled: boolean;
-  maps: {
+  maps?: {
     x: number;
     y: number;
   };
@@ -53,9 +53,9 @@ export const listServers = async (
 export const getServer = async (
   url: string,
   port: number,
-): Promise<ServerItem> => {
+): Promise<PaginatedResponse<ServerItem>> => {
   const query = buildQueryString({ urlPort: buildUrlPort(url, port) });
-  return request.get<ServerItem>(`/servers${query}`);
+  return request.get<PaginatedResponse<ServerItem>>(`/servers${query}`);
 };
 
 export const createServer = async (
