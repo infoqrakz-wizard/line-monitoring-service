@@ -201,9 +201,6 @@ const ServerInfo: React.FC = () => {
         <Title order={1}>
           {url}:{port}
         </Title>
-        <Button variant="black" leftSection={<IconVideo size={20} />}>
-          Показать график
-        </Button>
       </div>
 
       <div className={classes.content}>

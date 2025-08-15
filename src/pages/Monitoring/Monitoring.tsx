@@ -59,15 +59,39 @@ const Monitoring: React.FC = () => {
           await deleteDowntimeEvent(deleteTarget.data.id);
         }
       } else if (deleteTarget.type === "all") {
-        // Delete all events by URL/port combinations
-        const uniqueCombinations = Array.from(
-          new Set(downtimeEvents.map((event) => `${event.url}:${event.port}`)),
-        );
+        // Delete all events based on current filter
+        if (view === "current") {
+          // Delete only current (active) problems - those with up_at === null
+          const currentProblems = downtimeEvents.filter(
+            (event) => event.up_at === null,
+          );
+          const uniqueCombinations = Array.from(
+            new Set(
+              currentProblems.map((event) => `${event.url}:${event.port}`),
+            ),
+          );
 
-        for (const combination of uniqueCombinations) {
-          const [url, portStr] = combination.split(":");
-          const port = parseInt(portStr, 10);
-          await deleteDowntimeByUrlPort(url, port);
+          for (const combination of uniqueCombinations) {
+            const [url, portStr] = combination.split(":");
+            const port = parseInt(portStr, 10);
+            await deleteDowntimeByUrlPort(url, port);
+          }
+        } else if (view === "postponed") {
+          // Delete only postponed problems - those with up_at !== null
+          const postponedProblems = downtimeEvents.filter(
+            (event) => event.up_at !== null,
+          );
+          const uniqueCombinations = Array.from(
+            new Set(
+              postponedProblems.map((event) => `${event.url}:${event.port}`),
+            ),
+          );
+
+          for (const combination of uniqueCombinations) {
+            const [url, portStr] = combination.split(":");
+            const port = parseInt(portStr, 10);
+            await deleteDowntimeByUrlPort(url, port);
+          }
         }
 
         clearDowntimeEvents();
@@ -160,6 +184,14 @@ const Monitoring: React.FC = () => {
     if (deleteTarget?.type === "single") {
       return `Удалить проблему с сервером ${deleteTarget.data?.server}?`;
     }
+
+    // Show specific message based on current filter
+    if (view === "current") {
+      return "Удалить все актуальные проблемы?";
+    } else if (view === "postponed") {
+      return "Удалить все отложенные проблемы?";
+    }
+
     return "Удалить все проблемы?";
   };
 

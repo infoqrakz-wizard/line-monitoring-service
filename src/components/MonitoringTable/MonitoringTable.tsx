@@ -36,10 +36,18 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
           <button
             className={classes.deleteAllBtn}
             onClick={onDeleteAll}
-            title="Удалить все"
-            aria-label="Удалить все проблемы"
+            title={
+              isPostponed
+                ? "Удалить все отложенные проблемы"
+                : "Удалить все актуальные проблемы"
+            }
+            aria-label={
+              isPostponed
+                ? "Удалить все отложенные проблемы"
+                : "Удалить все актуальные проблемы"
+            }
           >
-            Удалить все
+            {isPostponed ? "Удалить все отложенные" : "Удалить все актуальные"}
           </button>
         </div>
       )}
