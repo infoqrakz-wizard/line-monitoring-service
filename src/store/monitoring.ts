@@ -19,6 +19,7 @@ export type MonitoringState = {
     sc: string;
   }[];
   downtimeEvents: DowntimeEvent[];
+  allDowntimeEvents: DowntimeEvent[]; // New property for all events
   page: number;
   pageSize: number;
   pages: number;
@@ -37,15 +38,18 @@ export type MonitoringState = {
   setUsers: (users: User[]) => void;
   clearError: () => void;
   fetchDowntimeEvents: (filter: DowntimeFilter) => Promise<void>;
+  fetchAllDowntimeEvents: () => Promise<void>; // New method
   deleteDowntimeEvent: (id: number) => Promise<void>;
   deleteDowntimeByUrlPort: (url: string, port: number) => Promise<void>;
   clearDowntimeEvents: () => void;
+  refreshAllDowntimeEvents: () => Promise<void>; // New method
 };
 
 export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   servers: [],
   users: [],
   downtimeEvents: [],
+  allDowntimeEvents: [], // Initialize new property
   page: 1,
   pageSize: 50,
   pages: 1,
@@ -302,12 +306,61 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     }
   },
 
+  fetchAllDowntimeEvents: async () => {
+    try {
+      set({
+        loading: true,
+        error: null,
+      });
+      
+      // Fetch both current and completed issues
+      const [currentEvents, completedEvents] = await Promise.all([
+        downtime.query({ filter: "servers_down" }),
+        downtime.query({ filter: "completed" })
+      ]);
+      
+      // Combine all events for summary statistics
+      const allEvents = [...currentEvents.data, ...completedEvents.data];
+      
+      set({
+        allDowntimeEvents: allEvents,
+        loading: false,
+      });
+    } catch (error) {
+      console.error("Failed to fetch all downtime events:", error);
+      set({
+        error: "Ошибка загрузки событий простоя",
+        loading: false,
+      });
+    }
+  },
+
+  // Refresh all events after deletions
+  refreshAllDowntimeEvents: async () => {
+    try {
+      const [currentEvents, completedEvents] = await Promise.all([
+        downtime.query({ filter: "servers_down" }),
+        downtime.query({ filter: "completed" })
+      ]);
+      
+      const allEvents = [...currentEvents.data, ...completedEvents.data];
+      set({ allDowntimeEvents: allEvents });
+    } catch (error) {
+      console.error("Failed to refresh all downtime events:", error);
+    }
+  },
+
   deleteDowntimeEvent: async (id: number) => {
     try {
       await downtime.delete({ id });
       const currentEvents = get().downtimeEvents;
+      const allEvents = get().allDowntimeEvents;
       const updatedEvents = currentEvents.filter((event) => event.id !== id);
-      set({ downtimeEvents: updatedEvents });
+      const updatedAllEvents = allEvents.filter((event) => event.id !== id);
+      set({ 
+        downtimeEvents: updatedEvents,
+        allDowntimeEvents: updatedAllEvents 
+      });
     } catch (error) {
       console.error("Failed to delete downtime event:", error);
       set({ error: "Ошибка удаления события простоя" });
@@ -321,10 +374,17 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         port,
       });
       const currentEvents = get().downtimeEvents;
+      const allEvents = get().allDowntimeEvents;
       const updatedEvents = currentEvents.filter(
         (event) => !(event.url === url && event.port === port),
       );
-      set({ downtimeEvents: updatedEvents });
+      const updatedAllEvents = allEvents.filter(
+        (event) => !(event.url === url && event.port === port),
+      );
+      set({ 
+        downtimeEvents: updatedEvents,
+        allDowntimeEvents: updatedAllEvents 
+      });
     } catch (error) {
       console.error("Failed to delete downtime events by URL/port:", error);
       set({ error: "Ошибка удаления событий простоя" });
@@ -332,6 +392,6 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   },
 
   clearDowntimeEvents: () => {
-    set({ downtimeEvents: [] });
+    set({ downtimeEvents: [], allDowntimeEvents: [] });
   },
 }));

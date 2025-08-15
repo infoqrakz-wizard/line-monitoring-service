@@ -22,14 +22,22 @@ const Monitoring: React.FC = () => {
 
   const {
     downtimeEvents,
+    allDowntimeEvents,
     error,
     fetchDowntimeEvents,
+    fetchAllDowntimeEvents,
+    refreshAllDowntimeEvents,
     deleteDowntimeEvent,
     deleteDowntimeByUrlPort,
     clearDowntimeEvents,
   } = useMonitoringStore();
 
-  // Fetch data when view changes
+  // Fetch all data when component mounts
+  useEffect(() => {
+    void fetchAllDowntimeEvents();
+  }, [fetchAllDowntimeEvents]);
+
+  // Fetch filtered data when view changes
   useEffect(() => {
     const filter = view === "current" ? "servers_down" : "completed";
     void fetchDowntimeEvents(filter);
@@ -57,6 +65,8 @@ const Monitoring: React.FC = () => {
       if (deleteTarget.type === "single" && deleteTarget.data) {
         if (deleteTarget.data.id) {
           await deleteDowntimeEvent(deleteTarget.data.id);
+          // Refresh all events to update summary statistics
+          void refreshAllDowntimeEvents();
         }
       } else if (deleteTarget.type === "all") {
         // Delete all events based on current filter
@@ -95,6 +105,8 @@ const Monitoring: React.FC = () => {
         }
 
         clearDowntimeEvents();
+        // Refresh all events to update summary statistics
+        void refreshAllDowntimeEvents();
       }
     } catch (error) {
       console.error("Failed to delete:", error);
@@ -172,12 +184,12 @@ const Monitoring: React.FC = () => {
       .includes(query.toLowerCase()),
   );
 
-  // Calculate summary data
+  // Calculate summary data using all events for current statistics
   const summary = {
-    servers: downtimeEvents?.filter((e) => e.type === null).length || 0,
-    cameras: downtimeEvents?.filter((e) => e.type === "2").length || 0,
-    postponed: downtimeEvents?.filter((e) => e.up_at !== null).length || 0,
-    current: downtimeEvents?.filter((e) => e.up_at === null).length || 0,
+    servers: allDowntimeEvents?.filter((e) => e.type === null).length || 0,
+    cameras: allDowntimeEvents?.filter((e) => e.type === "2").length || 0,
+    postponed: allDowntimeEvents?.filter((e) => e.up_at !== null).length || 0,
+    current: allDowntimeEvents?.filter((e) => e.up_at === null).length || 0,
   };
 
   const getDeleteMessage = () => {
