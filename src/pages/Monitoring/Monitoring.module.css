@@ -1,32 +1,47 @@
 /* Desktop styles (default) */
 .container {
-  padding: 20px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .header {
-  margin-bottom: 20px;
+  margin-bottom: 32px;
+}
+
+.errorAlert {
+  margin-bottom: 24px;
 }
 
 /* Tablet styles */
 @media (max-width: 1024px) {
   .container {
-    padding: 15px;
+    padding: 20px;
   }
   
   .header {
-    margin-bottom: 16px;
-    padding: 16px;
+    margin-bottom: 28px;
+  }
+  
+  .errorAlert {
+    margin-bottom: 20px;
   }
 }
 
 /* Mobile styles */
 @media (max-width: 767px) {
   .container {
-    padding: 12px;
+    padding: 16px;
   }
   
   .header {
-    margin-bottom: 12px;
-    padding: 12px;
+    margin-bottom: 24px;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .errorAlert {
+    margin-bottom: 16px;
   }
 }

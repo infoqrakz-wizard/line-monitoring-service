@@ -121,3 +121,37 @@ export type ServerItemWithMonitoring = ServerItem & {
   archiveState?: ArchiveState;
   status?: ServerStatus;
 };
+
+export type DowntimeEventResponse = {
+  data: DowntimeEvent[];
+  meta: {
+    page: number;
+    pageSize: number;
+    pages: number;
+    total: number;
+  };
+};
+
+// Downtime event types
+export type DowntimeEvent = {
+  id: number;
+  url: string;
+  port: number;
+  down_at: string;
+  up_at: string | null;
+  acknowledged: boolean;
+  comment: string;
+  type: string | null;
+};
+
+export type DowntimeFilter = "servers_down" | "cameras_down" | "completed";
+
+export type DowntimeQueryRequest = {
+  filter: DowntimeFilter;
+};
+
+export type DowntimeDeleteRequest = {
+  id?: number;
+  url?: string;
+  port?: number;
+};

@@ -6,7 +6,10 @@ import type {
   UnsubscribeRequest,
   ServerStatus,
   User,
+  DowntimeEvent,
+  DowntimeFilter,
 } from "@/types";
+import { downtime } from "@/api";
 
 export type MonitoringState = {
   servers: ServerWithMonitoring[];
@@ -15,6 +18,11 @@ export type MonitoringState = {
     name: string;
     sc: string;
   }[];
+  downtimeEvents: DowntimeEvent[];
+  page: number;
+  pageSize: number;
+  pages: number;
+  total: number;
   loading: boolean;
   error: string | null;
   socket: WebSocket | null;
@@ -26,11 +34,20 @@ export type MonitoringState = {
   getServerStatus: (server: ServerWithMonitoring) => ServerStatus;
   setUsers: (users: User[]) => void;
   clearError: () => void;
+  fetchDowntimeEvents: (filter: DowntimeFilter) => Promise<void>;
+  deleteDowntimeEvent: (id: number) => Promise<void>;
+  deleteDowntimeByUrlPort: (url: string, port: number) => Promise<void>;
+  clearDowntimeEvents: () => void;
 };
 
 export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   servers: [],
   users: [],
+  downtimeEvents: [],
+  page: 1,
+  pageSize: 50,
+  pages: 1,
+  total: 0,
   loading: false,
   error: null,
   socket: null,
@@ -207,4 +224,61 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  fetchDowntimeEvents: async (filter: DowntimeFilter) => {
+    try {
+      set({
+        loading: true,
+        error: null,
+      });
+      const events = await downtime.query({ filter });
+      set({
+        downtimeEvents: events.data,
+        page: events.meta.page,
+        pageSize: events.meta.pageSize,
+        pages: events.meta.pages,
+        total: events.meta.total,
+        loading: false,
+      });
+    } catch (error) {
+      console.error("Failed to fetch downtime events:", error);
+      set({
+        error: "Ошибка загрузки событий простоя",
+        loading: false,
+      });
+    }
+  },
+
+  deleteDowntimeEvent: async (id: number) => {
+    try {
+      await downtime.delete({ id });
+      const currentEvents = get().downtimeEvents;
+      const updatedEvents = currentEvents.filter((event) => event.id !== id);
+      set({ downtimeEvents: updatedEvents });
+    } catch (error) {
+      console.error("Failed to delete downtime event:", error);
+      set({ error: "Ошибка удаления события простоя" });
+    }
+  },
+
+  deleteDowntimeByUrlPort: async (url: string, port: number) => {
+    try {
+      await downtime.delete({
+        url,
+        port,
+      });
+      const currentEvents = get().downtimeEvents;
+      const updatedEvents = currentEvents.filter(
+        (event) => !(event.url === url && event.port === port),
+      );
+      set({ downtimeEvents: updatedEvents });
+    } catch (error) {
+      console.error("Failed to delete downtime events by URL/port:", error);
+      set({ error: "Ошибка удаления событий простоя" });
+    }
+  },
+
+  clearDowntimeEvents: () => {
+    set({ downtimeEvents: [] });
+  },
 }));

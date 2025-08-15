@@ -1,5 +1,6 @@
 import * as servers from "./servers";
 import * as users from "./user";
+import { downtime } from "./downtime";
 
 export { servers };
 export type {
@@ -14,3 +15,11 @@ export type {
   UpdateAdminRequest,
   PaginatedAdminsResponse,
 } from "./user";
+export { downtime };
+export type {
+  DowntimeEvent,
+  DowntimeEventResponse,
+  DowntimeFilter,
+  DowntimeQueryRequest,
+  DowntimeDeleteRequest,
+} from "@/types";

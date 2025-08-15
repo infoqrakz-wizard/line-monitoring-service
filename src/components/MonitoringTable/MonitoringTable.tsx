@@ -2,24 +2,28 @@ import React from "react";
 import classes from "./MonitoringTable.module.css";
 
 export type ProblemRow = {
+  id: number;
   time: string;
   server: string;
   node: string;
-  severity: "critical" | "non-critical";
   duration: string;
   endTime?: string; // for postponed
+  url: string;
+  port: number;
 };
 
 export type MonitoringTableProps = {
   type: "current" | "postponed";
   rows: ProblemRow[];
   onDelete?: (row: ProblemRow) => void;
+  onDeleteAll?: () => void;
 };
 
 const MonitoringTable: React.FC<MonitoringTableProps> = ({
   type,
   rows,
   onDelete,
+  onDeleteAll,
 }) => {
   const isPostponed = type === "postponed";
 
@@ -27,6 +31,19 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
     <div
       className={`${classes.table} ${isPostponed ? classes.postponed : classes.current}`}
     >
+      {rows.length > 0 && onDeleteAll && (
+        <div className={classes.actions}>
+          <button
+            className={classes.deleteAllBtn}
+            onClick={onDeleteAll}
+            title="Удалить все"
+            aria-label="Удалить все проблемы"
+          >
+            Удалить все
+          </button>
+        </div>
+      )}
+
       <div
         className={classes.list}
         role="table"
@@ -46,9 +63,6 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
               </div>
               <div className={classes.headerCell} role="columnheader">
                 Узел
-              </div>
-              <div className={classes.headerCell} role="columnheader">
-                Важность
               </div>
               <div className={classes.headerCell} role="columnheader">
                 Длительность
@@ -71,11 +85,13 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                 Узел
               </div>
               <div className={classes.headerCell} role="columnheader">
-                Важность
-              </div>
-              <div className={classes.headerCell} role="columnheader">
                 Длительность
               </div>
+              <div
+                className={classes.headerCell}
+                role="columnheader"
+                aria-hidden="true"
+              />
             </>
           )}
         </div>
@@ -93,45 +109,30 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                     className={`${classes.field} ${classes.fStart}`}
                     role="cell"
                   >
-                    <span className={classes.label}>Начало</span>
                     <span className={classes.value}>{r.time}</span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fEnd}`}
                     role="cell"
                   >
-                    <span className={classes.label}>Окончание</span>
                     <span className={classes.value}>{r.endTime ?? "-"}</span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fServer}`}
                     role="cell"
                   >
-                    <span className={classes.label}>Сервер</span>
                     <span className={classes.value}>{r.server}</span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fNode}`}
                     role="cell"
                   >
-                    <span className={classes.label}>Узел</span>
                     <span className={classes.value}>{r.node}</span>
-                  </div>
-                  <div
-                    className={`${classes.field} ${classes.fSeverity} ${r.severity === "critical" ? classes.critical : classes.nonCritical}`}
-                    role="cell"
-                  >
-                    <span className={classes.label}>Важность</span>
-                    <span className={classes.value}>
-                      <span className={classes.icon} />
-                      {r.severity === "critical" ? "критично" : "некритично"}
-                    </span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fDuration}`}
                     role="cell"
                   >
-                    <span className={classes.label}>Длительность</span>
                     <span className={classes.value}>{r.duration}</span>
                   </div>
                   <div
@@ -152,39 +153,36 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                     className={`${classes.field} ${classes.fTime}`}
                     role="cell"
                   >
-                    <span className={classes.label}>Время</span>
                     <span className={classes.value}>{r.time}</span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fServer}`}
                     role="cell"
                   >
-                    <span className={classes.label}>Сервер</span>
                     <span className={classes.value}>{r.server}</span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fNode}`}
                     role="cell"
                   >
-                    <span className={classes.label}>Узел</span>
                     <span className={classes.value}>{r.node}</span>
-                  </div>
-                  <div
-                    className={`${classes.field} ${classes.fSeverity} ${r.severity === "critical" ? classes.critical : classes.nonCritical}`}
-                    role="cell"
-                  >
-                    <span className={classes.label}>Важность</span>
-                    <span className={classes.value}>
-                      <span className={classes.icon} />
-                      {r.severity === "critical" ? "критично" : "некритично"}
-                    </span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fDuration}`}
                     role="cell"
                   >
-                    <span className={classes.label}>Длительность</span>
                     <span className={classes.value}>{r.duration}</span>
+                  </div>
+                  <div
+                    className={`${classes.field} ${classes.fActions}`}
+                    role="cell"
+                  >
+                    <button
+                      className={classes.deleteBtn}
+                      title="Удалить"
+                      aria-label="Удалить проблему"
+                      onClick={() => onDelete?.(r)}
+                    />
                   </div>
                 </>
               )}
