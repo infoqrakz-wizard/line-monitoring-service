@@ -25,6 +25,7 @@
       "@/routes/*": ["src/routes/*"],
       "@/components/*": ["src/components/*"],
       "@/pages/*": ["src/pages/*"],
+      "@/hooks/*": ["src/hooks/*"],
       "@/types": ["src/types"],
       "@/api": ["src/api"],
       "@/api/*": ["src/api/*"]

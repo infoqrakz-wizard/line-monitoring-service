@@ -8,7 +8,7 @@ import {
   Tooltip,
   Button,
 } from "@mantine/core";
-// import { IconPencil, IconTrash } from "@tabler/icons-react";
+import { IconInfoCircle } from "@tabler/icons-react";
 import type {
   ServerItemWithMonitoring,
   ServerStatus,
@@ -170,6 +170,22 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
         <Divider className={classes.divider} />
 
         <Group justify="flex-start" className={classes.actions}>
+          <Tooltip label="Информация">
+            <Button
+              variant="white"
+              aria-label="Информация"
+              onClick={() =>
+                navigate(
+                  `/servers/info?url=${encodeURIComponent(server.url)}&port=${encodeURIComponent(server.port.toString())}`,
+                )
+              }
+            >
+              <span className={classes.infoBtn}>
+                <IconInfoCircle size={16} />
+                Информация
+              </span>
+            </Button>
+          </Tooltip>
           <Tooltip label="Редактировать">
             <Button
               variant="white"

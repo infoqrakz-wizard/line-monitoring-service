@@ -8,7 +8,9 @@ import {
   LoadingOverlay,
   Badge,
   Table,
+  ActionIcon,
 } from "@mantine/core";
+import { IconInfoCircle } from "@tabler/icons-react";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import type {
   ServerStatus,
@@ -318,6 +320,19 @@ const Servers: React.FC = () => {
                   </Table.Td>
                   <Table.Td className={classes.td}>
                     <Group gap="xs">
+                      <Tooltip label="Информация">
+                        <ActionIcon
+                          variant="subtle"
+                          size="sm"
+                          onClick={() =>
+                            navigate(
+                              `/servers/info?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
+                            )
+                          }
+                        >
+                          <IconInfoCircle size={16} />
+                        </ActionIcon>
+                      </Tooltip>
                       <Tooltip label="Редактировать">
                         <ActionButton
                           className={classes.editIcon}

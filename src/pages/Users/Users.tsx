@@ -24,7 +24,7 @@ const Users: FC = () => {
   // Состояния для модальных окон
   const [createModalOpened, setCreateModalOpened] = useState(false);
   const [createUserModalOpened, setCreateUserModalOpened] = useState(false);
-  const [DeleteUserModalOpened, setDeleteUserModalOpened] = useState(false);
+  const [deleteUserModalOpened, setDeleteUserModalOpened] = useState(false);
   const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
 
   // Пользователь для удаления
@@ -369,7 +369,7 @@ const Users: FC = () => {
 
       {/* Модальное окно удаления пользователя с серверов */}
       <DeleteUserModal
-        opened={DeleteUserModalOpened}
+        opened={deleteUserModalOpened}
         onClose={handleDeleteUserClose}
         loading={deleteUserLoading}
         error={deleteUserError}

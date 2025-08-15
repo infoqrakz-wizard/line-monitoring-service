@@ -28,10 +28,12 @@ export type MonitoringState = {
   socket: WebSocket | null;
   isConnected: boolean;
   subscribeToServers: (serverIds: string[]) => void;
+  subscribeToSpecificServer: (url: string, port: number) => void;
   unsubscribe: () => void;
   connect: () => void;
   disconnect: () => void;
   getServerStatus: (server: ServerWithMonitoring) => ServerStatus;
+  getServerByUrlPort: (url: string, port: number) => ServerWithMonitoring | undefined;
   setUsers: (users: User[]) => void;
   clearError: () => void;
   fetchDowntimeEvents: (filter: DowntimeFilter) => Promise<void>;
@@ -160,7 +162,13 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       payload: {
         // servers: serverIds,
         servers: "all",
-        sections: ["main", "archiveState", "users"],
+        sections: [
+          "main",
+          "archiveState",
+          "users",
+          "camerasName",
+          "mediaState",
+        ],
       },
     };
 
@@ -170,6 +178,42 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     } catch (error) {
       console.error("Failed to subscribe to servers:", error);
       set({ error: "Ошибка подписки на серверы" });
+    }
+  },
+
+  subscribeToSpecificServer: (url: string, port: number) => {
+    const { socket, isConnected } = get();
+
+    if (!socket || !isConnected) {
+      get().connect();
+      // Попробуем подписаться после подключения
+      setTimeout(() => {
+        get().subscribeToSpecificServer(url, port);
+      }, 1000);
+      return;
+    }
+
+    const serverId = `${url}:${port}`;
+    const subscribeMessage: SubscribeRequest = {
+      type: "subscribe",
+      payload: {
+        servers: [serverId],
+        sections: [
+          "main",
+          "archiveState",
+          "users",
+          "camerasName",
+          "mediaState",
+        ],
+      },
+    };
+
+    try {
+      socket.send(JSON.stringify(subscribeMessage));
+      console.log("Subscribed to specific server:", serverId);
+    } catch (error) {
+      console.error("Failed to subscribe to specific server:", error);
+      set({ error: "Ошибка подписки на сервер" });
     }
   },
 
@@ -217,6 +261,15 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     }
 
     return "red"; // fallback
+  },
+
+  getServerByUrlPort: (url: string, port: number) => {
+    const { servers } = get();
+    return servers.find(server => {
+      const serverUrl = server.sections.main.url;
+      const serverPort = server.sections.main.port;
+      return serverUrl === url && serverPort === port;
+    });
   },
 
   setUsers: (users: User[]) => {

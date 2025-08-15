@@ -56,7 +56,7 @@ const Monitoring: React.FC = () => {
     try {
       if (deleteTarget.type === "single" && deleteTarget.data) {
         if (deleteTarget.data.id) {
-          await deleteDowntimeEvent(deleteTarget.data.id as number);
+          await deleteDowntimeEvent(deleteTarget.data.id);
         }
       } else if (deleteTarget.type === "all") {
         // Delete all events by URL/port combinations

@@ -74,6 +74,41 @@ export type User = {
   sc: string;
   description?: string;
   enabled?: boolean;
+  role?: Role;
+};
+
+export type Role = "admin" | "user";
+
+export type MediaStateResult = {
+  id: number;
+  result: {
+    state: {
+      cameras: {
+        [key: string]: {
+          enabled: boolean;
+          streams: {
+            audio?: {
+              enabled: boolean;
+              datarate: number;
+              framerate: number;
+            };
+            video: {
+              active: boolean;
+              enabled: boolean;
+              datarate: number;
+              framerate: number;
+            };
+            video2: {
+              active: boolean;
+              enabled: boolean;
+              datarate: number;
+              framerate: number;
+            };
+          };
+        };
+      };
+    };
+  };
 };
 
 export type ServerWithMonitoring = {
@@ -82,6 +117,8 @@ export type ServerWithMonitoring = {
     main: ServerMonitoringData;
     archiveState: ArchiveState;
     users: User[];
+    camerasName?: CameraInfoResult;
+    mediaState?: MediaStateResult;
   };
   updated_at: number;
 };
@@ -154,4 +191,64 @@ export type DowntimeDeleteRequest = {
   id?: number;
   url?: string;
   port?: number;
+};
+
+export type CameraInfo = {
+  card_name: string;
+  card_num: number;
+  enabled: boolean;
+  id: number;
+  name: string;
+};
+
+// Camera and Media State types for server info page
+export type CameraInfoResult = {
+  id: number;
+  result: {
+    cameras: {
+      [key: string]: {
+        enabled: boolean;
+        card_name: string;
+        card_num: number;
+        id: number;
+        name: string;
+        // streams: {
+        //   audio: {
+        //     enabled: boolean;
+        //     datarate: number;
+        //     framerate: number;
+        //   };
+        //   video: {
+        //     active: boolean;
+        //     enabled: boolean;
+        //     datarate: number;
+        //     framerate: number;
+        //   };
+        //   video2: {
+        //     active: boolean;
+        //     enabled: boolean;
+        //     datarate: number;
+        //     framerate: number;
+        //   };
+        // };
+      };
+    };
+  };
+};
+
+// Legacy MediaState type for backward compatibility
+export type MediaState = {
+  cameraId: number;
+  main: {
+    bitrate: number;
+    fps: number;
+  };
+  sub: {
+    bitrate: number;
+    fps: number;
+  };
+  audio: {
+    bitrate: number;
+  };
+  status: "working" | "error" | "offline";
 };

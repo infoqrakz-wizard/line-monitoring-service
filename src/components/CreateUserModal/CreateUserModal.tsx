@@ -23,7 +23,8 @@ export type CreateUserModalProps = {
   loading?: boolean;
   error?: string | null;
   onClearError?: () => void;
-  availableServers: Array<{
+  server?: string;
+  availableServers?: Array<{
     id: string;
     name: string;
     url: string;
@@ -49,7 +50,10 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   const canSubmit =
     Boolean(login) &&
     Boolean(password) &&
-    servers.length > 0 &&
+    (!availableServers ||
+      (availableServers &&
+        availableServers?.length > 0 &&
+        servers.length > 0)) &&
     !submitting &&
     !loading;
 
@@ -101,13 +105,13 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     setServers(values);
   };
 
-  const serverOptions = availableServers.map((server) => ({
+  const serverOptions = availableServers?.map((server) => ({
     value: server.id,
   }));
 
   // Функция для получения отображаемого текста сервера по ID
   const getServerDisplayText = (serverId: string) => {
-    const server = availableServers.find((s) => s.id === serverId);
+    const server = availableServers!.find((s) => s.id === serverId);
     return server ? `${server.name} (${server.url}:${server.port})` : serverId;
   };
 
@@ -172,28 +176,30 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           </div>
         </div>
 
-        <div className={classes.formField}>
-          <label htmlFor="servers" className={classes.formFieldLabel}>
-            Серверы
-          </label>
-          <div className={classes.formFieldInput}>
-            <TagsInput
-              id="servers"
-              placeholder="Выберите серверы для добавления пользователя"
-              value={servers}
-              onChange={handleServerSelect}
-              renderOption={({ option }) => {
-                const serverName = getServerDisplayText(option.value);
-                return <div>{serverName}</div>;
-              }}
-              data={serverOptions}
-              required
-              size="md"
-              aria-label="Выбор серверов"
-              description="Выберите серверы, на которые будет добавлен пользователь"
-            />
+        {availableServers && (
+          <div className={classes.formField}>
+            <label htmlFor="servers" className={classes.formFieldLabel}>
+              Серверы
+            </label>
+            <div className={classes.formFieldInput}>
+              <TagsInput
+                id="servers"
+                placeholder="Выберите серверы для добавления пользователя"
+                value={servers}
+                onChange={handleServerSelect}
+                renderOption={({ option }) => {
+                  const serverName = getServerDisplayText(option.value);
+                  return <div>{serverName}</div>;
+                }}
+                data={serverOptions}
+                required
+                size="md"
+                aria-label="Выбор серверов"
+                description="Выберите серверы, на которые будет добавлен пользователь"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {error && (
           <div className={classes.error}>

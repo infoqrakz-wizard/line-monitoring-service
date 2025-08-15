@@ -14,6 +14,7 @@ import Admins from "@/pages/Admins";
 import NotificationsPage from "@/pages/Notifications";
 import Login from "@/pages/Login";
 import CreateServer from "@/pages/Servers/CreateServer/CreateServer";
+import ServerInfo from "@/pages/Servers/ServerInfo";
 import { WsProvider } from "@/ws/WsProvider";
 
 import "@mantine/core/styles.css";
@@ -114,6 +115,7 @@ const App: React.FC = () => {
                   <Route path="servers" element={<Servers />} />
                   <Route path="servers/create" element={<CreateServer />} />
                   <Route path="servers/edit" element={<CreateServer />} />
+                  <Route path="servers/info" element={<ServerInfo />} />
                   <Route path="users" element={<Users />} />
                   <Route path="map" element={<MapPage />} />
                   <Route path="groups" element={<Groups />} />

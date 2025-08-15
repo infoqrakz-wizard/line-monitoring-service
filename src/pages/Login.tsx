@@ -14,6 +14,7 @@ const Login: React.FC = () => {
       user: {
         id: "1",
         name: "Admin",
+        sc: "admin",
         role: "admin",
       },
       token: "demo-token",

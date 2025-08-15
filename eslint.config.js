@@ -61,6 +61,7 @@ export default [
       'no-trailing-spaces': 'error',
       'eol-last': 'error',
       'prettier/prettier': 'error',
+      '@typescript-eslint/no-unsafe-argument': 'off',
     },
     settings: { react: { version: 'detect' } },
   }
