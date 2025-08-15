@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import { CSSProperties, useEffect } from "react";
 import { createPortal } from "react-dom";
 import classes from "./Modal.module.css";
 
@@ -15,11 +15,11 @@ const ModalComponent: React.FC<BaseModalProps> = ({
   opened,
   title,
   children,
-  closeOnBackdrop = true,
+  closeOnBackdrop = false,
   style,
   onClose,
 }) => {
-  React.useEffect(() => {
+  useEffect(() => {
     if (!opened) {
       return;
     }

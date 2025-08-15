@@ -141,9 +141,10 @@ export const request = {
       method: "PATCH",
       body: body ? JSON.stringify(body) : undefined,
     }),
-  delete: <T = unknown>(path: string, init?: RequestInit) =>
+  delete: <T = unknown>(path: string, body?: unknown, init?: RequestInit) =>
     apiFetch<T>(path, {
       ...init,
       method: "DELETE",
+      body: body ? JSON.stringify(body) : undefined,
     }),
 };

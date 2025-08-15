@@ -1,24 +1,29 @@
 import React from "react";
-import { Button, TextInput, TagsInput, Group } from "@mantine/core";
+import { Button, TextInput, TagsInput } from "@mantine/core";
 import { Modal } from "@/components/Modal";
-import classes from "./DeleteServerUserModal.module.css";
+import classes from "./DeleteUserModal.module.css";
 
-export type DeleteServerUserData = {
+export type DeleteUserData = {
   login: string;
   servers: string[];
 };
 
-export type DeleteServerUserModalProps = {
+export type DeleteUserModalProps = {
   opened: boolean;
   onClose: () => void;
-  onSubmit: (payload: DeleteServerUserData) => Promise<void> | void;
+  onSubmit: (payload: DeleteUserData) => Promise<void> | void;
   loading?: boolean;
   error?: string | null;
   onClearError?: () => void;
-  availableServers: Array<{ id: string; name: string; url: string; port: number }>;
+  availableServers: Array<{
+    id: string;
+    name: string;
+    url: string;
+    port: number;
+  }>;
 };
 
-const DeleteServerUserModal: React.FC<DeleteServerUserModalProps> = ({
+const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
   opened,
   onClose,
   onSubmit,
@@ -31,7 +36,8 @@ const DeleteServerUserModal: React.FC<DeleteServerUserModalProps> = ({
   const [servers, setServers] = React.useState<string[]>([]);
   const [submitting, setSubmitting] = React.useState(false);
 
-  const canSubmit = Boolean(login) && servers.length > 0 && !submitting && !loading;
+  const canSubmit =
+    Boolean(login) && servers.length > 0 && !submitting && !loading;
 
   // Clear form and error when modal opens
   React.useEffect(() => {
@@ -77,13 +83,17 @@ const DeleteServerUserModal: React.FC<DeleteServerUserModalProps> = ({
     setServers(values);
   };
 
-  const serverOptions = availableServers.map(server => ({
+  const serverOptions = availableServers.map((server) => ({
     value: server.id,
-    label: `${server.name} (${server.url}:${server.port})`
+    label: `${server.name} (${server.url}:${server.port})`,
   }));
 
   return (
-    <Modal opened={opened} onClose={handleClose} title="Удалить пользователя с серверов">
+    <Modal
+      opened={opened}
+      onClose={handleClose}
+      title="Удалить пользователя с серверов"
+    >
       <form onSubmit={handleSubmit} className={classes.form}>
         <div className={classes.formField}>
           <label htmlFor="login" className={classes.formFieldLabel}>
@@ -151,4 +161,4 @@ const DeleteServerUserModal: React.FC<DeleteServerUserModalProps> = ({
   );
 };
 
-export default DeleteServerUserModal;
+export default DeleteUserModal;

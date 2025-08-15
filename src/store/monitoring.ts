@@ -5,7 +5,7 @@ import type {
   SubscribeRequest,
   UnsubscribeRequest,
   ServerStatus,
-  ServerUser,
+  User,
 } from "@/types";
 
 export type MonitoringState = {
@@ -20,11 +20,11 @@ export type MonitoringState = {
   socket: WebSocket | null;
   isConnected: boolean;
   subscribeToServers: (serverIds: string[]) => void;
-  // subscribeToServersUsers: () => void;
   unsubscribe: () => void;
   connect: () => void;
   disconnect: () => void;
   getServerStatus: (server: ServerWithMonitoring) => ServerStatus;
+  setUsers: (users: User[]) => void;
   clearError: () => void;
 };
 
@@ -66,10 +66,10 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
             .flatMap((server) => server.sections.users)
             .filter(Boolean);
 
-          const filteredUsers: ServerUser[] = [];
+          const filteredUsers: User[] = [];
 
           serversUsers.forEach((user) => {
-            if (filteredUsers.some((u) => u.id === user.id)) {
+            if (filteredUsers.some((u) => u.name === user.name)) {
               return;
             }
             filteredUsers.push(user);
@@ -125,35 +125,6 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       });
     }
   },
-
-  // subscribeToServersUsers: () => {
-  //   const { socket, isConnected } = get();
-
-  //   if (!socket || !isConnected) {
-  //     get().connect();
-  //     // Попробуем подписаться после подключения
-  //     setTimeout(() => {
-  //       get().subscribeToServersUsers();
-  //     }, 1000);
-  //     return;
-  //   }
-
-  //   const subscribeMessage: SubscribeRequest = {
-  //     type: "subscribe",
-  //     payload: {
-  //       servers: "all",
-  //       sections: ["users"],
-  //     },
-  //   };
-
-  //   try {
-  //     socket.send(JSON.stringify(subscribeMessage));
-  //     console.log("Subscribed to servers users");
-  //   } catch (error) {
-  //     console.error("Failed to subscribe to servers:", error);
-  //     set({ error: "Ошибка подписки на серверы" });
-  //   }
-  // },
 
   subscribeToServers: (serverIds: string[]) => {
     const { socket, isConnected } = get();
@@ -229,6 +200,10 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     }
 
     return "red"; // fallback
+  },
+
+  setUsers: (users: User[]) => {
+    set({ users });
   },
 
   clearError: () => set({ error: null }),

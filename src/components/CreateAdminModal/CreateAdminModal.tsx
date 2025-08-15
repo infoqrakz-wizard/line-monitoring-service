@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, TextInput, PasswordInput, Switch, Group } from "@mantine/core";
 import { Modal } from "@/components/Modal";
-import classes from "./AddUserModal.module.css";
+import classes from "./CreateAdminModal.module.css";
 
 export type UserData = {
   email: string;
@@ -9,7 +9,7 @@ export type UserData = {
   is_admin: boolean;
 };
 
-export type AddUserModalProps = {
+export type CreateAdminModalProps = {
   opened: boolean;
   onClose: () => void;
   onSubmit: (payload: UserData) => Promise<void> | void;
@@ -22,15 +22,15 @@ export type AddUserModalProps = {
   userId?: string;
 };
 
-const AddUserModal: React.FC<AddUserModalProps> = ({
+const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
   opened,
-  onClose,
-  onSubmit,
   loading,
   error,
-  onClearError,
   mode = "create",
   initialData,
+  onClose,
+  onSubmit,
+  onClearError,
 }) => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -159,7 +159,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
 
         {error && (
           <div className={classes.error}>
-            <span className={classes.errorText}>{error}</span>
+            <span className={classes.errorText}>
+              Ошибка при создании пользователя
+            </span>
           </div>
         )}
 
@@ -186,4 +188,4 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   );
 };
 
-export default AddUserModal;
+export default CreateAdminModal;

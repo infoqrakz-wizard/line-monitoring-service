@@ -1,58 +1,57 @@
 import { create } from "zustand";
 import { users as usersApi } from "@/api";
 import type {
-  UserItem as ApiUserItem,
+  AdminUser as ApiAdminUser,
+  CreateAdminRequest,
+  UpdateAdminRequest,
+  PaginatedAdminsResponse,
   CreateUserRequest,
-  UpdateUserRequest,
-  PaginatedUsersResponse,
-  CreateServerUserRequest,
-  CreateServerUserResponse,
-  DeleteServerUserRequest,
+  CreateUserResponse,
 } from "@/api/user";
 
 export type UsersState = {
-  items: ApiUserItem[];
+  admins: ApiAdminUser[];
   loading: boolean;
   error: string | null;
-  fetchUsers: (params?: {
+  fetchAdmins: (params?: {
     limit?: number;
     offset?: number;
-  }) => Promise<PaginatedUsersResponse>;
-  createUser: (payload: CreateUserRequest) => Promise<ApiUserItem>;
-  createServerUser: (
-    payload: CreateServerUserRequest,
-    servers: Array<{ url: string; port: number }>,
-  ) => Promise<CreateServerUserResponse>;
-  deleteServerUser: (
-    payload: DeleteServerUserRequest,
-    servers: Array<{ url: string; port: number }>,
-  ) => Promise<CreateServerUserResponse>;
-  updateUser: (
+  }) => Promise<PaginatedAdminsResponse>;
+  createAdmin: (payload: CreateAdminRequest) => Promise<ApiAdminUser>;
+  updateAdmin: (
     id: string | number,
-    patch: UpdateUserRequest,
-  ) => Promise<ApiUserItem>;
-  deleteUser: (id: string | number) => Promise<void>;
-  setItems: (items: ApiUserItem[]) => void;
+    patch: UpdateAdminRequest,
+  ) => Promise<ApiAdminUser>;
+  deleteAdmin: (id: string | number) => Promise<void>;
+  setAdmins: (admins: ApiAdminUser[]) => void;
+  createUser: (
+    user: CreateUserRequest,
+    servers: string[],
+  ) => Promise<CreateUserResponse>;
+  deleteUser: (
+    name: string,
+    serverIds: string[],
+  ) => Promise<CreateUserResponse>;
   clearError: () => void;
 };
 
 export const useUsersStore = create<UsersState>((set, get) => ({
-  items: [],
+  admins: [],
   loading: false,
   error: null,
 
-  fetchUsers: async (params) => {
+  fetchAdmins: async (params) => {
     set({
       loading: true,
       error: null,
     });
     try {
-      const res = await usersApi.listUsers({
+      const res = await usersApi.listAdmins({
         limit: params?.limit,
         offset: params?.offset,
       });
       set({
-        items: res,
+        admins: res,
       });
       return res;
     } catch (error) {
@@ -69,26 +68,26 @@ export const useUsersStore = create<UsersState>((set, get) => ({
     }
   },
 
-  createUser: async (payload) => {
-    const created = await usersApi.createUser(payload);
+  createAdmin: async (payload) => {
+    const created = await usersApi.createAdmin(payload);
     set({
-      items: [created, ...get().items],
+      admins: [created, ...get().admins],
     });
     return created;
   },
 
-  createServerUser: async (payload, servers) => {
-    return await usersApi.createServerUser(payload, servers);
+  createUser: async (user, servers) => {
+    return await usersApi.createUser(user, servers);
   },
 
-  deleteServerUser: async (payload, servers) => {
-    return await usersApi.deleteServerUser(payload, servers);
+  deleteUser: async (name, serverIds) => {
+    return await usersApi.deleteUser(name, serverIds);
   },
 
-  updateUser: async (id, patch) => {
-    const updated = await usersApi.updateUser(id, patch);
+  updateAdmin: async (id, patch) => {
+    const updated = await usersApi.updateAdmin(id, patch);
     set({
-      items: get().items.map((u) =>
+      admins: get().admins.map((u) =>
         String(u.id) === String(id)
           ? {
               ...u,
@@ -100,13 +99,13 @@ export const useUsersStore = create<UsersState>((set, get) => ({
     return updated;
   },
 
-  deleteUser: async (id) => {
-    await usersApi.deleteUser(id);
+  deleteAdmin: async (id) => {
+    await usersApi.deleteAdmin(id);
     set({
-      items: get().items.filter((u) => String(u.id) !== String(id)),
+      admins: get().admins.filter((u) => u.id !== id),
     });
   },
 
-  setItems: (items) => set({ items }),
+  setAdmins: (admins) => set({ admins }),
   clearError: () => set({ error: null }),
 }));

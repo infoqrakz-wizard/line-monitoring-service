@@ -9,8 +9,8 @@ export type {
 } from "./servers";
 export { users };
 export type {
-  UserItem,
-  CreateUserRequest,
-  UpdateUserRequest,
-  PaginatedUsersResponse,
+  AdminUser,
+  CreateAdminRequest,
+  UpdateAdminRequest,
+  PaginatedAdminsResponse,
 } from "./user";

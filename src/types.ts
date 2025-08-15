@@ -1,11 +1,3 @@
-export type Role = "admin" | "operator" | "viewer";
-
-export type User = {
-  id: string;
-  name: string;
-  role: Role;
-};
-
 export type Problem = {
   id: string;
   title: string;
@@ -76,7 +68,7 @@ export type ArchiveState = {
   };
 };
 
-export type ServerUser = {
+export type User = {
   id: string;
   name: string;
   sc: string;
@@ -89,14 +81,14 @@ export type ServerWithMonitoring = {
   sections: {
     main: ServerMonitoringData;
     archiveState: ArchiveState;
-    users: ServerUser[];
+    users: User[];
   };
   updated_at: number;
 };
 
 export type MonitoringData = {
   servers: ServerWithMonitoring[];
-  users: ServerUser[];
+  users: User[];
   notFound: string[];
   total: number;
   at: number;

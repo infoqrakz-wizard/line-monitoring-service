@@ -11,7 +11,7 @@ import {
 } from "@/api/servers";
 
 export type ServersState = {
-  items: ServerItem[];
+  servers: ServerItem[];
   loading: boolean;
   error: string | null;
   limit: number;
@@ -26,13 +26,13 @@ export type ServersState = {
     patch: UpdateServerRequest,
   ) => Promise<ServerItem>;
   deleteServer: (url: string, port: number) => Promise<void>;
-  setItems: (items: ServerItem[]) => void;
+  setServers: (servers: ServerItem[]) => void;
   clearError: () => void;
   findByUrlPort: (url: string, port: number) => ServerItem | undefined;
 };
 
 export const useServersStore = create<ServersState>((set, get) => ({
-  items: [],
+  servers: [],
   loading: false,
   error: null,
   limit: 50,
@@ -48,7 +48,7 @@ export const useServersStore = create<ServersState>((set, get) => ({
     try {
       const response: PaginatedResponse<ServerItem> = await listServers(params);
       set({
-        items: response.servers,
+        servers: response.servers,
         limit: response.limit,
         nextCursor: response.nextCursor,
         total: response.total,
@@ -65,15 +65,15 @@ export const useServersStore = create<ServersState>((set, get) => ({
 
   createServer: async (payload) => {
     const created = await apiCreateServer(payload);
-    const items = get().items.slice();
-    items.unshift(created);
-    set({ items });
+    const servers = get().servers.slice();
+    servers.unshift(created);
+    set({ servers });
     return created;
   },
 
   updateServer: async (url, port, patch) => {
     const updated = await apiUpdateServer(url, port, patch);
-    const items = get().items.map((s) =>
+    const servers = get().servers.map((s) =>
       s.url === url && s.port === port
         ? {
             ...s,
@@ -81,20 +81,20 @@ export const useServersStore = create<ServersState>((set, get) => ({
           }
         : s,
     );
-    set({ items });
+    set({ servers });
     return updated;
   },
 
   deleteServer: async (url, port) => {
     await apiDeleteServer(url, port);
-    const items = get().items.filter(
+    const servers = get().servers.filter(
       (s) => !(s.url === url && s.port === port),
     );
-    set({ items });
+    set({ servers });
   },
 
-  setItems: (items) => set({ items }),
+  setServers: (servers) => set({ servers }),
   clearError: () => set({ error: null }),
   findByUrlPort: (url, port) =>
-    get().items.find((s) => s.url === url && s.port === port),
+    get().servers.find((s) => s.url === url && s.port === port),
 }));

@@ -7,19 +7,19 @@ import {
   TagsInput,
 } from "@mantine/core";
 import { Modal } from "@/components/Modal";
-import classes from "./CreateServerUserModal.module.css";
+import classes from "./CreateUserModal.module.css";
 
-export type ServerUserData = {
+export type UserData = {
   login: string;
   password: string;
   description: string;
   servers: string[];
 };
 
-export type CreateServerUserModalProps = {
+export type CreateUserModalProps = {
   opened: boolean;
   onClose: () => void;
-  onSubmit: (payload: ServerUserData) => Promise<void> | void;
+  onSubmit: (payload: UserData) => Promise<void> | void;
   loading?: boolean;
   error?: string | null;
   onClearError?: () => void;
@@ -31,7 +31,7 @@ export type CreateServerUserModalProps = {
   }>;
 };
 
-const CreateServerUserModal: React.FC<CreateServerUserModalProps> = ({
+const CreateUserModal: React.FC<CreateUserModalProps> = ({
   opened,
   onClose,
   onSubmit,
@@ -103,8 +103,13 @@ const CreateServerUserModal: React.FC<CreateServerUserModalProps> = ({
 
   const serverOptions = availableServers.map((server) => ({
     value: server.id,
-    label: `${server.name} (${server.url}:${server.port})`,
   }));
+
+  // Функция для получения отображаемого текста сервера по ID
+  const getServerDisplayText = (serverId: string) => {
+    const server = availableServers.find((s) => s.id === serverId);
+    return server ? `${server.name} (${server.url}:${server.port})` : serverId;
+  };
 
   return (
     <Modal
@@ -177,6 +182,10 @@ const CreateServerUserModal: React.FC<CreateServerUserModalProps> = ({
               placeholder="Выберите серверы для добавления пользователя"
               value={servers}
               onChange={handleServerSelect}
+              renderOption={({ option }) => {
+                const serverName = getServerDisplayText(option.value);
+                return <div>{serverName}</div>;
+              }}
               data={serverOptions}
               required
               size="md"
@@ -217,4 +226,4 @@ const CreateServerUserModal: React.FC<CreateServerUserModalProps> = ({
   );
 };
 
-export default CreateServerUserModal;
+export default CreateUserModal;

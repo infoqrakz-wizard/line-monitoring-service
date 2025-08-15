@@ -2,88 +2,52 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { Button, Stack, Tooltip, Group } from "@mantine/core";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { useUsersStore } from "@/store/users";
-import { AddUserModal, UserData } from "@/components/AddUserModal";
-import { ServerUserData } from "@/components/CreateServerUserModal";
-import CreateServerUserModal from "@/components/CreateServerUserModal/CreateServerUserModal";
-import { DeleteServerUserData } from "@/components/DeleteServerUserModal";
-import DeleteServerUserModal from "@/components/DeleteServerUserModal/DeleteServerUserModal";
+import { CreateUserModal, UserData } from "@/components/CreateUserModal";
+import { DeleteUserData } from "@/components/DeleteUserModal";
+import DeleteUserModal from "@/components/DeleteUserModal/DeleteUserModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal/DeleteConfirmModal";
 import PageHeader from "@/components/PageHeader";
 import PlusIcon from "../../assets/icons/plus.svg?react";
 import ActionButton from "@/components/ActionButton/ActionButton";
-import { UpdateUserRequest } from "@/api/user";
 import classes from "./Users.module.css";
 import { useMonitoringStore } from "@/store/monitoring";
-import { ServerUser, ServerWithMonitoring } from "@/types";
-
-type UserItem = {
-  id: string;
-  login: string;
-  isAdmin?: boolean;
-  description?: string;
-  servers: string[];
-  actionsCount?: number;
-  deletable?: boolean;
-};
+import { User, ServerWithMonitoring } from "@/types";
 
 const Users: FC = () => {
   const [q, setQ] = useState("");
 
-  const { fetchUsers, deleteUser, updateUser } = useUsersStore((s) => ({
-    // items: s.items,
-    fetchUsers: s.fetchUsers,
+  const { deleteUser, createUser } = useUsersStore((s) => ({
     deleteUser: s.deleteUser,
-    updateUser: s.updateUser,
+    createUser: s.createUser,
   }));
-
-  const createUser = useUsersStore((s) => s.createUser);
-  const createServerUser = useUsersStore((s) => s.createServerUser);
-  const deleteServerUser = useUsersStore((s) => s.deleteServerUser);
 
   // Состояния для модальных окон
   const [createModalOpened, setCreateModalOpened] = useState(false);
-  const [createServerUserModalOpened, setCreateServerUserModalOpened] =
-    useState(false);
-  const [deleteServerUserModalOpened, setDeleteServerUserModalOpened] =
-    useState(false);
-  const [editModalOpened, setEditModalOpened] = useState(false);
+  const [createUserModalOpened, setCreateUserModalOpened] = useState(false);
+  const [DeleteUserModalOpened, setDeleteUserModalOpened] = useState(false);
   const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
 
-  // Данные для редактирования
-  const [editingUser, setEditingUser] = useState<{
-    id: string;
-    data: UserData;
-  } | null>(null);
-
   // Пользователь для удаления
-  const [userToDelete, setUserToDelete] = useState<{
-    id: string;
-    login: string;
-  } | null>(null);
+  const [userToDelete, setUserToDelete] = useState<Pick<
+    User,
+    "id" | "name"
+  > | null>(null);
 
   // Ошибки
   const [createError, setCreateError] = useState<string | null>(null);
-  const [createServerUserError, setCreateServerUserError] = useState<
-    string | null
-  >(null);
-  const [deleteServerUserError, setDeleteServerUserError] = useState<
-    string | null
-  >(null);
-  const [editError, setEditError] = useState<string | null>(null);
-
-  // Состояние загрузки для редактирования
-  const [editLoading, setEditLoading] = useState(false);
+  const [createUserError, setCreateUserError] = useState<string | null>(null);
+  const [deleteUserError, setDeleteUserError] = useState<string | null>(null);
 
   // Состояние загрузки для удаления
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Состояние загрузки для создания
   const [createLoading, setCreateLoading] = useState(false);
-  const [createServerUserLoading, setCreateServerUserLoading] = useState(false);
-  const [deleteServerUserLoading, setDeleteServerUserLoading] = useState(false);
+  const [createUserLoading, setCreateUserLoading] = useState(false);
+  const [deleteUserLoading, setDeleteUserLoading] = useState(false);
 
   const [usersServersMapping, setUsersServersMapping] = useState<
-    (ServerUser & {
+    (User & {
       servers: ServerWithMonitoring[];
     })[]
   >([]);
@@ -91,22 +55,22 @@ const Users: FC = () => {
   const { subscribeToServers, users, servers } = useMonitoringStore();
 
   // Обработчики для модальных окон
-  const handleCreateOpen = () => setCreateModalOpened(true);
+  // const handleCreateOpen = () => setCreateModalOpened(true);
   const handleCreateClose = () => {
     setCreateModalOpened(false);
     setCreateError(null);
   };
 
-  const handleCreateServerUserOpen = () => setCreateServerUserModalOpened(true);
-  const handleCreateServerUserClose = () => {
-    setCreateServerUserModalOpened(false);
-    setCreateServerUserError(null);
+  const handleCreateUserOpen = () => setCreateUserModalOpened(true);
+  const handleCreateUserClose = () => {
+    setCreateUserModalOpened(false);
+    setCreateUserError(null);
   };
 
-  const handleDeleteServerUserOpen = () => setDeleteServerUserModalOpened(true);
-  const handleDeleteServerUserClose = () => {
-    setDeleteServerUserModalOpened(false);
-    setDeleteServerUserError(null);
+  // const handleDeleteUserOpen = () => setDeleteUserModalOpened(true);
+  const handleDeleteUserClose = () => {
+    setDeleteUserModalOpened(false);
+    setDeleteUserError(null);
   };
 
   useEffect(() => {
@@ -115,28 +79,22 @@ const Users: FC = () => {
         acc.push({
           ...user,
           servers: servers.filter((server) =>
-            server.sections.users?.some((u) => u.id === user.id),
+            server.sections.users?.some((u) => u.name === user.name),
           ),
         });
         return acc;
       },
-      [] as (ServerUser & {
+      [] as (User & {
         servers: ServerWithMonitoring[];
       })[],
     );
     setUsersServersMapping(mapping);
   }, [users, servers]);
 
-  const handleEditClose = () => {
-    setEditModalOpened(false);
-    setEditingUser(null);
-    setEditError(null);
-  };
-
-  const handleDeleteConfirmOpen = (user: UserItem) => {
+  const handleDeleteConfirmOpen = (user: User) => {
     setUserToDelete({
       id: user.id,
-      login: user.login,
+      name: user.name,
     });
     setDeleteConfirmOpened(true);
   };
@@ -147,56 +105,33 @@ const Users: FC = () => {
   };
 
   const handleClearCreateError = useCallback(() => setCreateError(null), []);
-  const handleClearCreateServerUserError = useCallback(
-    () => setCreateServerUserError(null),
+  const handleClearCreateUserError = useCallback(
+    () => setCreateUserError(null),
     [],
   );
-  const handleClearDeleteServerUserError = useCallback(
-    () => setDeleteServerUserError(null),
+  const handleClearDeleteUserError = useCallback(
+    () => setDeleteUserError(null),
     [],
   );
-  const handleClearEditError = useCallback(() => setEditError(null), []);
-
-  useEffect(() => {
-    fetchUsers({
-      limit: 50,
-      offset: 0,
-    }).catch(() => void 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     subscribeToServers([]);
   }, []);
 
-  // const viewUsers: UserItem[] = React.useMemo(
-  //   () =>
-  //     items.map((u) => ({
-  //       id: String(u.id),
-  //       login: u.email,
-  //       isAdmin: u.is_admin,
-  //       description: undefined,
-  //       servers: [],
-  //       actionsCount: undefined,
-  //       deletable: true,
-  //     })),
-  //   [items],
-  // );
-
-  // const filtered = useMemo(() => {
-  //   const query = q.toLowerCase();
-  //   return viewUsers.filter((u) =>
-  //     [u.login, u.description ?? "", u.servers.join(" ")]
-  //       .join(" ")
-  //       .toLowerCase()
-  //       .includes(query),
-  //   );
-  // }, [q, viewUsers]);
-
-  const handleDeleteUser = async (userId: string) => {
+  const handleDeleteUser = async (userName: string) => {
     try {
       setDeleteLoading(true);
-      await deleteUser(userId);
+      const user = usersServersMapping.find((u) => u.name === userName);
+      if (!user) {
+        throw new Error("User not found");
+      }
+      await deleteUser(
+        user.name,
+        user.servers.map(
+          (s) => `${s.sections.main.url}:${s.sections.main.port}`,
+        ),
+      );
+
       handleDeleteConfirmClose();
     } catch (error) {
       console.error("Failed to delete user:", error);
@@ -218,17 +153,17 @@ const Users: FC = () => {
               leftSection={<PlusIcon />}
               aria-label="Добавить пользователя"
               disabled={createLoading}
-              onClick={handleCreateOpen}
+              onClick={handleCreateUserOpen}
             >
               Добавить пользователя
             </Button>
-            <Button
+            {/* <Button
               className={classes.addButton}
               variant="outline"
               leftSection={<PlusIcon />}
               aria-label="Добавить пользователя на серверах"
-              disabled={createServerUserLoading}
-              onClick={handleCreateServerUserOpen}
+              disabled={createUserLoading}
+              onClick={handleCreateUserOpen}
             >
               Добавить на серверах
             </Button>
@@ -238,11 +173,11 @@ const Users: FC = () => {
               color="red"
               leftSection={<PlusIcon />}
               aria-label="Удалить пользователя с серверов"
-              disabled={deleteServerUserLoading}
-              onClick={handleDeleteServerUserOpen}
+              disabled={deleteUserLoading}
+              onClick={handleDeleteUserOpen}
             >
               Удалить с серверов
-            </Button>
+            </Button> */}
             <SearchInput
               // className={classes.searchInput}
               rootClassName={classes.searchInputRoot}
@@ -251,7 +186,7 @@ const Users: FC = () => {
               value={q}
               onChange={setQ}
               placeholder="Найти пользователя..."
-              disabled={createLoading || editLoading || deleteLoading}
+              disabled={createLoading || deleteLoading}
             />
           </div>
         }
@@ -315,14 +250,6 @@ const Users: FC = () => {
               >
                 <div className={classes.actionButtons}>
                   <Group gap="xs">
-                    {/* <Tooltip label="Редактировать">
-                      <ActionButton
-                        className={classes.editIcon}
-                        onClick={() => {
-                          handleEditOpen(u);
-                        }}
-                      />
-                    </Tooltip> */}
                     <Tooltip label="Удалить">
                       <ActionButton
                         className={classes.deleteIcon}
@@ -338,26 +265,34 @@ const Users: FC = () => {
       </div>
 
       {/* Модальное окно создания пользователя */}
-      <AddUserModal
+      <CreateUserModal
         opened={createModalOpened}
         onClose={handleCreateClose}
         loading={createLoading}
         error={createError}
         onClearError={handleClearCreateError}
-        mode="create"
-        onSubmit={async ({ email, password, is_admin }) => {
+        availableServers={servers.map((server) => ({
+          id: server.id,
+          name: server.sections.main.name,
+          url: server.sections.main.url,
+          port: server.sections.main.port,
+        }))}
+        onSubmit={async ({ login, password }) => {
           try {
             setCreateLoading(true);
-            await createUser({
-              email,
-              password,
-              is_admin,
-            });
+            await createUser(
+              {
+                name: login,
+                password,
+                description: "",
+              },
+              [],
+            );
             // Refresh the user list to show the newly created user
-            await fetchUsers({
-              limit: 50,
-              offset: 0,
-            });
+            // await fetchUsers({
+            //   limit: 50,
+            //   offset: 0,
+            // });
           } catch (error) {
             const message =
               error instanceof Error
@@ -371,169 +306,95 @@ const Users: FC = () => {
         }}
       />
 
-      {/* Модальное окно редактирования пользователя */}
-      <AddUserModal
-        opened={editModalOpened}
-        onClose={handleEditClose}
-        loading={editLoading}
-        error={editError}
-        onClearError={handleClearEditError}
-        mode="edit"
-        initialData={editingUser?.data}
-        userId={editingUser?.id}
-        onSubmit={async ({ email, password, is_admin }) => {
-          if (!editingUser) {
-            return;
-          }
-
-          try {
-            setEditLoading(true);
-            const updateData: UpdateUserRequest = {
-              email,
-              is_admin,
-            };
-
-            // Добавляем пароль только если он был введен
-            if (password && password.trim()) {
-              updateData.password = password;
-            }
-
-            await updateUser(editingUser.id, updateData);
-
-            // Refresh the user list
-            await fetchUsers({
-              limit: 50,
-              offset: 0,
-            });
-          } catch (error) {
-            const message =
-              error instanceof Error
-                ? error.message
-                : "Не удалось обновить пользователя";
-            setEditError(message);
-            throw error;
-          } finally {
-            setEditLoading(false);
-          }
-        }}
-      />
-
       {/* Модальное окно создания пользователя на серверах */}
-      <CreateServerUserModal
-        opened={createServerUserModalOpened}
-        onClose={handleCreateServerUserClose}
-        loading={createServerUserLoading}
-        error={createServerUserError}
-        onClearError={handleClearCreateServerUserError}
+      <CreateUserModal
+        opened={createUserModalOpened}
+        onClose={handleCreateUserClose}
+        loading={createUserLoading}
+        error={createUserError}
+        onClearError={handleClearCreateUserError}
         availableServers={servers.map((server) => ({
           id: server.id,
           name: server.sections.main.name,
           url: server.sections.main.url,
           port: server.sections.main.port,
         }))}
-        onSubmit={async (payload: ServerUserData) => {
+        onSubmit={async (payload: UserData) => {
           try {
-            setCreateServerUserLoading(true);
+            setCreateUserLoading(true);
 
             // Подготавливаем данные для API
-            const apiPayload = {
+            const userData = {
               name: payload.login,
               password: payload.password,
               description: payload.description,
-              serverIds: payload.servers,
             };
 
-            // Подготавливаем информацию о серверах для API
-            const serversInfo = servers.map((server) => ({
-              url: server.sections.main.url,
-              port: server.sections.main.port,
-            }));
+            await createUser(userData, payload.servers);
 
-            const result = await createServerUser(apiPayload, serversInfo);
-
-            if (result.success) {
-              // Обновляем список пользователей после успешного создания
-              await fetchUsers({
-                limit: 50,
-                offset: 0,
-              });
-            } else {
-              // Если есть ошибки, показываем их
-              const errorMessage =
-                result.errors?.join(", ") ||
-                result.message ||
-                "Не удалось создать пользователя на серверах";
-              setCreateServerUserError(errorMessage);
-              throw error;
-            }
+            subscribeToServers([]);
+            // if (result.success) {
+            //   const newUser = {
+            //     id: result.id,
+            //     name: payload.login,
+            //     description: payload.description,
+            //     servers: servers.filter((server) =>
+            //       payload.servers.some(
+            //         (s) => `${s.url}:${s.port}` === `${server.id}`,
+            //       ),
+            //     ),
+            //   };
+            //   setUsers([...users, newUser]);
+            // } else {
+            //   // Если есть ошибки, показываем их
+            //   const errorMessage =
+            //     result.errors?.join(", ") ||
+            //     result.message ||
+            //     "Не удалось создать пользователя на серверах";
+            //   setCreateUserError(errorMessage);
+            //   throw new Error(errorMessage);
+            // }
           } catch (error) {
             const message =
               error instanceof Error
                 ? error.message
                 : "Не удалось создать пользователя на серверах";
-            setCreateServerUserError(message);
+            setCreateUserError(message);
             throw error;
           } finally {
-            setCreateServerUserLoading(false);
+            setCreateUserLoading(false);
           }
         }}
       />
 
       {/* Модальное окно удаления пользователя с серверов */}
-      <DeleteServerUserModal
-        opened={deleteServerUserModalOpened}
-        onClose={handleDeleteServerUserClose}
-        loading={deleteServerUserLoading}
-        error={deleteServerUserError}
-        onClearError={handleClearDeleteServerUserError}
+      <DeleteUserModal
+        opened={DeleteUserModalOpened}
+        onClose={handleDeleteUserClose}
+        loading={deleteUserLoading}
+        error={deleteUserError}
+        onClearError={handleClearDeleteUserError}
         availableServers={servers.map((server) => ({
           id: server.id,
           name: server.sections.main.name,
           url: server.sections.main.url,
           port: server.sections.main.port,
         }))}
-        onSubmit={async (payload: DeleteServerUserData) => {
+        onSubmit={async (payload: DeleteUserData) => {
           try {
-            setDeleteServerUserLoading(true);
+            setDeleteUserLoading(true);
 
-            // Подготавливаем данные для API
-            const apiPayload = {
-              name: payload.login,
-              serverIds: payload.servers,
-            };
-
-            // Подготавливаем информацию о серверах для API
-            const serversInfo = servers.map((server) => ({
-              url: server.sections.main.url,
-              port: server.sections.main.port,
-            }));
-
-            const result = await deleteServerUser(apiPayload, serversInfo);
-
-            if (result.success) {
-              // Обновляем список пользователей после успешного удаления
-              await fetchUsers({
-                limit: 50,
-                offset: 0,
-              });
-            } else {
-              // Если есть ошибки, показываем их
-              const errorMessage =
-                result.errors?.join(", ") ||
-                result.message ||
-                "Не удалось удалить пользователя с серверов";
-              setDeleteServerUserError(errorMessage);
-              throw new Error(errorMessage);
-            }
+            await deleteUser(payload.login, payload.servers);
+            subscribeToServers([]);
           } catch (error) {
             const message =
               error instanceof Error
                 ? error.message
                 : "Не удалось удалить пользователя с серверов";
-            setDeleteServerUserError(message);
+            setDeleteUserError(message);
             throw error;
           } finally {
-            setDeleteServerUserLoading(false);
+            setDeleteUserLoading(false);
           }
         }}
       />
@@ -541,8 +402,8 @@ const Users: FC = () => {
       {/* Модальное окно подтверждения удаления */}
       <DeleteConfirmModal
         opened={deleteConfirmOpened}
-        title={`Вы уверены, что хотите удалить пользователя "${userToDelete?.login}"?`}
-        onConfirm={() => userToDelete && handleDeleteUser(userToDelete.id)}
+        title={`Вы уверены, что хотите удалить пользователя "${userToDelete?.name}"?`}
+        onConfirm={() => userToDelete && handleDeleteUser(userToDelete.name)}
         onClose={handleDeleteConfirmClose}
         loading={deleteLoading}
       />

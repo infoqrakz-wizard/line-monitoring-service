@@ -29,14 +29,15 @@ import ServerCard from "@/components/ServerCard/index";
 
 const Servers: React.FC = () => {
   const [q, setQ] = useState("");
-  const { items, loading, error, fetchServers, deleteServer } =
+  const { servers, loading, error, fetchServers, deleteServer } =
     useServersStore();
+
   const {
     servers: monitoringServers,
     loading: monitoringLoading,
     error: monitoringError,
     subscribeToServers,
-    unsubscribe,
+
     getServerStatus,
     connect,
     isConnected,
@@ -64,11 +65,11 @@ const Servers: React.FC = () => {
 
   // Объединяем данные серверов с мониторингом
   const serversWithMonitoring = useMemo((): ServerItemWithMonitoring[] => {
-    if (!items || !monitoringServers) {
+    if (!servers || !monitoringServers) {
       return [];
     }
 
-    return items.map((server): ServerItemWithMonitoring => {
+    return servers.map((server): ServerItemWithMonitoring => {
       const monitoringData = monitoringServers.find(
         (m) => m.id === `${server.url}:${server.port}`,
       );
@@ -79,7 +80,7 @@ const Servers: React.FC = () => {
         status: monitoringData ? getServerStatus(monitoringData) : "red",
       };
     });
-  }, [items, monitoringServers, getServerStatus]);
+  }, [servers, monitoringServers, getServerStatus]);
 
   const filtered = useMemo(() => {
     return serversWithMonitoring.filter((s) => {
@@ -205,11 +206,11 @@ const Servers: React.FC = () => {
 
   // Подписываемся на мониторинг серверов когда они загружены
   useEffect(() => {
-    if (items && items.length > 0 && isConnected) {
-      const serverIds = items.map((server) => `${server.url}:${server.port}`);
+    if (servers && servers.length > 0 && isConnected) {
+      const serverIds = servers.map((server) => `${server.url}:${server.port}`);
       subscribeToServers(serverIds);
     }
-  }, [items, isConnected]);
+  }, [servers, isConnected]);
 
   return (
     <Stack className={classes.wrapper} gap="0" pos="relative">

@@ -2,15 +2,15 @@ import React, { FC, useCallback, useMemo, useState } from "react";
 import { Button, Stack, Tabs, Tooltip, Group } from "@mantine/core";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { useUsersStore } from "@/store/users";
-import { AddUserModal, UserData } from "@/components/AddUserModal";
+import { CreateAdminModal, UserData } from "@/components/CreateAdminModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal/DeleteConfirmModal";
 import classes from "./Admins.module.css";
 import PageHeader from "@/components/PageHeader";
 import PlusIcon from "../../assets/icons/plus.svg?react";
 import ActionButton from "@/components/ActionButton/ActionButton";
-import { UpdateUserRequest } from "@/api/user";
+import { UpdateAdminRequest } from "@/api/user";
 
-type UserItem = {
+type AdminUser = {
   id: string;
   login: string;
   isAdmin?: boolean;
@@ -100,14 +100,16 @@ const pendingItems: LogItem[] = [
 const Users: FC = () => {
   const [q, setQ] = useState("");
 
-  const { items, fetchUsers, deleteUser, updateUser } = useUsersStore((s) => ({
-    items: s.items,
-    fetchUsers: s.fetchUsers,
-    deleteUser: s.deleteUser,
-    updateUser: s.updateUser,
-  }));
+  const { admins, fetchAdmins, deleteAdmin, updateAdmin } = useUsersStore(
+    (s) => ({
+      admins: s.admins,
+      fetchAdmins: s.fetchAdmins,
+      deleteAdmin: s.deleteAdmin,
+      updateAdmin: s.updateAdmin,
+    }),
+  );
 
-  const createUser = useUsersStore((s) => s.createUser);
+  const createAdmin = useUsersStore((s) => s.createAdmin);
 
   // Состояния для модальных окон
   const [createModalOpened, setCreateModalOpened] = useState(false);
@@ -146,7 +148,7 @@ const Users: FC = () => {
     setCreateError(null);
   };
 
-  const handleEditOpen = (user: UserItem) => {
+  const handleEditOpen = (user: AdminUser) => {
     setEditingUser({
       id: user.id,
       data: {
@@ -164,7 +166,7 @@ const Users: FC = () => {
     setEditError(null);
   };
 
-  const handleDeleteConfirmOpen = (user: UserItem) => {
+  const handleDeleteConfirmOpen = (user: AdminUser) => {
     setUserToDelete({
       id: user.id,
       login: user.login,
@@ -181,16 +183,16 @@ const Users: FC = () => {
   const handleClearEditError = useCallback(() => setEditError(null), []);
 
   React.useEffect(() => {
-    fetchUsers({
+    fetchAdmins({
       limit: 50,
       offset: 0,
     }).catch(() => void 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const viewUsers: UserItem[] = React.useMemo(
+  const viewUsers: AdminUser[] = React.useMemo(
     () =>
-      items.map((u) => ({
+      admins.map((u) => ({
         id: String(u.id),
         login: u.email,
         isAdmin: u.is_admin,
@@ -199,7 +201,7 @@ const Users: FC = () => {
         actionsCount: undefined,
         deletable: true,
       })),
-    [items],
+    [admins],
   );
 
   const filtered = useMemo(() => {
@@ -214,10 +216,10 @@ const Users: FC = () => {
 
   const shownCount = filtered.length; // For the tab counter demo
 
-  const handleDeleteUser = async (userId: string) => {
+  const handleDeleteAdmin = async (userId: string) => {
     try {
       setDeleteLoading(true);
-      await deleteUser(userId);
+      await deleteAdmin(userId);
       handleDeleteConfirmClose();
     } catch (error) {
       console.error("Failed to delete user:", error);
@@ -388,7 +390,7 @@ const Users: FC = () => {
       </Tabs>
 
       {/* Модальное окно создания пользователя */}
-      <AddUserModal
+      <CreateAdminModal
         opened={createModalOpened}
         onClose={handleCreateClose}
         loading={createLoading}
@@ -398,13 +400,13 @@ const Users: FC = () => {
         onSubmit={async ({ email, password, is_admin }) => {
           try {
             setCreateLoading(true);
-            await createUser({
+            await createAdmin({
               email,
               password,
               is_admin,
             });
             // Refresh the user list to show the newly created user
-            await fetchUsers({
+            await fetchAdmins({
               limit: 50,
               offset: 0,
             });
@@ -422,7 +424,7 @@ const Users: FC = () => {
       />
 
       {/* Модальное окно редактирования пользователя */}
-      <AddUserModal
+      <CreateAdminModal
         opened={editModalOpened}
         onClose={handleEditClose}
         loading={editLoading}
@@ -438,7 +440,7 @@ const Users: FC = () => {
 
           try {
             setEditLoading(true);
-            const updateData: UpdateUserRequest = {
+            const updateData: UpdateAdminRequest = {
               email,
               is_admin,
             };
@@ -448,10 +450,10 @@ const Users: FC = () => {
               updateData.password = password;
             }
 
-            await updateUser(editingUser.id, updateData);
+            await updateAdmin(editingUser.id, updateData);
 
             // Refresh the user list
-            await fetchUsers({
+            await fetchAdmins({
               limit: 50,
               offset: 0,
             });
@@ -472,7 +474,7 @@ const Users: FC = () => {
       <DeleteConfirmModal
         opened={deleteConfirmOpened}
         title={`Вы уверены, что хотите удалить пользователя "${userToDelete?.login}"?`}
-        onConfirm={() => userToDelete && handleDeleteUser(userToDelete.id)}
+        onConfirm={() => userToDelete && handleDeleteAdmin(userToDelete.id)}
         onClose={handleDeleteConfirmClose}
         loading={deleteLoading}
       />
