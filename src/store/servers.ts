@@ -18,7 +18,14 @@ export type ServersState = {
   nextCursor: string | null;
   total: number;
   totalPages: number;
-  fetchServers: (params?: { limit?: number; offset?: number }) => Promise<void>;
+  currentPage: number;
+  fetchServers: (params?: {
+    limit?: number;
+    offset?: number;
+    page?: number;
+    search?: string;
+    filter?: "all" | "active" | "inactive";
+  }) => Promise<void>;
   createServer: (payload: CreateServerRequest) => Promise<ServerItem>;
   updateServer: (
     url: string,
@@ -29,6 +36,7 @@ export type ServersState = {
   setServers: (servers: ServerItem[]) => void;
   clearError: () => void;
   findByUrlPort: (url: string, port: number) => ServerItem | undefined;
+  setCurrentPage: (page: number) => void;
 };
 
 export const useServersStore = create<ServersState>((set, get) => ({
@@ -39,6 +47,7 @@ export const useServersStore = create<ServersState>((set, get) => ({
   nextCursor: null,
   total: 0,
   totalPages: 0,
+  currentPage: 1,
 
   fetchServers: async (params) => {
     set({
@@ -46,13 +55,22 @@ export const useServersStore = create<ServersState>((set, get) => ({
       error: null,
     });
     try {
-      const response: PaginatedResponse<ServerItem> = await listServers(params);
+      const { page = 1, limit = 50, search, filter } = params || {};
+      const offset = (page - 1) * limit;
+
+      const response: PaginatedResponse<ServerItem> = await listServers({
+        limit,
+        offset,
+        search,
+        filter,
+      });
       set({
         servers: response.servers,
         limit: response.limit,
         nextCursor: response.nextCursor,
         total: response.total,
         totalPages: response.totalPages,
+        currentPage: page,
       });
     } catch (error) {
       const message =
@@ -97,4 +115,5 @@ export const useServersStore = create<ServersState>((set, get) => ({
   clearError: () => set({ error: null }),
   findByUrlPort: (url, port) =>
     get().servers.find((s) => s.url === url && s.port === port),
+  setCurrentPage: (page) => set({ currentPage: page }),
 }));

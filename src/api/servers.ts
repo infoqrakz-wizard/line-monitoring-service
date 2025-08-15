@@ -41,11 +41,18 @@ const buildUrlPort = (url: string, port: number | string): string =>
   `${url}:${port}`;
 
 export const listServers = async (
-  params: { limit?: number; offset?: number } = {},
+  params: {
+    limit?: number;
+    offset?: number;
+    search?: string;
+    filter?: "all" | "active" | "inactive";
+  } = {},
 ): Promise<PaginatedResponse<ServerItem>> => {
   const query = buildQueryString({
     limit: params.limit,
     offset: params.offset,
+    search: params.search,
+    filter: params.filter,
   });
   return request.get<PaginatedResponse<ServerItem>>(`/servers${query}`);
 };

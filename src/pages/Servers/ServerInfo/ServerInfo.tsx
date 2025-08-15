@@ -10,15 +10,8 @@ import {
   Badge,
   Image,
   ActionIcon,
-  Modal,
-  TextInput,
 } from "@mantine/core";
-import {
-  IconEyeOff,
-  IconTrash,
-  IconPlus,
-  IconVideo,
-} from "@tabler/icons-react";
+import { IconEyeOff, IconTrash, IconPlus } from "@tabler/icons-react";
 import { useServersStore } from "@/store/servers";
 import { useServerInfo } from "@/hooks/useServerInfo";
 import { downtime } from "@/api";
@@ -35,11 +28,6 @@ const ServerInfo: React.FC = () => {
   const [downtimeEvents, setDowntimeEvents] = useState<DowntimeEvent[]>([]);
   const [completedEvents, setCompletedEvents] = useState<DowntimeEvent[]>([]);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
-  const [newUser, setNewUser] = useState({
-    name: "",
-    password: "",
-    description: "",
-  });
 
   const { findByUrlPort } = useServersStore();
   const { cameras, users, mediaStates, main, resubscribe } = useServerInfo(
@@ -82,12 +70,6 @@ const ServerInfo: React.FC = () => {
       const completedEventsPromise = downtime.query({
         filter: "completed",
       });
-
-      const results = Promise.allSettled([
-        serverDownEventsPromise,
-        cameraDownEventsPromise,
-        completedEventsPromise,
-      ]);
 
       const [serverDownEvents, cameraDownEvents, completedEvents] =
         await Promise.all([
@@ -162,7 +144,8 @@ const ServerInfo: React.FC = () => {
         error instanceof Error
           ? error.message
           : "Не удалось создать пользователя";
-      setCreateError(message);
+      console.error(message);
+      // setCreateError(message);
       throw error; // Re-throw to let the modal handle the loading state
     } finally {
       setCreateLoading(false);
@@ -219,7 +202,8 @@ const ServerInfo: React.FC = () => {
 
           <Stack gap="md">
             {[...downtimeEvents, ...completedEvents].map((event) => {
-              const isCamera = Number.isInteger(parseInt(event.type, 10));
+              const isCamera =
+                !!event.type && Number.isInteger(parseInt(event.type, 10));
               return (
                 <Card key={event.id} className={classes.eventCard}>
                   <Group justify="space-between" align="flex-start">
@@ -446,6 +430,7 @@ const ServerInfo: React.FC = () => {
         opened={showAddUserModal}
         onClose={() => setShowAddUserModal(false)}
         onSubmit={handleAddUser}
+        loading={createLoading}
       />
       {/* Add User Modal */}
       {/* <Modal

@@ -9,6 +9,8 @@ import {
   Badge,
   Table,
   ActionIcon,
+  Pagination,
+  Text,
 } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
 import SearchInput from "@/components/SearchInput/SearchInput";
@@ -31,8 +33,18 @@ import ServerCard from "@/components/ServerCard/index";
 
 const Servers: React.FC = () => {
   const [q, setQ] = useState("");
-  const { servers, loading, error, fetchServers, deleteServer } =
-    useServersStore();
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const {
+    servers,
+    loading,
+    error,
+    fetchServers,
+    deleteServer,
+    total,
+    totalPages,
+    currentPage,
+    setCurrentPage,
+  } = useServersStore();
 
   const {
     servers: monitoringServers,
@@ -65,6 +77,49 @@ const Servers: React.FC = () => {
     }
   };
 
+  const handleSearchChange = (value: string) => {
+    setQ(value);
+  };
+
+  // Debounce для поиска
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQ(q);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [q]);
+
+  // Инициализация данных при первой загрузке
+  useEffect(() => {
+    void fetchServers({
+      page: 1,
+      search: "",
+      filter: "all",
+    });
+  }, [fetchServers]);
+
+  // Загружаем данные при изменении страницы, фильтров или поиска
+  // useEffect(() => {
+  //   // Пропускаем первую загрузку, так как она уже обработана в инициализации
+  //   if (currentPage === 1 && debouncedQ === "" && activeFilter === "all") {
+  //     return;
+  //   }
+
+  //   void fetchServers({
+  //     page: currentPage,
+  //     search: debouncedQ || undefined,
+  //     filter: activeFilter
+  //   });
+  // }, [fetchServers, currentPage, debouncedQ, activeFilter]);
+
+  // Сбрасываем страницу на первую при изменении фильтров или поиска
+  useEffect(() => {
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [activeFilter, debouncedQ, currentPage, setCurrentPage]);
+
   // Объединяем данные серверов с мониторингом
   const serversWithMonitoring = useMemo((): ServerItemWithMonitoring[] => {
     if (!servers || !monitoringServers) {
@@ -84,22 +139,8 @@ const Servers: React.FC = () => {
     });
   }, [servers, monitoringServers, getServerStatus]);
 
-  const filtered = useMemo(() => {
-    return serversWithMonitoring.filter((s) => {
-      let matchesFilter = true;
-
-      if (activeFilter === "active") {
-        matchesFilter = s.enabled && s.status === "green";
-      } else if (activeFilter === "inactive") {
-        matchesFilter = !s.enabled || s.status === "red";
-      }
-
-      const matchesSearch =
-        q === "" || s.name.toLowerCase().includes(q.toLowerCase());
-
-      return matchesFilter && matchesSearch;
-    });
-  }, [serversWithMonitoring, activeFilter, q]);
+  // Убираем клиентскую фильтрацию, так как теперь фильтрация происходит на сервере
+  const filtered = serversWithMonitoring;
 
   const handleClickDeleteServer = (url: string, port: number) => {
     const server = serversWithMonitoring.find(
@@ -117,6 +158,15 @@ const Servers: React.FC = () => {
     }
 
     setIsRemoveModalOpen(false);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    void fetchServers({
+      page,
+      search: debouncedQ || undefined,
+      filter: activeFilter,
+    });
   };
 
   const getStatusDotClass = (status?: ServerStatus) => {
@@ -194,10 +244,6 @@ const Servers: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    void fetchServers();
-  }, [fetchServers]);
-
   // Подключаемся к WebSocket при монтировании компонента
   useEffect(() => {
     connect();
@@ -261,7 +307,7 @@ const Servers: React.FC = () => {
             </div>
             <SearchInput
               value={q}
-              onChange={setQ}
+              onChange={handleSearchChange}
               placeholder="Найти сервер..."
               containerClassName={classes.searchInputDesktopContainer}
               className={classes.searchInputDesktop}
@@ -377,6 +423,24 @@ const Servers: React.FC = () => {
           ))}
         </SimpleGrid>
       </div>
+
+      {totalPages > 1 && (
+        <div className={classes.paginationContainer}>
+          <div className={classes.paginationInfo}>
+            <Text size="sm" c="dimmed">
+              Показано {servers.length} из {total} серверов
+            </Text>
+          </div>
+          <Pagination
+            total={totalPages}
+            value={currentPage}
+            onChange={handlePageChange}
+            size="sm"
+            radius="md"
+            withEdges
+          />
+        </div>
+      )}
 
       <Modal
         opened={isRemoveModalOpen}

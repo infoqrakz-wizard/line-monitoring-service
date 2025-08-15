@@ -62,6 +62,7 @@ export default [
       'eol-last': 'error',
       'prettier/prettier': 'error',
       '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
     },
     settings: { react: { version: 'detect' } },
   }
