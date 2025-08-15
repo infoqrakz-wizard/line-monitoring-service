@@ -5,15 +5,22 @@ import type {
   SubscribeRequest,
   UnsubscribeRequest,
   ServerStatus,
+  ServerUser,
 } from "@/types";
 
 export type MonitoringState = {
   servers: ServerWithMonitoring[];
+  users: {
+    id: string;
+    name: string;
+    sc: string;
+  }[];
   loading: boolean;
   error: string | null;
   socket: WebSocket | null;
   isConnected: boolean;
   subscribeToServers: (serverIds: string[]) => void;
+  // subscribeToServersUsers: () => void;
   unsubscribe: () => void;
   connect: () => void;
   disconnect: () => void;
@@ -23,6 +30,7 @@ export type MonitoringState = {
 
 export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   servers: [],
+  users: [],
   loading: false,
   error: null,
   socket: null,
@@ -52,10 +60,24 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
 
     ws.onmessage = (event) => {
       try {
-        const response: MonitoringResponse = JSON.parse(event.data);
+        const response: MonitoringResponse = JSON.parse(event.data as string);
         if (response.type === "snapshot" && response.data) {
+          const serversUsers = response.data.servers
+            .flatMap((server) => server.sections.users)
+            .filter(Boolean);
+
+          const filteredUsers: ServerUser[] = [];
+
+          serversUsers.forEach((user) => {
+            if (filteredUsers.some((u) => u.id === user.id)) {
+              return;
+            }
+            filteredUsers.push(user);
+          });
+
           set({
             servers: response.data.servers,
+            users: filteredUsers,
             error: null,
           });
         }
@@ -104,6 +126,35 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     }
   },
 
+  // subscribeToServersUsers: () => {
+  //   const { socket, isConnected } = get();
+
+  //   if (!socket || !isConnected) {
+  //     get().connect();
+  //     // Попробуем подписаться после подключения
+  //     setTimeout(() => {
+  //       get().subscribeToServersUsers();
+  //     }, 1000);
+  //     return;
+  //   }
+
+  //   const subscribeMessage: SubscribeRequest = {
+  //     type: "subscribe",
+  //     payload: {
+  //       servers: "all",
+  //       sections: ["users"],
+  //     },
+  //   };
+
+  //   try {
+  //     socket.send(JSON.stringify(subscribeMessage));
+  //     console.log("Subscribed to servers users");
+  //   } catch (error) {
+  //     console.error("Failed to subscribe to servers:", error);
+  //     set({ error: "Ошибка подписки на серверы" });
+  //   }
+  // },
+
   subscribeToServers: (serverIds: string[]) => {
     const { socket, isConnected } = get();
 
@@ -119,8 +170,9 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     const subscribeMessage: SubscribeRequest = {
       type: "subscribe",
       payload: {
-        servers: serverIds,
-        sections: ["main", "archiveState"],
+        // servers: serverIds,
+        servers: "all",
+        sections: ["main", "archiveState", "users"],
       },
     };
 

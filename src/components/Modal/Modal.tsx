@@ -1,21 +1,23 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import classes from "./Modal.module.css";
 
 export type BaseModalProps = {
   opened: boolean;
-  onClose: () => void;
   title?: string;
   children: React.ReactNode;
   closeOnBackdrop?: boolean;
+  style?: CSSProperties;
+  onClose: () => void;
 };
 
 const ModalComponent: React.FC<BaseModalProps> = ({
   opened,
-  onClose,
   title,
   children,
   closeOnBackdrop = true,
+  style,
+  onClose,
 }) => {
   React.useEffect(() => {
     if (!opened) {
@@ -42,6 +44,7 @@ const ModalComponent: React.FC<BaseModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label={title || "Modal"}
+      style={style}
       onClick={(e) => {
         if (closeOnBackdrop && e.target === e.currentTarget) {
           onClose();

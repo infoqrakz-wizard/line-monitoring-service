@@ -122,6 +122,13 @@ export const request = {
       method: "POST",
       body: body ? JSON.stringify(body) : undefined,
     }),
+  create: <T = unknown>(path: string, body?: unknown, init?: RequestInit) =>
+    apiFetch<T>(path, {
+      ...init,
+      method: "CREATE",
+      body: body ? JSON.stringify(body) : undefined,
+    }),
+
   put: <T = unknown>(path: string, body?: unknown, init?: RequestInit) =>
     apiFetch<T>(path, {
       ...init,

@@ -93,7 +93,6 @@ const theme = createTheme({
             }),
           },
         };
-        console.log("button styles", params, style);
         return style;
       },
     },

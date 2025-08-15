@@ -198,10 +198,10 @@ const Servers: React.FC = () => {
   // Подключаемся к WebSocket при монтировании компонента
   useEffect(() => {
     connect();
-    return () => {
-      unsubscribe();
-    };
-  }, [connect, unsubscribe]);
+    // return () => {
+    //   unsubscribe();
+    // };
+  }, [connect]);
 
   // Подписываемся на мониторинг серверов когда они загружены
   useEffect(() => {
@@ -209,7 +209,7 @@ const Servers: React.FC = () => {
       const serverIds = items.map((server) => `${server.url}:${server.port}`);
       subscribeToServers(serverIds);
     }
-  }, [items, subscribeToServers, isConnected]);
+  }, [items, isConnected]);
 
   return (
     <Stack className={classes.wrapper} gap="0" pos="relative">

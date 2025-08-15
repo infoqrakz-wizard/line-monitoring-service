@@ -5,6 +5,9 @@ import type {
   CreateUserRequest,
   UpdateUserRequest,
   PaginatedUsersResponse,
+  CreateServerUserRequest,
+  CreateServerUserResponse,
+  DeleteServerUserRequest,
 } from "@/api/user";
 
 export type UsersState = {
@@ -16,6 +19,14 @@ export type UsersState = {
     offset?: number;
   }) => Promise<PaginatedUsersResponse>;
   createUser: (payload: CreateUserRequest) => Promise<ApiUserItem>;
+  createServerUser: (
+    payload: CreateServerUserRequest,
+    servers: Array<{ url: string; port: number }>,
+  ) => Promise<CreateServerUserResponse>;
+  deleteServerUser: (
+    payload: DeleteServerUserRequest,
+    servers: Array<{ url: string; port: number }>,
+  ) => Promise<CreateServerUserResponse>;
   updateUser: (
     id: string | number,
     patch: UpdateUserRequest,
@@ -64,6 +75,14 @@ export const useUsersStore = create<UsersState>((set, get) => ({
       items: [created, ...get().items],
     });
     return created;
+  },
+
+  createServerUser: async (payload, servers) => {
+    return await usersApi.createServerUser(payload, servers);
+  },
+
+  deleteServerUser: async (payload, servers) => {
+    return await usersApi.deleteServerUser(payload, servers);
   },
 
   updateUser: async (id, patch) => {

@@ -76,17 +76,27 @@ export type ArchiveState = {
   };
 };
 
+export type ServerUser = {
+  id: string;
+  name: string;
+  sc: string;
+  description?: string;
+  enabled?: boolean;
+};
+
 export type ServerWithMonitoring = {
   id: string;
   sections: {
     main: ServerMonitoringData;
     archiveState: ArchiveState;
+    users: ServerUser[];
   };
   updated_at: number;
 };
 
 export type MonitoringData = {
   servers: ServerWithMonitoring[];
+  users: ServerUser[];
   notFound: string[];
   total: number;
   at: number;
@@ -102,7 +112,7 @@ export type MonitoringResponse = {
 export type SubscribeRequest = {
   type: "subscribe";
   payload: {
-    servers: string[];
+    servers: string | string[];
     sections: string[];
   };
 };
