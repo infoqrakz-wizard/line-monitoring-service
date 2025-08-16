@@ -55,6 +55,31 @@
   background: rgb(221, 221, 221);
 }
 
+/* Events Group Styles */
+.eventsGroup {
+  margin-bottom: 24px;
+}
+
+.eventsGroup:last-child {
+  margin-bottom: 0;
+}
+
+.eventsGroupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.eventsGroupTitle {
+  font-size: 14px !important;
+  line-height: 18px !important;
+  color: rgb(29, 29, 29) !important;
+  margin: 0 !important;
+}
+
 
 .eventCard {
   display: flex;
@@ -256,7 +281,7 @@
 
 .cameraPreview {
   width: 100%;
-  height: 200px;
+  height: 400px;
   overflow: hidden;
   border-radius: 8px;
   border: 1px solid #e9ecef;

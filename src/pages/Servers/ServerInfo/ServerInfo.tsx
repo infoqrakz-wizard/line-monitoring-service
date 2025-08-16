@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import {
   Stack,
@@ -6,22 +6,21 @@ import {
   Title,
   Text,
   Button,
-  Card,
   Badge,
   Image,
   ActionIcon,
   Tooltip,
 } from "@mantine/core";
-import { IconEyeOff, IconTrash, IconPlus } from "@tabler/icons-react";
-import { useServersStore } from "@/store/servers";
+import { IconTrash, IconPlus } from "@tabler/icons-react";
 import { useServerInfo } from "@/hooks/useServerInfo";
 import { downtime } from "@/api";
 import type { DowntimeEvent } from "@/types";
-import classes from "./ServerInfo.module.css";
 import { CreateUserModal } from "@/components/CreateUserModal";
 import { useUsersStore } from "@/store/users";
 import PageHeader from "@/components/PageHeader";
-import { useMonitoringStore } from "@/store/monitoring";
+
+import classes from "./ServerInfo.module.css";
+import { useServersStore } from "@/store/servers";
 
 const ServerInfo: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -38,28 +37,23 @@ const ServerInfo: React.FC = () => {
   );
   const [createLoading, setCreateLoading] = useState(false);
 
-  const { servers } = useMonitoringStore();
+  const { users: serverUsers } = useServerInfo(url, port);
+
+  const { fetchServers, findByUrlPort } = useServersStore();
+
+  // TODO: нужен метод получения инфо по 1 серверу
+  useEffect(() => {
+    void fetchServers();
+  }, [fetchServers]);
 
   const { deleteUser, createUser } = useUsersStore((s) => ({
     deleteUser: s.deleteUser,
     createUser: s.createUser,
   }));
 
-  const findByUrlPort = useCallback(
-    (url: string, port: number) => {
-      return servers.find(
-        (server) =>
-          server.sections.main.url === url &&
-          server.sections.main.port === port,
-      );
-    },
-    [servers],
-  );
-
-  // Get server credentials
   const server = url && port ? findByUrlPort(url, parseInt(port)) : undefined;
-  const username = server?.sections.main.username || "";
-  const password = server?.sections.main.password || "";
+  const username = server?.username || "";
+  const password = server?.password || "";
 
   useEffect(() => {
     if (url && port) {
@@ -124,8 +118,41 @@ const ServerInfo: React.FC = () => {
         port: parseInt(port),
       });
       setDowntimeEvents([]);
+      setCompletedEvents([]);
     } catch (error) {
       console.error("Failed to clear events:", error);
+    }
+  };
+
+  const handleClearActiveEvents = async () => {
+    if (!url || !port) {
+      return;
+    }
+
+    try {
+      // Удаляем все активные события
+      for (const event of downtimeEvents) {
+        await downtime.delete({ id: event.id });
+      }
+      setDowntimeEvents([]);
+    } catch (error) {
+      console.error("Failed to clear active events:", error);
+    }
+  };
+
+  const handleClearCompletedEvents = async () => {
+    if (!url || !port) {
+      return;
+    }
+
+    try {
+      // Удаляем все завершенные события
+      for (const event of completedEvents) {
+        await downtime.delete({ id: event.id });
+      }
+      setCompletedEvents([]);
+    } catch (error) {
+      console.error("Failed to clear completed events:", error);
     }
   };
 
@@ -193,10 +220,15 @@ const ServerInfo: React.FC = () => {
     );
   }
 
+  const hasUsers = serverUsers?.length && serverUsers.length > 0;
+
+  const serverUsersNames = serverUsers.map((user) => user.name);
+
   return (
     <div className={classes.container}>
       <PageHeader
-        title={`${server?.sections.main.name || ""}`}
+        withBackButton
+        title={`${server?.name || ""}`}
         rightSide={
           <div className={classes.serverInfo}>
             <div className={classes.serverInfoItem}>
@@ -232,105 +264,195 @@ const ServerInfo: React.FC = () => {
                 aria-label="Очистить все записи"
                 color="#676767"
               >
-                <IconEyeOff size={20} />
+                <IconTrash size={20} />
               </ActionIcon>
             </Tooltip>
           </div>
 
           <Stack gap="md">
-            {[...downtimeEvents, ...completedEvents].map((event) => {
-              const isCamera =
-                !!event.type && Number.isInteger(parseInt(event.type, 10));
-              // debugger;
-              // const cameraName = isCamera
-              //   ? cameras?.find((camera) => camera.id === event.type!)?.name
-              //   : "";
-
-              return (
-                <div key={event.id} className={classes.eventCard}>
-                  <Stack
-                    justify="space-between"
-                    align="flex-start"
-                    dir="column"
-                    w="100%"
-                  >
-                    <div className={classes.eventIdContainer}>
-                      <div className={classes.eventId}>
-                        <Text size="sm" fw={500}>
-                          № {event.id} • от{" "}
-                          {new Date(event.down_at).toLocaleDateString("ru-RU")}
-                        </Text>
-                      </div>
-
-                      <Tooltip label="Удалить событие">
-                        <ActionIcon
-                          // className={classes.sectionHeaderAction}
-                          color="#676767"
-                          variant="subtle"
-                          onClick={() => handleDeleteEvent(event.id)}
-                          aria-label="Удалить событие"
-                        >
-                          <IconEyeOff size={20} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </div>
-                    <div className={classes.eventInfo}>
-                      {event.comment && (
-                        <div className={classes.eventComment}>
-                          {event.comment}
-                        </div>
-                      )}
-
-                      <div className={classes.eventInfoRow}>
-                        <span className={classes.eventInfoItemLabel}>
-                          Сервер
-                        </span>
-                        <span className={classes.eventInfoItemValue}>
-                          {server?.sections.main.name}
-                        </span>
-                      </div>
-                      <div className={classes.eventInfoRow}>
-                        <span className={classes.eventInfoItemLabel}>
-                          Down/Up
-                        </span>
-                        <span className={classes.eventInfoItemValue}>
-                          <Badge
-                            color={event.up_at ? "green" : "red"}
-                            variant="light"
-                            size="sm"
-                          >
-                            {event.up_at ? "в сети" : "вне сети"}
-                          </Badge>
-                        </span>
-                      </div>
-                      <div className={classes.eventInfoRow}>
-                        <span className={classes.eventInfoItemLabel}>
-                          Время простоя
-                        </span>
-                        <span className={classes.eventInfoItemValue}>
-                          {calculateDowntime(
-                            event.down_at,
-                            event.up_at || new Date().toDateString(),
-                          )}
-                        </span>
-                      </div>
-                      {/* <Text size="xs" c="dimmed">
-                        {isCamera ? `Камера ${event.type}` : "Сервер"} •{" "}
-                        {event.up_at ? "Up" : "Down"}
-                      </Text> */}
-                      {/* {event.up_at && (
-                        <Text size="xs" c="dimmed">
-                          Время простоя:{" "}
-                          {calculateDowntime(event.down_at, event.up_at)}
-                        </Text>
-                      )} */}
-                    </div>
-                  </Stack>
+            {/* Активные проблемы */}
+            {downtimeEvents.length > 0 && (
+              <div className={classes.eventsGroup}>
+                <div className={classes.eventsGroupHeader}>
+                  <Text size="sm" fw={500} className={classes.eventsGroupTitle}>
+                    Активные
+                  </Text>
+                  <Tooltip label="Удалить все активные проблемы">
+                    <ActionIcon
+                      color="#676767"
+                      variant="subtle"
+                      onClick={() => handleClearActiveEvents()}
+                      aria-label="Удалить все активные проблемы"
+                    >
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Tooltip>
                 </div>
-              );
-            })}
+                <Stack gap="md">
+                  {downtimeEvents.map((event) => (
+                    <div key={event.id} className={classes.eventCard}>
+                      <Stack
+                        justify="space-between"
+                        align="flex-start"
+                        dir="column"
+                        w="100%"
+                      >
+                        <div className={classes.eventIdContainer}>
+                          <div className={classes.eventId}>
+                            <Text size="sm" fw={500}>
+                              № {event.id} • от{" "}
+                              {new Date(event.down_at).toLocaleDateString(
+                                "ru-RU",
+                              )}
+                            </Text>
+                          </div>
 
-            {downtimeEvents.length === 0 && (
+                          <Tooltip label="Удалить событие">
+                            <ActionIcon
+                              color="#676767"
+                              variant="subtle"
+                              onClick={() => handleDeleteEvent(event.id)}
+                              aria-label="Удалить событие"
+                            >
+                              <IconTrash size={20} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </div>
+                        <div className={classes.eventInfo}>
+                          {event.comment && (
+                            <div className={classes.eventComment}>
+                              {event.comment}
+                            </div>
+                          )}
+
+                          <div className={classes.eventInfoRow}>
+                            <span className={classes.eventInfoItemLabel}>
+                              Сервер
+                            </span>
+                            <span className={classes.eventInfoItemValue}>
+                              {server?.name}
+                            </span>
+                          </div>
+                          <div className={classes.eventInfoRow}>
+                            <span className={classes.eventInfoItemLabel}>
+                              Down/Up
+                            </span>
+                            <span className={classes.eventInfoItemValue}>
+                              <Badge color="red" variant="light" size="sm">
+                                вне сети
+                              </Badge>
+                            </span>
+                          </div>
+                          <div className={classes.eventInfoRow}>
+                            <span className={classes.eventInfoItemLabel}>
+                              Время простоя
+                            </span>
+                            <span className={classes.eventInfoItemValue}>
+                              {calculateDowntime(
+                                event.down_at,
+                                new Date().toDateString(),
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </Stack>
+                    </div>
+                  ))}
+                </Stack>
+              </div>
+            )}
+
+            {/* Завершенные проблемы */}
+            {completedEvents.length > 0 && (
+              <div className={classes.eventsGroup}>
+                <div className={classes.eventsGroupHeader}>
+                  <Text size="sm" fw={500} className={classes.eventsGroupTitle}>
+                    Завершенные
+                  </Text>
+                  <Tooltip label="Удалить все завершенные проблемы">
+                    <ActionIcon
+                      color="#676767"
+                      variant="subtle"
+                      onClick={() => handleClearCompletedEvents()}
+                      aria-label="Удалить все завершенные проблемы"
+                    >
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </div>
+                <Stack gap="md">
+                  {completedEvents.map((event) => (
+                    <div key={event.id} className={classes.eventCard}>
+                      <Stack
+                        justify="space-between"
+                        align="flex-start"
+                        dir="column"
+                        w="100%"
+                      >
+                        <div className={classes.eventIdContainer}>
+                          <div className={classes.eventId}>
+                            <Text size="sm" fw={500}>
+                              № {event.id} • от{" "}
+                              {new Date(event.down_at).toLocaleDateString(
+                                "ru-RU",
+                              )}
+                            </Text>
+                          </div>
+
+                          <Tooltip label="Удалить событие">
+                            <ActionIcon
+                              color="#676767"
+                              variant="subtle"
+                              onClick={() => handleDeleteEvent(event.id)}
+                              aria-label="Удалить событие"
+                            >
+                              <IconTrash size={20} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </div>
+                        <div className={classes.eventInfo}>
+                          {event.comment && (
+                            <div className={classes.eventComment}>
+                              {event.comment}
+                            </div>
+                          )}
+
+                          <div className={classes.eventInfoRow}>
+                            <span className={classes.eventInfoItemLabel}>
+                              Сервер
+                            </span>
+                            <span className={classes.eventInfoItemValue}>
+                              {server?.name}
+                            </span>
+                          </div>
+                          <div className={classes.eventInfoRow}>
+                            <span className={classes.eventInfoItemLabel}>
+                              Down/Up
+                            </span>
+                            <span className={classes.eventInfoItemValue}>
+                              <Badge color="green" variant="light" size="sm">
+                                в сети
+                              </Badge>
+                            </span>
+                          </div>
+                          <div className={classes.eventInfoRow}>
+                            <span className={classes.eventInfoItemLabel}>
+                              Время простоя
+                            </span>
+                            <span className={classes.eventInfoItemValue}>
+                              {calculateDowntime(event.down_at, event.up_at!)}
+                            </span>
+                          </div>
+                        </div>
+                      </Stack>
+                    </div>
+                  ))}
+                </Stack>
+              </div>
+            )}
+
+            {/* Сообщение если нет событий */}
+            {downtimeEvents.length === 0 && completedEvents.length === 0 && (
               <Text c="dimmed" ta="center" py="xl">
                 Нет событий для отображения
               </Text>
@@ -500,53 +622,68 @@ const ServerInfo: React.FC = () => {
             className={`${classes.sectionHeader} ${classes.sectionHeaderUsers}`}
           >
             <div className={classes.sectionHeaderTitle}>Пользователи</div>
-            <Button
-              variant="black"
-              leftSection={<IconPlus size={20} />}
-              onClick={() => setShowAddUserModal(true)}
-            >
-              Добавить
-            </Button>
+            {!!hasUsers && (
+              <Button
+                variant="black"
+                leftSection={<IconPlus size={20} />}
+                onClick={() => setShowAddUserModal(true)}
+              >
+                Добавить
+              </Button>
+            )}
           </div>
 
-          <Stack gap="md" mt="md">
-            {users.map((user) => (
-              <div key={user.id} className={classes.userCard}>
-                <Group justify="space-between" align="center">
-                  <Group gap="0px">
-                    <div className={classes.userAvatar}>
-                      {/* <span className={classes.userAvatarText}> */}
-                      {user.name.charAt(0).toUpperCase()}
-                      {/* </span> */}
-                    </div>
-                    <div className={classes.userInfo}>
-                      <span className={classes.userLogin}>{user.name}</span>
-                      {user.description && (
-                        <span className={classes.userDescription}>
-                          {user.description}
-                        </span>
+          {!hasUsers && (
+            <Text c="dimmed" ta="center" py="xl">
+              Нет доступа
+            </Text>
+          )}
+          {!!hasUsers && (
+            <Stack gap="md" mt="md">
+              {users.map((user) => {
+                const isServerUser = serverUsersNames?.includes(user.name);
+
+                return (
+                  <div key={user.id} className={classes.userCard}>
+                    <Group justify="space-between" align="center">
+                      <Group gap="0px">
+                        <div className={classes.userAvatar}>
+                          {/* <span className={classes.userAvatarText}> */}
+                          {user.name.charAt(0).toUpperCase()}
+                          {/* </span> */}
+                        </div>
+                        <div className={classes.userInfo}>
+                          <span className={classes.userLogin}>{user.name}</span>
+                          {user.description && (
+                            <span className={classes.userDescription}>
+                              {user.description}
+                            </span>
+                          )}
+                        </div>
+                      </Group>
+
+                      {!isServerUser && (
+                        <ActionIcon
+                          variant="subtle"
+                          color="#676767"
+                          onClick={() => handleDeleteUser(user.name)}
+                          aria-label="Удалить пользователя"
+                        >
+                          <IconTrash size={32} />
+                        </ActionIcon>
                       )}
-                    </div>
-                  </Group>
+                    </Group>
+                  </div>
+                );
+              })}
 
-                  <ActionIcon
-                    variant="subtle"
-                    color="#676767"
-                    onClick={() => handleDeleteUser(user.name)}
-                    aria-label="Удалить пользователя"
-                  >
-                    <IconTrash size={32} />
-                  </ActionIcon>
-                </Group>
-              </div>
-            ))}
-
-            {users.length === 0 && (
-              <Text c="dimmed" ta="center" py="xl">
-                Нет пользователей для отображения
-              </Text>
-            )}
-          </Stack>
+              {users.length === 0 && (
+                <Text c="dimmed" ta="center" py="xl">
+                  Нет пользователей для отображения
+                </Text>
+              )}
+            </Stack>
+          )}
         </div>
       </div>
 
@@ -556,56 +693,6 @@ const ServerInfo: React.FC = () => {
         onSubmit={handleAddUser}
         loading={createLoading}
       />
-      {/* Add User Modal */}
-      {/* <Modal
-        opened={showAddUserModal}
-        onClose={() => setShowAddUserModal(false)}
-        title="Добавить пользователя"
-        size="md"
-      >
-        <Stack gap="md">
-          <TextInput
-            label="Имя пользователя"
-            value={newUser.name}
-            onChange={(e) =>
-              setNewUser((prev) => ({
-                ...prev,
-                name: e.target.value,
-              }))
-            }
-            required
-          />
-          <TextInput
-            label="Пароль"
-            value={newUser.password}
-            onChange={(e) =>
-              setNewUser((prev) => ({
-                ...prev,
-                password: e.target.value,
-              }))
-            }
-            required
-          />
-          <TextInput
-            label="Описание"
-            placeholder="Введите описание"
-            value={newUser.description}
-            onChange={(e) =>
-              setNewUser((prev) => ({
-                ...prev,
-                description: e.target.value,
-              }))
-            }
-          />
-
-          <Group justify="flex-end" gap="sm">
-            <Button variant="subtle" onClick={() => setShowAddUserModal(false)}>
-              Отмена
-            </Button>
-            <Button onClick={handleAddUser}>Добавить</Button>
-          </Group>
-        </Stack>
-      </Modal> */}
     </div>
   );
 };

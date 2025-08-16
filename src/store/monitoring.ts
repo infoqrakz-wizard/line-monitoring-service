@@ -34,7 +34,10 @@ export type MonitoringState = {
   connect: () => void;
   disconnect: () => void;
   getServerStatus: (server: ServerWithMonitoring) => ServerStatus;
-  getServerByUrlPort: (url: string, port: number) => ServerWithMonitoring | undefined;
+  getServerByUrlPort: (
+    url: string,
+    port: number,
+  ) => ServerWithMonitoring | undefined;
   setUsers: (users: User[]) => void;
   clearError: () => void;
   fetchDowntimeEvents: (filter: DowntimeFilter) => Promise<void>;
@@ -269,7 +272,7 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
 
   getServerByUrlPort: (url: string, port: number) => {
     const { servers } = get();
-    return servers.find(server => {
+    return servers.find((server) => {
       const serverUrl = server.sections.main.url;
       const serverPort = server.sections.main.port;
       return serverUrl === url && serverPort === port;
@@ -312,16 +315,16 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         loading: true,
         error: null,
       });
-      
+
       // Fetch both current and completed issues
       const [currentEvents, completedEvents] = await Promise.all([
         downtime.query({ filter: "servers_down" }),
-        downtime.query({ filter: "completed" })
+        downtime.query({ filter: "completed" }),
       ]);
-      
+
       // Combine all events for summary statistics
       const allEvents = [...currentEvents.data, ...completedEvents.data];
-      
+
       set({
         allDowntimeEvents: allEvents,
         loading: false,
@@ -340,9 +343,9 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     try {
       const [currentEvents, completedEvents] = await Promise.all([
         downtime.query({ filter: "servers_down" }),
-        downtime.query({ filter: "completed" })
+        downtime.query({ filter: "completed" }),
       ]);
-      
+
       const allEvents = [...currentEvents.data, ...completedEvents.data];
       set({ allDowntimeEvents: allEvents });
     } catch (error) {
@@ -357,9 +360,9 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       const allEvents = get().allDowntimeEvents;
       const updatedEvents = currentEvents.filter((event) => event.id !== id);
       const updatedAllEvents = allEvents.filter((event) => event.id !== id);
-      set({ 
+      set({
         downtimeEvents: updatedEvents,
-        allDowntimeEvents: updatedAllEvents 
+        allDowntimeEvents: updatedAllEvents,
       });
     } catch (error) {
       console.error("Failed to delete downtime event:", error);
@@ -381,9 +384,9 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       const updatedAllEvents = allEvents.filter(
         (event) => !(event.url === url && event.port === port),
       );
-      set({ 
+      set({
         downtimeEvents: updatedEvents,
-        allDowntimeEvents: updatedAllEvents 
+        allDowntimeEvents: updatedAllEvents,
       });
     } catch (error) {
       console.error("Failed to delete downtime events by URL/port:", error);
@@ -392,6 +395,9 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   },
 
   clearDowntimeEvents: () => {
-    set({ downtimeEvents: [], allDowntimeEvents: [] });
+    set({
+      downtimeEvents: [],
+      allDowntimeEvents: [],
+    });
   },
 }));
