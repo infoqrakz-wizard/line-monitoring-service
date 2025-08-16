@@ -10,6 +10,7 @@ import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import { useMonitoringStore } from "@/store/monitoring";
 import { DowntimeEvent } from "@/types";
 import classes from "./Monitoring.module.css";
+import PageHeader from "@/components/PageHeader";
 
 const Monitoring: React.FC = () => {
   const [view, setView] = useState<MonitoringView>("current");
@@ -209,7 +210,11 @@ const Monitoring: React.FC = () => {
 
   return (
     <div className={classes.container}>
-      <Flex
+      <PageHeader
+        title="Мониторинг"
+        rightSide={<MonitoringSummary {...summary} />}
+      />
+      {/* <Flex
         direction="row"
         justify="space-between"
         align="center"
@@ -217,7 +222,7 @@ const Monitoring: React.FC = () => {
       >
         <Title order={2}>Мониторинг</Title>
         <MonitoringSummary {...summary} />
-      </Flex>
+      </Flex> */}
 
       {error && (
         <Alert

@@ -28,9 +28,7 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
   const isPostponed = type === "postponed";
 
   return (
-    <div
-      className={`${classes.table} ${isPostponed ? classes.postponed : classes.current}`}
-    >
+    <div className={classes.table}>
       {rows.length > 0 && onDeleteAll && (
         <div className={classes.actions}>
           <button

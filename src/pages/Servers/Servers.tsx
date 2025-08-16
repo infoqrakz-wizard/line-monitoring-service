@@ -100,18 +100,18 @@ const Servers: React.FC = () => {
   }, [fetchServers]);
 
   // Загружаем данные при изменении страницы, фильтров или поиска
-  // useEffect(() => {
-  //   // Пропускаем первую загрузку, так как она уже обработана в инициализации
-  //   if (currentPage === 1 && debouncedQ === "" && activeFilter === "all") {
-  //     return;
-  //   }
+  useEffect(() => {
+    // Пропускаем первую загрузку, так как она уже обработана в инициализации
+    if (currentPage === 1 && debouncedQ === "" && activeFilter === "all") {
+      return;
+    }
 
-  //   void fetchServers({
-  //     page: currentPage,
-  //     search: debouncedQ || undefined,
-  //     filter: activeFilter
-  //   });
-  // }, [fetchServers, currentPage, debouncedQ, activeFilter]);
+    void fetchServers({
+      page: currentPage,
+      search: debouncedQ || undefined,
+      filter: activeFilter,
+    });
+  }, [fetchServers, currentPage, debouncedQ, activeFilter]);
 
   // Сбрасываем страницу на первую при изменении фильтров или поиска
   useEffect(() => {
@@ -346,7 +346,11 @@ const Servers: React.FC = () => {
                   <Table.Td className={classes.td}>
                     <Group gap="xs">
                       <span className={getStatusDotClass(row.status)} />
-                      <strong>{row.name}</strong>
+                      <a
+                        href={`/servers/info?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`}
+                      >
+                        <strong>{row.name}</strong>
+                      </a>
                     </Group>
                   </Table.Td>
                   <Table.Td
@@ -366,7 +370,7 @@ const Servers: React.FC = () => {
                   </Table.Td>
                   <Table.Td className={classes.td}>
                     <Group gap="xs">
-                      <Tooltip label="Информация">
+                      {/* <Tooltip label="Информация">
                         <ActionIcon
                           variant="subtle"
                           size="sm"
@@ -378,7 +382,7 @@ const Servers: React.FC = () => {
                         >
                           <IconInfoCircle size={16} />
                         </ActionIcon>
-                      </Tooltip>
+                      </Tooltip> */}
                       <Tooltip label="Редактировать">
                         <ActionButton
                           className={classes.editIcon}
