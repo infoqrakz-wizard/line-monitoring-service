@@ -361,6 +361,10 @@
   color: rgba(103, 103, 103, 0.6);
 }
 
+.serverInfoItemValuePassword {
+  cursor: pointer;
+}
+
 /* Tablet styles */
 @media (max-width: 1024px) {
   .container {
@@ -450,5 +454,17 @@
     flex-direction: column;
     gap: 12px;
     align-items: flex-start;
+  }
+
+  .serverInfo {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .serverInfoItem {
+    flex: 1;
+    width: 100%;
   }
 }

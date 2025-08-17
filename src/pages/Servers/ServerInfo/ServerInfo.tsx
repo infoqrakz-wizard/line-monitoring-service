@@ -33,9 +33,11 @@ const ServerInfo: React.FC = () => {
   const [completedEvents, setCompletedEvents] = useState<DowntimeEvent[]>([]);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const [
     openedNotification,
-    { toggle: toggleNotification, close: closeNotification },
+    { toggle: toggleNotification, close: closeNotification }, 
   ] = useDisclosure(false);
 
   const {
@@ -269,7 +271,12 @@ const ServerInfo: React.FC = () => {
             </div>
             <div className={classes.serverInfoItem}>
               <span className={classes.serverInfoItemLabel}>Пароль:</span>
-              <span className={classes.serverInfoItemValue}>{password}</span>
+              <span
+                className={`${classes.serverInfoItemValue} ${classes.serverInfoItemValuePassword}`}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? password : "********"}
+              </span>
             </div>
           </div>
         }
