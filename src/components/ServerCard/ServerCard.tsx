@@ -42,7 +42,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
 
   const formatCamerasDisplay = (monitoring?: ServerMonitoringData) => {
     if (!monitoring) {
-      return "-";
+      return "";
     }
 
     const { totalCameras, enabledCameras, enabledWithProblemStream } =
@@ -77,7 +77,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
   };
 
   const formatHddStatus = (monitoring?: ServerMonitoringData) => {
-    if (!monitoring || !monitoring.ok) {
+    if (!monitoring) {
       return "-";
     }
 

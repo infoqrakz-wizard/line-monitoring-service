@@ -182,7 +182,7 @@ const Servers: React.FC = () => {
 
   const formatCamerasDisplay = (monitoring?: ServerMonitoringData) => {
     if (!monitoring) {
-      return "-";
+      return "";
     }
 
     const { totalCameras, enabledCameras, enabledWithProblemStream } =
@@ -196,20 +196,24 @@ const Servers: React.FC = () => {
     ) {
       workingCameras = enabledCameras - enabledWithProblemStream;
     } else {
-      workingCameras = "-";
+      workingCameras = "";
     }
     return (
       <Group gap="xs">
-        <Tooltip label="Камер всего">
-          <Badge color="dark" size="sm">
-            {Number.isInteger(totalCameras) ? totalCameras : "-"}
-          </Badge>
-        </Tooltip>
-        <Tooltip label="Активные">
-          <Badge color="green" size="sm">
-            {workingCameras}
-          </Badge>
-        </Tooltip>
+        {Number.isInteger(totalCameras) && (
+          <Tooltip label="Камер всего">
+            <Badge color="dark" size="sm">
+              {totalCameras}
+            </Badge>
+          </Tooltip>
+        )}
+        {workingCameras && (
+          <Tooltip label="Активные">
+            <Badge color="green" size="sm">
+              {workingCameras}
+            </Badge>
+          </Tooltip>
+        )}
         {enabledWithProblemStream && (
           <Tooltip label="С проблемами">
             <Badge color="red" size="sm">
@@ -222,7 +226,7 @@ const Servers: React.FC = () => {
   };
 
   const formatHddStatus = (monitoring?: ServerMonitoringData) => {
-    if (!monitoring || !monitoring.ok) {
+    if (!monitoring) {
       return "-";
     }
 

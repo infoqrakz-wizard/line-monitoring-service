@@ -229,11 +229,11 @@ const ServerInfo: React.FC = () => {
   };
 
   const getCameraPreviewUrl = (cameraId: string) => {
-    if (!url || !port || !username || !password) {
+    if (!url || !port || !username) {
       return "";
     }
 
-    const credentials = btoa(`${username}:${password}`);
+    const credentials = btoa(`${username}:${password || ""}`);
     return `https://${url}:${port}/cameras/${cameraId}/image?authorization=Basic%20${credentials}&keep_aspect_ratio=0&resolution=640x480`;
   };
 
@@ -251,6 +251,7 @@ const ServerInfo: React.FC = () => {
     <div className={classes.container}>
       <PageHeader
         withBackButton
+        backPath="/servers"
         title={`${server?.name || ""}`}
         rightSide={
           <div className={classes.serverInfo}>

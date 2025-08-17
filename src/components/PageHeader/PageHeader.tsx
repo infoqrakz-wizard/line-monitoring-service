@@ -6,18 +6,23 @@ export default function PageHeader({
   rightSide,
   title,
   withBackButton,
+  backPath,
 }: {
   rightSide?: React.ReactNode;
   title: string;
   withBackButton?: boolean;
+  backPath?: string;
 }) {
   const navigate = useNavigate();
 
   return (
     <div className={classes.header}>
       <div className={classes.leftSide}>
-        {withBackButton && (
-          <div className={classes.backButton} onClick={() => navigate(-1)} />
+        {withBackButton && backPath && (
+          <div
+            className={classes.backButton}
+            onClick={() => navigate(backPath)}
+          />
         )}
         <PageTitle>{title}</PageTitle>
       </div>
