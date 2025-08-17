@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   TextInput,
@@ -44,24 +44,17 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   onClearError,
   availableServers,
 }) => {
-  const [login, setLogin] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [servers, setServers] = React.useState<string[]>([]);
-  const [submitting, setSubmitting] = React.useState(false);
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
+  const [description, setDescription] = useState("");
+  const [servers, setServers] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const canSubmit =
-    Boolean(login) &&
-    Boolean(password) &&
-    (!availableServers ||
-      (availableServers &&
-        availableServers?.length > 0 &&
-        servers.length > 0)) &&
-    !submitting &&
-    !loading;
+    Boolean(login) && Boolean(password) && !submitting && !loading;
 
   // Clear form and error when modal opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (opened) {
       setLogin("");
       setPassword("");
@@ -112,14 +105,14 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     setServers(values);
   };
 
+  // serverOptions now uses server names as values
   const serverOptions = availableServers?.map((server) => ({
-    value: server.id,
+    value: server.name,
+    label: server.name,
   }));
 
-  // Функция для получения отображаемого текста сервера по ID
-  const getServerDisplayText = (serverId: string) => {
-    const server = availableServers!.find((s) => s.id === serverId);
-    return server ? server.name : serverId;
+  const getServerDisplayText = (serverName: string) => {
+    return serverName;
   };
 
   return (
@@ -199,7 +192,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                   return <div>{serverName}</div>;
                 }}
                 data={serverOptions}
-                required
                 size="md"
                 aria-label="Выбор серверов"
                 description="Выберите серверы, на которые будет добавлен пользователь"

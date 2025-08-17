@@ -84,8 +84,8 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
   };
 
   const serverOptions = availableServers.map((server) => ({
-    value: server.id,
-    label: `${server.name} (${server.url}:${server.port})`,
+    value: server.name,
+    label: server.name,
   }));
 
   return (

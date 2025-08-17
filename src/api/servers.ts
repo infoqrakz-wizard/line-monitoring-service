@@ -67,8 +67,8 @@ export const getServer = async (
 
 export const createServer = async (
   payload: CreateServerRequest,
-): Promise<ServerItem> => {
-  return request.post<ServerItem>("/servers", payload);
+): Promise<{ server: ServerItem }> => {
+  return request.post<{ server: ServerItem }>("/servers", payload);
 };
 
 export const updateServer = async (

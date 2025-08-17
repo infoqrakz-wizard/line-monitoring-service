@@ -174,22 +174,28 @@ const ServerInfo: React.FC = () => {
   }) => {
     try {
       setCreateLoading(true);
+
+      const availableServersData = [
+        {
+          id: server?.id?.toString() || "",
+          name: server?.name || "",
+          url: url || "",
+          port: parseInt(port || "0"),
+        },
+      ];
+
       await createUser(
         {
           name: login,
           password,
           description: "",
         },
-        [`${url}:${port}`],
+        [server?.name || ""],
+        availableServersData,
       );
       setCreateLoading(false);
       setShowAddUserModal(false);
       resubscribe(url!, parseInt(port!));
-      // Refresh the user list to show the newly created user
-      // await fetchUsers({
-      //   limit: 50,
-      //   offset: 0,
-      // });
     } catch (error) {
       const message =
         error instanceof Error
@@ -197,14 +203,24 @@ const ServerInfo: React.FC = () => {
           : "Не удалось создать пользователя";
       console.error(message);
       // setCreateError(message);
-      throw error; // Re-throw to let the modal handle the loading state
+      throw error;
     } finally {
       setCreateLoading(false);
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
-    await deleteUser(userId, [`${url}:${port}`]);
+    // Create availableServers data for the current server
+    const availableServersData = [
+      {
+        id: server?.id?.toString() || "",
+        name: server?.name || "",
+        url: url || "",
+        port: parseInt(port || "0"),
+      },
+    ];
+
+    await deleteUser(userId, [server?.name || ""], availableServersData);
     setTimeout(() => {
       if (url && port) {
         resubscribe(url, parseInt(port));
@@ -706,6 +722,15 @@ const ServerInfo: React.FC = () => {
           void forceUpdateWS();
         }}
         loading={createLoading}
+        availableServers={[
+          {
+            id: server?.id?.toString() || "",
+            name: server?.name || "",
+            url: url || "",
+            port: parseInt(port || "0"),
+          },
+        ]}
+        server={server?.name || ""} // Pre-select the current server
       />
 
       <Dialog

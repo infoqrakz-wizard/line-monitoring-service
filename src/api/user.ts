@@ -24,13 +24,14 @@ export type CreateUserRequest = {
 
 export type DeleteUserRequest = {
   name: string;
-  serverIds: string[];
+  serverNames: string[];
 };
 
 export type CreateUserResponse = {
-  success: boolean;
-  message?: string;
-  errors?: string[];
+  results: {
+    status: "ok" | "error";
+    server: string;
+  }[];
 };
 
 const buildQueryString = (
@@ -79,13 +80,34 @@ export const deleteAdmin = async (id: number | string): Promise<void> => {
 
 export const createUser = async (
   user: CreateUserRequest,
-  servers: string[],
+  serverNames: string[],
+  availableServers: Array<{
+    id: string;
+    name: string;
+    url: string;
+    port: number;
+  }>,
 ): Promise<CreateUserResponse> => {
-  // Форматируем данные для API
+  let serverIdentifiers;
+
+  if (serverNames.length === 0) {
+    serverIdentifiers = availableServers.map((server) => {
+      return `${server.url}:${server.port}`;
+    });
+  } else {
+    serverIdentifiers = serverNames.map((serverName) => {
+      const server = availableServers.find((s) => s.name === serverName);
+      if (!server) {
+        throw new Error(`Server with name "${serverName}" not found`);
+      }
+      return `${server.url}:${server.port}`;
+    });
+  }
+
   const apiPayload = {
     method: "create",
     user,
-    servers,
+    servers: serverIdentifiers,
   };
 
   return request.post<CreateUserResponse>("/manage/users", apiPayload);
@@ -93,15 +115,28 @@ export const createUser = async (
 
 export const deleteUser = async (
   name: string,
-  serverIds: string[],
+  serverNames: string[],
+  availableServers: Array<{
+    id: string;
+    name: string;
+    url: string;
+    port: number;
+  }>,
 ): Promise<CreateUserResponse> => {
-  // Форматируем данные для API
+  const serverIdentifiers = serverNames.map((serverName) => {
+    const server = availableServers.find((s) => s.name === serverName);
+    if (!server) {
+      throw new Error(`Server with name "${serverName}" not found`);
+    }
+    return `${server.url}:${server.port}`;
+  });
+
   const apiPayload = {
     method: "delete",
     user: {
       name,
     },
-    servers: serverIds,
+    servers: serverIdentifiers,
   };
 
   return request.post<CreateUserResponse>("/manage/users", apiPayload);

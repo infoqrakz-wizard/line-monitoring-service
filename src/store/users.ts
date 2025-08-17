@@ -26,11 +26,23 @@ export type UsersState = {
   setAdmins: (admins: ApiAdminUser[]) => void;
   createUser: (
     user: CreateUserRequest,
-    servers: string[],
+    serverNames: string[],
+    availableServers: Array<{
+      id: string;
+      name: string;
+      url: string;
+      port: number;
+    }>,
   ) => Promise<CreateUserResponse>;
   deleteUser: (
     name: string,
-    serverIds: string[],
+    serverNames: string[],
+    availableServers: Array<{
+      id: string;
+      name: string;
+      url: string;
+      port: number;
+    }>,
   ) => Promise<CreateUserResponse>;
   clearError: () => void;
 };
@@ -76,12 +88,12 @@ export const useUsersStore = create<UsersState>((set, get) => ({
     return created;
   },
 
-  createUser: async (user, servers) => {
-    return await usersApi.createUser(user, servers);
+  createUser: async (user, serverNames, availableServers) => {
+    return await usersApi.createUser(user, serverNames, availableServers);
   },
 
-  deleteUser: async (name, serverIds) => {
-    return await usersApi.deleteUser(name, serverIds);
+  deleteUser: async (name, serverNames, availableServers) => {
+    return await usersApi.deleteUser(name, serverNames, availableServers);
   },
 
   updateAdmin: async (id, patch) => {

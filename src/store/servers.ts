@@ -85,10 +85,7 @@ export const useServersStore = create<ServersState>((set, get) => ({
 
   createServer: async (payload) => {
     const created = await apiCreateServer(payload);
-    const servers = get().servers.slice();
-    servers.unshift(created);
-    set({ servers });
-    return created;
+    return created.server;
   },
 
   updateServer: async (url, port, patch) => {

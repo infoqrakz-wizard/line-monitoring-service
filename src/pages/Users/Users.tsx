@@ -13,6 +13,9 @@ import classes from "./Users.module.css";
 import { useMonitoringStore } from "@/store/monitoring";
 import { User, ServerWithMonitoring } from "@/types";
 import { forceUpdateWS } from "@/api/servers";
+import { useDisclosure } from "@mantine/hooks";
+import Toast from "@/components/Toast";
+import { IconCheck, IconX } from "@tabler/icons-react";
 
 const Users: FC = () => {
   const [q, setQ] = useState("");
@@ -23,10 +26,14 @@ const Users: FC = () => {
   }));
 
   // Состояния для модальных окон
-  const [createModalOpened, setCreateModalOpened] = useState(false);
   const [createUserModalOpened, setCreateUserModalOpened] = useState(false);
   const [deleteUserModalOpened, setDeleteUserModalOpened] = useState(false);
   const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
+
+  // сервера, на которых удалось создать пользователя
+  const [successServers, setSuccessServers] = useState<string[]>([]);
+  // сервера, на которых не удалось создать пользователя
+  const [errorServers, setErrorServers] = useState<string[]>([]);
 
   // Пользователь для удаления
   const [userToDelete, setUserToDelete] = useState<Pick<
@@ -35,7 +42,6 @@ const Users: FC = () => {
   > | null>(null);
 
   // Ошибки
-  const [createError, setCreateError] = useState<string | null>(null);
   const [createUserError, setCreateUserError] = useState<string | null>(null);
   const [deleteUserError, setDeleteUserError] = useState<string | null>(null);
 
@@ -43,7 +49,6 @@ const Users: FC = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Состояние загрузки для создания
-  const [createLoading, setCreateLoading] = useState(false);
   const [createUserLoading, setCreateUserLoading] = useState(false);
   const [deleteUserLoading, setDeleteUserLoading] = useState(false);
 
@@ -53,14 +58,10 @@ const Users: FC = () => {
     })[]
   >([]);
 
-  const { subscribeToServers, users, servers } = useMonitoringStore();
+  const [toastOpened, { toggle: toggleToast, close: closeToast }] =
+    useDisclosure(false);
 
-  // Обработчики для модальных окон
-  // const handleCreateOpen = () => setCreateModalOpened(true);
-  const handleCreateClose = () => {
-    setCreateModalOpened(false);
-    setCreateError(null);
-  };
+  const { subscribeToServers, users, servers } = useMonitoringStore();
 
   const handleCreateUserOpen = () => setCreateUserModalOpened(true);
   const handleCreateUserClose = () => {
@@ -105,7 +106,6 @@ const Users: FC = () => {
     setUserToDelete(null);
   };
 
-  const handleClearCreateError = useCallback(() => setCreateError(null), []);
   const handleClearCreateUserError = useCallback(
     () => setCreateUserError(null),
     [],
@@ -126,12 +126,17 @@ const Users: FC = () => {
       if (!user) {
         throw new Error("User not found");
       }
-      await deleteUser(
-        user.name,
-        user.servers.map(
-          (s) => `${s.sections.main.url}:${s.sections.main.port}`,
-        ),
-      );
+
+      const serverNames = user.servers.map((s) => s.sections.main.name);
+
+      const availableServersData = servers.map((server) => ({
+        id: server.id,
+        name: server.sections.main.name,
+        url: server.sections.main.url,
+        port: server.sections.main.port,
+      }));
+
+      await deleteUser(user.name, serverNames, availableServersData);
 
       await forceUpdateWS();
 
@@ -155,32 +160,11 @@ const Users: FC = () => {
               variant="black"
               leftSection={<PlusIcon />}
               aria-label="Добавить пользователя"
-              disabled={createLoading}
+              disabled={createUserLoading}
               onClick={handleCreateUserOpen}
             >
               Добавить пользователя
             </Button>
-            {/* <Button
-              className={classes.addButton}
-              variant="outline"
-              leftSection={<PlusIcon />}
-              aria-label="Добавить пользователя на серверах"
-              disabled={createUserLoading}
-              onClick={handleCreateUserOpen}
-            >
-              Добавить на серверах
-            </Button>
-            <Button
-              className={classes.addButton}
-              variant="outline"
-              color="red"
-              leftSection={<PlusIcon />}
-              aria-label="Удалить пользователя с серверов"
-              disabled={deleteUserLoading}
-              onClick={handleDeleteUserOpen}
-            >
-              Удалить с серверов
-            </Button> */}
             <SearchInput
               // className={classes.searchInput}
               rootClassName={classes.searchInputRoot}
@@ -189,7 +173,7 @@ const Users: FC = () => {
               value={q}
               onChange={setQ}
               placeholder="Найти пользователя..."
-              disabled={createLoading || deleteLoading}
+              disabled={createUserLoading || deleteLoading}
             />
           </div>
         }
@@ -220,96 +204,59 @@ const Users: FC = () => {
           />
         </div>
 
-        {usersServersMapping.map((u) => {
-          // const isSelected = selectedIds.has(u.id);
-          return (
-            <div key={u.id} className={classes.row} role="row">
-              <div className={`${classes.col} ${classes.userCol}`} role="cell">
-                <div className={classes.userInfo}>
-                  <p className={classes.userName}>{u.name}</p>
-                  <div className={classes.serversCount}>{u.servers.length}</div>
-                </div>
-                {u.description && (
-                  <p className={classes.userDesc}>{u.description}</p>
-                )}
-              </div>
-
-              <div
-                className={`${classes.col} ${classes.serverCol}`}
-                role="cell"
-              >
-                <div className={classes.serverList}>
-                  {u.servers.map((s) => (
-                    <div key={s.id} className={classes.serverItem}>
-                      {s.sections.main.name}
+        {usersServersMapping
+          .filter((u) => u.name.includes(q))
+          .map((u) => {
+            // const isSelected = selectedIds.has(u.id);
+            return (
+              <div key={u.id} className={classes.row} role="row">
+                <div
+                  className={`${classes.col} ${classes.userCol}`}
+                  role="cell"
+                >
+                  <div className={classes.userInfo}>
+                    <p className={classes.userName}>{u.name}</p>
+                    <div className={classes.serversCount}>
+                      {u.servers.length}
                     </div>
-                  ))}
+                  </div>
+                  {u.description && (
+                    <p className={classes.userDesc}>{u.description}</p>
+                  )}
+                </div>
+
+                <div
+                  className={`${classes.col} ${classes.serverCol}`}
+                  role="cell"
+                >
+                  <div className={classes.serverList}>
+                    {u.servers.map((s) => (
+                      <div key={s.id} className={classes.serverItem}>
+                        {s.sections.main.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className={`${classes.col} ${classes.actionsCol}`}
+                  role="cell"
+                >
+                  <div className={classes.actionButtons}>
+                    <Group gap="xs">
+                      <Tooltip label="Удалить">
+                        <ActionButton
+                          className={classes.deleteIcon}
+                          onClick={() => handleDeleteConfirmOpen(u)}
+                        />
+                      </Tooltip>
+                    </Group>
+                  </div>
                 </div>
               </div>
-
-              <div
-                className={`${classes.col} ${classes.actionsCol}`}
-                role="cell"
-              >
-                <div className={classes.actionButtons}>
-                  <Group gap="xs">
-                    <Tooltip label="Удалить">
-                      <ActionButton
-                        className={classes.deleteIcon}
-                        onClick={() => handleDeleteConfirmOpen(u)}
-                      />
-                    </Tooltip>
-                  </Group>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Модальное окно создания пользователя */}
-      <CreateUserModal
-        opened={createModalOpened}
-        onClose={handleCreateClose}
-        loading={createLoading}
-        error={createError}
-        onClearError={handleClearCreateError}
-        availableServers={servers.map((server) => ({
-          id: server.id,
-          name: server.sections.main.name,
-          url: server.sections.main.url,
-          port: server.sections.main.port,
-        }))}
-        onSubmit={async ({ login, password }) => {
-          try {
-            setCreateLoading(true);
-            await createUser(
-              {
-                name: login,
-                password,
-                description: "",
-              },
-              [],
             );
-
-            await forceUpdateWS();
-            // Refresh the user list to show the newly created user
-            // await fetchUsers({
-            //   limit: 50,
-            //   offset: 0,
-            // });
-          } catch (error) {
-            const message =
-              error instanceof Error
-                ? error.message
-                : "Не удалось создать пользователя";
-            setCreateError(message);
-            throw error; // Re-throw to let the modal handle the loading state
-          } finally {
-            setCreateLoading(false);
-          }
-        }}
-      />
+          })}
+      </div>
 
       {/* Модальное окно создания пользователя на серверах */}
       <CreateUserModal
@@ -328,37 +275,57 @@ const Users: FC = () => {
           try {
             setCreateUserLoading(true);
 
-            // Подготавливаем данные для API
             const userData = {
               name: payload.login,
               password: payload.password,
               description: payload.description,
             };
 
-            await createUser(userData, payload.servers);
+            const availableServersData = servers.map((server) => ({
+              id: server.id,
+              name: server.sections.main.name,
+              url: server.sections.main.url,
+              port: server.sections.main.port,
+            }));
+
+            const response = await createUser(
+              userData,
+              payload.servers,
+              availableServersData,
+            );
+
+            const getServerNames = (r: { server: string }) => {
+              return (
+                servers.find(
+                  (s) =>
+                    `${s.sections.main.url}:${s.sections.main.port}` ===
+                    r.server,
+                )?.sections.main.name || ""
+              );
+            };
+
+            const problemServersNames = response.results
+              .filter((r) => r.status !== "ok")
+              .map(getServerNames);
+
+            const successServersNames = response.results
+              .filter((r) => r.status === "ok")
+              .map(getServerNames);
+
+            setSuccessServers(successServersNames);
+            setErrorServers(problemServersNames);
+
+            toggleToast();
+
+            setTimeout(() => {
+              closeToast();
+              setSuccessServers([]);
+              setErrorServers([]);
+            }, 3000);
+
+            await forceUpdateWS();
 
             subscribeToServers([]);
-            // if (result.success) {
-            //   const newUser = {
-            //     id: result.id,
-            //     name: payload.login,
-            //     description: payload.description,
-            //     servers: servers.filter((server) =>
-            //       payload.servers.some(
-            //         (s) => `${s.url}:${s.port}` === `${server.id}`,
-            //       ),
-            //     ),
-            //   };
-            //   setUsers([...users, newUser]);
-            // } else {
-            //   // Если есть ошибки, показываем их
-            //   const errorMessage =
-            //     result.errors?.join(", ") ||
-            //     result.message ||
-            //     "Не удалось создать пользователя на серверах";
-            //   setCreateUserError(errorMessage);
-            //   throw new Error(errorMessage);
-            // }
           } catch (error) {
             const message =
               error instanceof Error
@@ -389,7 +356,19 @@ const Users: FC = () => {
           try {
             setDeleteUserLoading(true);
 
-            await deleteUser(payload.login, payload.servers);
+            // Get available servers data for the API call
+            const availableServersData = servers.map((server) => ({
+              id: server.id,
+              name: server.sections.main.name,
+              url: server.sections.main.url,
+              port: server.sections.main.port,
+            }));
+
+            await deleteUser(
+              payload.login,
+              payload.servers,
+              availableServersData,
+            );
             subscribeToServers([]);
           } catch (error) {
             const message =
@@ -412,6 +391,29 @@ const Users: FC = () => {
         onClose={handleDeleteConfirmClose}
         loading={deleteLoading}
       />
+
+      <Toast opened={toastOpened} close={closeToast}>
+        <Group gap="xs">
+          {successServers.length > 0 && (
+            <div className={classes.toastText}>
+              <IconCheck size={18} color="green" />
+              <span>
+                <b>Пользователь успешно добавлен на серверах:</b>{" "}
+                {successServers.join(", ")}
+              </span>
+            </div>
+          )}
+          {errorServers.length > 0 && (
+            <div className={classes.toastText}>
+              <IconX size={18} color="red" />
+              <span>
+                <b>Не удалось добавить пользователя на серверах:</b>{" "}
+                {errorServers.join(", ")}
+              </span>
+            </div>
+          )}
+        </Group>
+      </Toast>
     </Stack>
   );
 };

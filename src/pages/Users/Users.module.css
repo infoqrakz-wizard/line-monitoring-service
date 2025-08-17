@@ -59,6 +59,12 @@
   border: 1px solid #e9ecef;
 }
 
+.toastText {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr 160px;
