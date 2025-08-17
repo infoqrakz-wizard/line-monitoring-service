@@ -87,3 +87,7 @@ export const deleteServer = async (
   // const query = buildQueryString({ urlPort: buildUrlPort(url, port) });
   await request.delete<void>(`/servers?urlPort=${url}:${port}`);
 };
+
+export const forceUpdateWS = async (): Promise<void> => {
+  await request.get<void>("/walkabout/servers/check");
+};

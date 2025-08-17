@@ -23,11 +23,20 @@ import "modern-css-reset/dist/reset.min.css";
 const queryClient = new QueryClient();
 
 const BUTTON_STYLES = {
+  default: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "11px 20px 11px 20px",
+    gap: "12px",
+    minHeight: "46px",
+    fontWeight: 800,
+  },
   black: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: "11px 20px 11px 14px",
+    padding: "11px 20px 11px 20px",
     gap: "12px",
     minHeight: "46px",
     fontWeight: 800,
@@ -91,6 +100,9 @@ const theme = createTheme({
 
             ...(params.variant === "white" && {
               ...BUTTON_STYLES.white,
+            }),
+            ...(params.variant === "default" && {
+              ...BUTTON_STYLES.default,
             }),
           },
         };

@@ -9,6 +9,7 @@ import PageHeader from "@/components/PageHeader";
 import PlusIcon from "../../assets/icons/plus.svg?react";
 import ActionButton from "@/components/ActionButton/ActionButton";
 import { UpdateAdminRequest } from "@/api/user";
+import { forceUpdateWS } from "@/api/servers";
 
 type AdminUser = {
   id: string;
@@ -220,6 +221,7 @@ const Users: FC = () => {
     try {
       setDeleteLoading(true);
       await deleteAdmin(userId);
+      await forceUpdateWS();
       handleDeleteConfirmClose();
     } catch (error) {
       console.error("Failed to delete user:", error);
@@ -473,7 +475,7 @@ const Users: FC = () => {
       {/* Модальное окно подтверждения удаления */}
       <DeleteConfirmModal
         opened={deleteConfirmOpened}
-        title={`Вы уверены, что хотите удалить пользователя "${userToDelete?.login}"?`}
+        title={`Удалить пользователя ${userToDelete?.login}?`}
         onConfirm={() => userToDelete && handleDeleteAdmin(userToDelete.id)}
         onClose={handleDeleteConfirmClose}
         loading={deleteLoading}

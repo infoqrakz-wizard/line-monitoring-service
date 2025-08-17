@@ -1,7 +1,5 @@
-import { IconArrowLeft } from "@tabler/icons-react";
 import PageTitle from "../PageTitle";
 import classes from "./PageHeader.module.css";
-import { Button } from "@mantine/core";
 import { useNavigate } from "react-router";
 
 export default function PageHeader({

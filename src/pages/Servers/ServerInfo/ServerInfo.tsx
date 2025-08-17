@@ -10,8 +10,9 @@ import {
   Image,
   ActionIcon,
   Tooltip,
+  Dialog,
 } from "@mantine/core";
-import { IconTrash, IconPlus } from "@tabler/icons-react";
+import { IconTrash, IconPlus, IconCheck } from "@tabler/icons-react";
 import { useServerInfo } from "@/hooks/useServerInfo";
 import { downtime } from "@/api";
 import type { DowntimeEvent } from "@/types";
@@ -21,6 +22,7 @@ import PageHeader from "@/components/PageHeader";
 
 import classes from "./ServerInfo.module.css";
 import { useServersStore } from "@/store/servers";
+import { useDisclosure } from "@mantine/hooks";
 
 const ServerInfo: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -31,15 +33,22 @@ const ServerInfo: React.FC = () => {
   const [completedEvents, setCompletedEvents] = useState<DowntimeEvent[]>([]);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
 
-  const { cameras, users, mediaStates, main, resubscribe } = useServerInfo(
-    url,
-    port,
-  );
+  const [
+    openedNotification,
+    { toggle: toggleNotification, close: closeNotification },
+  ] = useDisclosure(false);
+
+  const {
+    cameras,
+    users,
+    mediaStates,
+    main,
+    resubscribe,
+    users: serverUsers,
+  } = useServerInfo(url, port);
   const [createLoading, setCreateLoading] = useState(false);
 
-  const { users: serverUsers } = useServerInfo(url, port);
-
-  const { fetchServers, findByUrlPort } = useServersStore();
+  const { fetchServers, findByUrlPort, forceUpdateWS } = useServersStore();
 
   // TODO: нужен метод получения инфо по 1 серверу
   useEffect(() => {
@@ -195,7 +204,7 @@ const ServerInfo: React.FC = () => {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    void deleteUser(userId, [`${url}:${port}`]);
+    await deleteUser(userId, [`${url}:${port}`]);
     setTimeout(() => {
       if (url && port) {
         resubscribe(url, parseInt(port));
@@ -221,8 +230,6 @@ const ServerInfo: React.FC = () => {
   }
 
   const hasUsers = serverUsers?.length && serverUsers.length > 0;
-
-  const serverUsersNames = serverUsers.map((user) => user.name);
 
   return (
     <div className={classes.container}>
@@ -641,7 +648,7 @@ const ServerInfo: React.FC = () => {
           {!!hasUsers && (
             <Stack gap="md" mt="md">
               {users.map((user) => {
-                const isServerUser = serverUsersNames?.includes(user.name);
+                const isServerUser = user.name === username;
 
                 return (
                   <div key={user.id} className={classes.userCard}>
@@ -691,8 +698,28 @@ const ServerInfo: React.FC = () => {
         opened={showAddUserModal}
         onClose={() => setShowAddUserModal(false)}
         onSubmit={handleAddUser}
+        onSuccess={() => {
+          toggleNotification();
+          setTimeout(() => {
+            closeNotification();
+          }, 3000);
+          void forceUpdateWS();
+        }}
         loading={createLoading}
       />
+
+      <Dialog
+        opened={openedNotification}
+        withCloseButton
+        onClose={closeNotification}
+        size="lg"
+        radius="md"
+      >
+        <Group gap="xs">
+          <IconCheck size={18} color="green" />
+          <Text>Пользователь успешно создан</Text>
+        </Group>
+      </Dialog>
     </div>
   );
 };

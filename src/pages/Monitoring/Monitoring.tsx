@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Flex, Title, Alert, Text } from "@mantine/core";
+import { Alert, Text } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
 import MonitoringSummary from "@/components/MonitoringSummary";
 import MonitoringControls, {

@@ -8,6 +8,7 @@ export type BaseModalProps = {
   children: React.ReactNode;
   closeOnBackdrop?: boolean;
   style?: CSSProperties;
+  withoutTitleMargin?: boolean;
   onClose: () => void;
 };
 
@@ -16,6 +17,7 @@ const ModalComponent: React.FC<BaseModalProps> = ({
   title,
   children,
   closeOnBackdrop = false,
+  withoutTitleMargin = false,
   style,
   onClose,
 }) => {
@@ -52,7 +54,13 @@ const ModalComponent: React.FC<BaseModalProps> = ({
       }}
     >
       <div className={classes.content} tabIndex={-1}>
-        {title ? <p className={classes.title}>{title}</p> : null}
+        {title ? (
+          <p
+            className={`${classes.title} ${withoutTitleMargin ? classes.withoutTitleMargin : ""}`}
+          >
+            {title}
+          </p>
+        ) : null}
         {children}
       </div>
     </div>

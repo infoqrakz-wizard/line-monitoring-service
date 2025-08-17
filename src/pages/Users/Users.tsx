@@ -12,6 +12,7 @@ import ActionButton from "@/components/ActionButton/ActionButton";
 import classes from "./Users.module.css";
 import { useMonitoringStore } from "@/store/monitoring";
 import { User, ServerWithMonitoring } from "@/types";
+import { forceUpdateWS } from "@/api/servers";
 
 const Users: FC = () => {
   const [q, setQ] = useState("");
@@ -131,6 +132,8 @@ const Users: FC = () => {
           (s) => `${s.sections.main.url}:${s.sections.main.port}`,
         ),
       );
+
+      await forceUpdateWS();
 
       handleDeleteConfirmClose();
     } catch (error) {
@@ -288,6 +291,8 @@ const Users: FC = () => {
               },
               [],
             );
+
+            await forceUpdateWS();
             // Refresh the user list to show the newly created user
             // await fetchUsers({
             //   limit: 50,
@@ -402,7 +407,7 @@ const Users: FC = () => {
       {/* Модальное окно подтверждения удаления */}
       <DeleteConfirmModal
         opened={deleteConfirmOpened}
-        title={`Вы уверены, что хотите удалить пользователя "${userToDelete?.name}"?`}
+        title={`Удалить пользователя ${userToDelete?.name}?`}
         onConfirm={() => userToDelete && handleDeleteUser(userToDelete.name)}
         onClose={handleDeleteConfirmClose}
         loading={deleteLoading}

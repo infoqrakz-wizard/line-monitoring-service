@@ -8,6 +8,7 @@ import {
 } from "@mantine/core";
 import { Modal } from "@/components/Modal";
 import classes from "./CreateUserModal.module.css";
+import { forceUpdateWS } from "@/api/servers";
 
 export type UserData = {
   login: string;
@@ -20,6 +21,7 @@ export type CreateUserModalProps = {
   opened: boolean;
   onClose: () => void;
   onSubmit: (payload: UserData) => Promise<void> | void;
+  onSuccess?: () => void;
   loading?: boolean;
   error?: string | null;
   onClearError?: () => void;
@@ -36,6 +38,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   opened,
   onClose,
   onSubmit,
+  onSuccess,
   loading,
   error,
   onClearError,
@@ -92,6 +95,10 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         description,
         servers,
       });
+
+      await forceUpdateWS();
+      onSuccess?.();
+
       onClose();
     } catch (err) {
       // Error is handled by parent component
@@ -112,7 +119,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   // Функция для получения отображаемого текста сервера по ID
   const getServerDisplayText = (serverId: string) => {
     const server = availableServers!.find((s) => s.id === serverId);
-    return server ? `${server.name} (${server.url}:${server.port})` : serverId;
+    return server ? server.name : serverId;
   };
 
   return (
@@ -220,6 +227,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           </Button>
           <Button
             type="submit"
+            variant="black"
             loading={submitting || !!loading}
             disabled={!canSubmit}
             aria-label="Создать пользователя"

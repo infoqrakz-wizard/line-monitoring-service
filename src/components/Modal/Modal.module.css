@@ -31,6 +31,10 @@
     color: #1D1D1D;
 }
 
+.withoutTitleMargin {
+    margin-bottom: 24px;
+}
+
 .btnDelete {
     display: block;
     margin: 0 auto 8px;

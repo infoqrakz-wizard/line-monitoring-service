@@ -1,5 +1,7 @@
 import React from "react";
-import { Modal, Button, Stack, Text } from "@mantine/core";
+import { Button, Stack, Text } from "@mantine/core";
+import { Modal } from "@/components/Modal";
+import classes from "./DeleteConfirmModal.module.css";
 
 export type DeleteConfirmModalProps = {
   opened: boolean;
@@ -23,7 +25,7 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
       opened={opened}
       onClose={onClose}
       title={title ?? "Подтверждение удаления"}
-      centered
+      withoutTitleMargin={true}
     >
       <Stack gap="md">
         {message && (
@@ -31,24 +33,26 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             {message}
           </Text>
         )}
-        <Button
-          color="red"
-          onClick={onConfirm}
-          variant="filled"
-          loading={loading}
-          disabled={loading}
-          aria-label="Да, удалить"
-        >
-          Да, удалить
-        </Button>
-        <Button
-          variant="subtle"
-          onClick={onClose}
-          disabled={loading}
-          aria-label="Отменить"
-        >
-          Отменить
-        </Button>
+        <div className={classes.footer}>
+          <Button
+            variant="default"
+            onClick={onClose}
+            disabled={loading}
+            aria-label="Отменить"
+          >
+            Отменить
+          </Button>
+          <Button
+            color="red"
+            onClick={onConfirm}
+            variant="black"
+            loading={loading}
+            disabled={loading}
+            aria-label="Да, удалить"
+          >
+            Да, удалить
+          </Button>
+        </div>
       </Stack>
     </Modal>
   );

@@ -5,6 +5,7 @@ import {
   createServer as apiCreateServer,
   updateServer as apiUpdateServer,
   deleteServer as apiDeleteServer,
+  forceUpdateWS as apiForceUpdateWS,
   type CreateServerRequest,
   type UpdateServerRequest,
   type PaginatedResponse,
@@ -37,6 +38,7 @@ export type ServersState = {
   clearError: () => void;
   findByUrlPort: (url: string, port: number) => ServerItem | undefined;
   setCurrentPage: (page: number) => void;
+  forceUpdateWS: () => Promise<void>;
 };
 
 export const useServersStore = create<ServersState>((set, get) => ({
@@ -109,6 +111,10 @@ export const useServersStore = create<ServersState>((set, get) => ({
       (s) => !(s.url === url && s.port === port),
     );
     set({ servers });
+  },
+
+  forceUpdateWS: async () => {
+    await apiForceUpdateWS();
   },
 
   setServers: (servers) => set({ servers }),
