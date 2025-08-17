@@ -238,6 +238,14 @@ const Servers: React.FC = () => {
       );
     } else {
       const errorDate = new Date(monitoring.lastErrorTime).toLocaleDateString();
+      if (errorDate === "Invalid Date") {
+        return (
+          <Badge color="red" size="xs">
+            Неизвестная дата
+          </Badge>
+        );
+      }
+
       return (
         <Badge color="red" size="sm">
           {errorDate}

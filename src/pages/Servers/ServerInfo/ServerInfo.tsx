@@ -520,66 +520,29 @@ const ServerInfo: React.FC = () => {
                 (state) => state.cameraId === parseInt(camera.id),
               );
 
-              // Helper function to format bitrate with appropriate units
-              const formatBitrate = (
-                bitrate?: number,
-                isAudio: boolean = false,
-              ) => {
-                if (!bitrate || bitrate <= 0) {
-                  return {
-                    value: "-",
-                    unit: isAudio ? "kbit/s" : "Mbit/s",
-                  };
-                }
+              let mainBitrate = "-";
+              if (cameraInfo?.main?.bitrate) {
+                mainBitrate = (cameraInfo?.main?.bitrate / 1024 / 1024).toFixed(
+                  2,
+                );
+              }
 
-                if (isAudio) {
-                  // For audio, prefer Kb/s if > 1, otherwise b/s
-                  if (bitrate / 1024 >= 1) {
-                    return {
-                      value: (bitrate / 1024).toFixed(1),
-                      unit: "Kb/s",
-                    };
-                  } else {
-                    return {
-                      value: bitrate.toFixed(0),
-                      unit: "b/s",
-                    };
-                  }
-                } else {
-                  // For video, prefer Mb/s if > 1, otherwise Kb/s
-                  if (bitrate / (1024 * 1024) >= 1) {
-                    return {
-                      value: (bitrate / (1024 * 1024)).toFixed(1),
-                      unit: "Mb/s",
-                    };
-                  } else {
-                    return {
-                      value: (bitrate / 1024).toFixed(1),
-                      unit: "Kb/s",
-                    };
-                  }
-                }
-              };
+              let subBitrate = "-";
+              if (cameraInfo?.sub?.bitrate) {
+                subBitrate = (cameraInfo?.sub?.bitrate / 1024 / 1024).toFixed(
+                  2,
+                );
+              }
 
-              const mainBitrate = formatBitrate(cameraInfo?.main?.bitrate);
-              const subBitrate = formatBitrate(cameraInfo?.sub?.bitrate);
-              const audioBitrate = formatBitrate(
-                cameraInfo?.audio?.bitrate,
-                true,
-              );
+              let audioBitrate = "-";
 
-              const mainSpeedText =
-                mainBitrate.value !== "-"
-                  ? `${mainBitrate.value} ${mainBitrate.unit}, ${cameraInfo?.main?.fps || "-"} fps`
-                  : "";
-              const subSpeedText =
-                subBitrate.value !== "-"
-                  ? `${subBitrate.value} ${subBitrate.unit}, ${cameraInfo?.sub?.fps || "-"} fps`
-                  : "";
-              const audioSpeedText =
-                audioBitrate.value !== "-"
-                  ? `${audioBitrate.value} ${audioBitrate.unit}`
-                  : "";
+              if (cameraInfo?.audio?.bitrate) {
+                audioBitrate = (
+                  cameraInfo?.audio?.bitrate /
+                  1024 /
+                  1024
+                ).toFixed(2);
+              }
 
               return (
                 <div key={camera.id} className={classes.cameraCard}>
@@ -599,28 +562,29 @@ const ServerInfo: React.FC = () => {
                   </div>
 
                   <div className={classes.cameraMetrics}>
-                    <Text size="sm">
-                      {mainSpeedText && (
-                        <>
-                          <b>Main:</b> {mainSpeedText}
-                          {subSpeedText && " • "}
-                        </>
-                      )}
-                      {subSpeedText && (
-                        <>
-                          {mainSpeedText && " • "}
-                          <b>Sub:</b> {subSpeedText}
-                        </>
-                      )}
-                      {audioSpeedText && (
-                        <>
-                          {subSpeedText && " • "}
-                          <b>Audio:</b> {audioSpeedText}
-                        </>
-                      )}
-                    </Text>
+                    <div className={classes.metric}>
+                      <Text size="xs" c="dimmed">
+                        Main (Video)
+                      </Text>
+                      <Text size="sm">
+                        {mainBitrate} Mbit/s, {cameraInfo?.main?.fps} fps
+                      </Text>
+                    </div>
+                    <div className={classes.metric}>
+                      <Text size="xs" c="dimmed">
+                        Sub (Video2)
+                      </Text>
+                      <Text size="sm">
+                        {subBitrate} Mbit/s, {cameraInfo?.sub?.fps} fps
+                      </Text>
+                    </div>
+                    <div className={classes.metric}>
+                      <Text size="xs" c="dimmed">
+                        Audio
+                      </Text>
+                      <Text size="sm">{audioBitrate} kbit/s</Text>
+                    </div>
                   </div>
-
                   <div className={classes.cameraPreview}>
                     <Image
                       src={getCameraPreviewUrl(camera.id)}

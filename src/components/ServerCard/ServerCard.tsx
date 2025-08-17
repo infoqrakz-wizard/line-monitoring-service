@@ -89,6 +89,14 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
       );
     } else {
       const errorDate = new Date(monitoring.lastErrorTime).toLocaleDateString();
+      if (errorDate === "Invalid Date") {
+        return (
+          <Badge color="red" size="xs">
+            Неизвестная дата
+          </Badge>
+        );
+      }
+
       return (
         <Badge color="red" size="xs">
           {errorDate}
