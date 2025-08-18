@@ -405,7 +405,7 @@ const Users: FC = () => {
           )}
           {errorServers.length > 0 && (
             <div className={classes.toastText}>
-              <IconX size={18} color="red" />
+              <IconX size={18} color="rgb(250, 82, 82)" />
               <span>
                 <b>Не удалось добавить пользователя на серверах:</b>{" "}
                 {errorServers.join(", ")}

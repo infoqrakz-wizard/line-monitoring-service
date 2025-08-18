@@ -63,7 +63,7 @@ export const useUsersStore = create<UsersState>((set, get) => ({
         offset: params?.offset,
       });
       set({
-        admins: res,
+        admins: res.users,
       });
       return res;
     } catch (error) {

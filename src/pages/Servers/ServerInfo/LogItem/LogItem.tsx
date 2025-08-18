@@ -33,7 +33,7 @@ export default function LogItem({
           <div
             className={`${classes.eventId} ${isDown ? classes.eventIdDown : ""}`}
           >
-            <Text size="sm" fw={500} c={isDown ? "red" : "black"}>
+            <Text size="sm" fw={500} c={isDown ? "rgb(250, 82, 82)" : "black"}>
               № {event.id} • от{" "}
               {new Date(event.down_at).toLocaleDateString("ru-RU")}
             </Text>

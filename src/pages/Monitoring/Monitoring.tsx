@@ -244,7 +244,7 @@ const Monitoring: React.FC = () => {
         <Alert
           icon={<IconAlertCircle size="1rem" />}
           title="Ошибка"
-          color="red"
+          color="rgb(250, 82, 82)"
           className={classes.errorAlert}
         >
           <Text size="sm">{error}</Text>

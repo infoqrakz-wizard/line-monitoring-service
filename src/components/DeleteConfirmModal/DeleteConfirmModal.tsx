@@ -43,7 +43,7 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             Отменить
           </Button>
           <Button
-            color="red"
+            color="rgb(250, 82, 82)"
             onClick={onConfirm}
             variant="black"
             loading={loading}

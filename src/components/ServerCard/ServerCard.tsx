@@ -103,7 +103,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
           {workingCameras}
         </Badge>
         {enabledWithProblemStream && (
-          <Badge color="red" size="xs">
+          <Badge color="rgb(250, 82, 82)" size="xs">
             {enabledWithProblemStream}
           </Badge>
         )}
@@ -125,22 +125,18 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
     } else {
       const errorDate = new Date(monitoring.lastErrorTime).toLocaleDateString();
       if (errorDate === "Invalid Date") {
-        return (
-          <Badge color="red" size="xs">
-            Неизвестная дата
-          </Badge>
-        );
+        return null;
       }
 
       return (
-        <Badge color="red" size="xs">
+        <Badge color="rgb(250, 82, 82)" size="xs">
           {errorDate}
         </Badge>
       );
     }
   };
 
-  const statusColor = getStatusColor(server.status || "red");
+  const statusColor = getStatusColor(server.status || "rgb(250, 82, 82)");
   const arhiveDatesCount =
     server.archiveState?.result.state.storages[0].archive.dates_count;
 
@@ -198,13 +194,13 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
             Uptime
           </Text>
           {server.status === "red" ? (
-            <Badge color="red" size="xs" className={classes.tableValue}>
+            <Text size="sm" className={classes.tableValue}>
               {formatUptime(
                 server.monitoring,
                 server.status,
-                downEvent?.down_at ?? null,
+                downEvent?.down_at ?? null
               )}
-            </Badge>
+            </Text>
           ) : (
             <Text size="sm" className={classes.tableValue}>
               {formatUptime(server.monitoring, server.status)}

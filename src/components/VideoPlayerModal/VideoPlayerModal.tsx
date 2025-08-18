@@ -184,7 +184,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
         <div className={classes.playerContainer}>
           {error ? (
             <div className={classes.errorContainer}>
-              <Text color="red" size="lg" ta="center">
+              <Text c="rgb(250, 82, 82)" size="lg" ta="center">
                 {error}
               </Text>
               <Button onClick={handleClose} mt="md">

@@ -259,7 +259,7 @@ const Servers: React.FC = () => {
         )}
         {enabledWithProblemStream && (
           <Tooltip label="С проблемами">
-            <Badge color="red" size="sm">
+            <Badge color="rgb(250, 82, 82)" size="sm">
               {enabledWithProblemStream}
             </Badge>
           </Tooltip>
@@ -282,15 +282,11 @@ const Servers: React.FC = () => {
     } else {
       const errorDate = new Date(monitoring.lastErrorTime).toLocaleDateString();
       if (errorDate === "Invalid Date") {
-        return (
-          <Badge color="red" size="xs">
-            Неизвестная дата
-          </Badge>
-        );
+        return null;
       }
 
       return (
-        <Badge color="red" size="sm">
+        <Badge color="rgb(250, 82, 82)" size="sm">
           {errorDate}
         </Badge>
       );
@@ -318,7 +314,7 @@ const Servers: React.FC = () => {
       {(error || monitoringError) && (
         <div
           style={{
-            color: "red",
+            color: "rgb(250, 82, 82)",
             padding: "16px",
             textAlign: "center",
           }}
@@ -416,14 +412,14 @@ const Servers: React.FC = () => {
                   </Table.Td>
                   <Table.Td className={classes.td}>
                     {row.status === "red" ? (
-                      <Badge color="red" size="sm">
+                      <Text size="sm" c="rgb(250, 82, 82)">
                         {formatUptime(
                           row.monitoring,
                           row.status,
                           serversDownMap[`${row.url}:${row.port}`]?.down_at ??
                             null,
                         )}
-                      </Badge>
+                      </Text>
                     ) : (
                       formatUptime(row.monitoring, row.status)
                     )}
@@ -521,7 +517,7 @@ const Servers: React.FC = () => {
           >
             Отмена
           </Button>
-          <Button color="red" onClick={handleDeleteServer}>
+          <Button color="rgb(250, 82, 82)" onClick={handleDeleteServer}>
             Удалить
           </Button>
         </div>

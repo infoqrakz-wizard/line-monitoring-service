@@ -14,7 +14,13 @@ export type CreateAdminRequest = {
 
 export type UpdateAdminRequest = Partial<CreateAdminRequest>;
 
-export type PaginatedAdminsResponse = AdminUser[];
+export type PaginatedAdminsResponse = {
+  limit: number;
+  offset: number;
+  pages: number;
+  total: number;
+  users: AdminUser[];
+};
 
 export type CreateUserRequest = {
   name: string;

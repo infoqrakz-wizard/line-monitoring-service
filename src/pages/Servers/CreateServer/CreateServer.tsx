@@ -568,7 +568,7 @@ const CreateServer: React.FC = () => {
 
           <div className={classes.formField}>
             {error && (
-              <Text c="red" size="sm" role="alert">
+              <Text c="rgb(250, 82, 82)" size="sm" role="alert">
                 {error}
               </Text>
             )}

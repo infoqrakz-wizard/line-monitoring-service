@@ -477,7 +477,7 @@ const ServerInfo: React.FC = () => {
                       <span className={classes.cameraName}>{camera.name}</span>
                       <span className={classes.cameraStatus}>
                         <Badge
-                          color={isWorking ? "green" : "red"}
+                          color={isWorking ? "green" : "rgb(250, 82, 82)"}
                           variant="light"
                         >
                           {isWorking ? "работает" : "ошибка"}

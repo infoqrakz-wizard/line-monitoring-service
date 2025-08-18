@@ -148,7 +148,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
           </Button>
           <Button
             type="submit"
-            color="red"
+            color="rgb(250, 82, 82)"
             loading={submitting || !!loading}
             disabled={!canSubmit}
             aria-label="Удалить пользователя"
