@@ -1,0 +1,29 @@
+{
+  "files": {
+    "devline-player.css": "/css/devline-player.1e961746.css",
+    "devline-player.js": "/devline-player.e0621a88.js",
+    "runtime.js": "/runtime.c95d270e.js",
+    "react-vendor.js": "/react-vendor.0b70a512.js",
+    "hls-vendor.js": "/hls-vendor.a76735fd.js",
+    "ui-components.js": "/ui-components.f30db1de.js",
+    "vendors.js": "/vendors.deb13bce.js",
+    "demo.html": "/demo.html",
+    "player.html": "/player.html",
+    "devline-player.1e961746.css.map": "/css/devline-player.1e961746.css.map",
+    "devline-player.e0621a88.js.map": "/devline-player.e0621a88.js.map",
+    "runtime.c95d270e.js.map": "/runtime.c95d270e.js.map",
+    "react-vendor.0b70a512.js.map": "/react-vendor.0b70a512.js.map",
+    "hls-vendor.a76735fd.js.map": "/hls-vendor.a76735fd.js.map",
+    "ui-components.f30db1de.js.map": "/ui-components.f30db1de.js.map",
+    "vendors.deb13bce.js.map": "/vendors.deb13bce.js.map"
+  },
+  "entrypoints": [
+    "runtime.c95d270e.js",
+    "react-vendor.0b70a512.js",
+    "hls-vendor.a76735fd.js",
+    "ui-components.f30db1de.js",
+    "vendors.deb13bce.js",
+    "css/devline-player.1e961746.css",
+    "devline-player.e0621a88.js"
+  ]
+}

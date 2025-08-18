@@ -116,7 +116,7 @@ const Users: FC = () => {
   );
 
   useEffect(() => {
-    subscribeToServers([]);
+    subscribeToServers();
   }, []);
 
   const handleDeleteUser = async (userName: string) => {
@@ -325,7 +325,7 @@ const Users: FC = () => {
 
             await forceUpdateWS();
 
-            subscribeToServers([]);
+            subscribeToServers();
           } catch (error) {
             const message =
               error instanceof Error
@@ -369,7 +369,7 @@ const Users: FC = () => {
               payload.servers,
               availableServersData,
             );
-            subscribeToServers([]);
+            subscribeToServers();
           } catch (error) {
             const message =
               error instanceof Error

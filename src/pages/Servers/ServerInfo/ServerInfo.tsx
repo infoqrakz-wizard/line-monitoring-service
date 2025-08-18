@@ -12,13 +12,19 @@ import {
   Tooltip,
   Dialog,
 } from "@mantine/core";
-import { IconTrash, IconPlus, IconCheck } from "@tabler/icons-react";
+import {
+  IconTrash,
+  IconPlus,
+  IconCheck,
+  IconPlayerPlay,
+} from "@tabler/icons-react";
 import { useServerInfo } from "@/hooks/useServerInfo";
 import { downtime } from "@/api";
 import type { DowntimeEvent } from "@/types";
 import { CreateUserModal } from "@/components/CreateUserModal";
 import { useUsersStore } from "@/store/users";
 import PageHeader from "@/components/PageHeader";
+import VideoPlayerModal from "@/components/VideoPlayerModal";
 
 import classes from "./ServerInfo.module.css";
 import { useServersStore } from "@/store/servers";
@@ -37,6 +43,9 @@ const ServerInfo: React.FC = () => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
+
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+  const [selectedCamera, setSelectedCamera] = useState<number>(0);
 
   const [
     openedNotification,
@@ -233,6 +242,15 @@ const ServerInfo: React.FC = () => {
         resubscribe(url, parseInt(port));
       }
     }, 1000);
+  };
+
+  const handleOpenVideoPlayer = (cameraId: number) => {
+    setSelectedCamera(cameraId);
+    setIsVideoPlayerOpen(true);
+  };
+
+  const handleCloseVideoPlayer = () => {
+    setIsVideoPlayerOpen(false);
   };
 
   const getCameraPreviewUrl = (cameraId: string) => {
@@ -448,6 +466,8 @@ const ServerInfo: React.FC = () => {
                 ).toFixed(2);
               }
 
+              const isHaveVideo = mainBitrate !== "-";
+
               return (
                 <div key={camera.id} className={classes.cameraCard}>
                   <div className={classes.cameraHeader}>
@@ -490,11 +510,31 @@ const ServerInfo: React.FC = () => {
                     </div>
                   </div>
                   <div className={classes.cameraPreview}>
-                    <Image
-                      src={getCameraPreviewUrl(camera.id)}
-                      alt={`Preview camera ${camera.id}`}
-                      fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDY0MCA0ODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyMCIgeT0iMjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Q0EzQUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qn9GA0LXQtNC/0YDQvtGB0LzQvtGC0YAg0L3QtdC00L7RgdGC0YPQv9C10L08L3RleHQ+Cjwvc3ZnPgo="
-                    />
+                    <div className={classes.cameraPreviewContainer}>
+                      <Image
+                        src={getCameraPreviewUrl(camera.id)}
+                        alt={`Preview camera ${camera.id}`}
+                        fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDY0MCA0ODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyMCIgeT0iMjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Q0EzQUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qn9GA0LXQtNC/0YDQvtGB0LzQvtGC0YAg0L3QtdC00L7RgdGC0YPQv9C10L08L3RleHQ+Cjwvc3ZnPgo="
+                      />
+                      {isHaveVideo && (
+                        <div className={classes.cameraPreviewOverlay}>
+                          <Tooltip label="Открыть видео-плеер">
+                            <Button
+                              variant="white"
+                              size="sm"
+                              radius="xl"
+                              onClick={() =>
+                                handleOpenVideoPlayer(parseInt(camera.id))
+                              }
+                              className={classes.playButton}
+                              aria-label="Открыть видео-плеер"
+                            >
+                              <IconPlayerPlay size={16} />
+                            </Button>
+                          </Tooltip>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -626,6 +666,17 @@ const ServerInfo: React.FC = () => {
           <Text>Пользователь успешно создан</Text>
         </Group>
       </Dialog>
+
+      <VideoPlayerModal
+        opened={isVideoPlayerOpen}
+        onClose={handleCloseVideoPlayer}
+        streamUrl={url || ""}
+        streamPort={parseInt(port || "0")}
+        camera={selectedCamera}
+        login={username}
+        password={password}
+        serverName={server?.name || ""}
+      />
     </div>
   );
 };

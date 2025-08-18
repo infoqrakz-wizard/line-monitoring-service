@@ -107,8 +107,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
   // serverOptions now uses server names as values
   const serverOptions = availableServers?.map((server) => ({
-    value: server.name,
-    label: server.name,
+    value: server.name || server.id,
+    label: server.name || server.id,
   }));
 
   const getServerDisplayText = (serverName: string) => {
