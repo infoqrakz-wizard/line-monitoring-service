@@ -32,6 +32,8 @@ const ServerInfo: React.FC = () => {
 
   const [downtimeEvents, setDowntimeEvents] = useState<DowntimeEvent[]>([]);
   const [completedEvents, setCompletedEvents] = useState<DowntimeEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+
   const [showAddUserModal, setShowAddUserModal] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -46,14 +48,15 @@ const ServerInfo: React.FC = () => {
     users,
     mediaStates,
     main,
-    resubscribe,
     users: serverUsers,
+    loading: loadingServerInfo,
+    resubscribe,
   } = useServerInfo(url, port);
+
   const [createLoading, setCreateLoading] = useState(false);
 
   const { fetchServers, findByUrlPort, forceUpdateWS } = useServersStore();
 
-  // TODO: нужен метод получения инфо по 1 серверу
   useEffect(() => {
     void fetchServers();
   }, [fetchServers]);
@@ -101,6 +104,7 @@ const ServerInfo: React.FC = () => {
 
       setCompletedEvents(completedEvents.data);
       setDowntimeEvents([...serverDownEvents.data, ...cameraDownEvents.data]);
+      setLoadingEvents(false);
     } catch (error) {
       console.error("Failed to fetch downtime events:", error);
     }
@@ -365,9 +369,17 @@ const ServerInfo: React.FC = () => {
             )}
 
             {/* Сообщение если нет событий */}
-            {downtimeEvents.length === 0 && completedEvents.length === 0 && (
+            {!loadingEvents &&
+              downtimeEvents.length === 0 &&
+              completedEvents.length === 0 && (
+                <Text c="dimmed" ta="center" py="xl">
+                  Нет событий для отображения
+                </Text>
+              )}
+
+            {loadingEvents && (
               <Text c="dimmed" ta="center" py="xl">
-                Нет событий для отображения
+                Загрузка...
               </Text>
             )}
           </Stack>
@@ -396,7 +408,10 @@ const ServerInfo: React.FC = () => {
             >
               <div className={classes.summaryBoxTitle}>Проблемных</div>
               <div className={classes.summaryBoxValue}>
-                {(main?.totalCameras || 0) - (main?.enabledAllStreamsOk || 0)}
+                {loadingServerInfo
+                  ? ""
+                  : (main?.totalCameras || 0) -
+                    (main?.enabledAllStreamsOk || 0)}
               </div>
             </div>
           </div>
@@ -485,7 +500,13 @@ const ServerInfo: React.FC = () => {
               );
             })}
 
-            {cameras.length === 0 && (
+            {loadingServerInfo && (
+              <Text c="dimmed" ta="center" py="xl">
+                Загрузка...
+              </Text>
+            )}
+
+            {!loadingServerInfo && cameras.length === 0 && (
               <Text c="dimmed" ta="center" py="xl">
                 Нет камер для отображения
               </Text>
@@ -554,9 +575,15 @@ const ServerInfo: React.FC = () => {
                 );
               })}
 
-              {users.length === 0 && (
+              {!loadingServerInfo && users.length === 0 && (
                 <Text c="dimmed" ta="center" py="xl">
                   Нет пользователей для отображения
+                </Text>
+              )}
+
+              {loadingServerInfo && (
+                <Text c="dimmed" ta="center" py="xl">
+                  Загрузка...
                 </Text>
               )}
             </Stack>

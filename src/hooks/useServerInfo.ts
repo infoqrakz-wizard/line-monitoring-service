@@ -33,6 +33,7 @@ export const useServerInfo = (url: string | null, port: string | null) => {
   const [mediaStates, setMediaStates] = useState<MediaState[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [main, setMain] = useState<ServerMonitoringData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const { subscribeToSpecificServer, getServerByUrlPort, servers } =
     useMonitoringStore();
@@ -54,7 +55,6 @@ export const useServerInfo = (url: string | null, port: string | null) => {
     if (url && port) {
       const server = getServerByUrlPort(url, parseInt(port));
       if (server) {
-        console.log(server);
         setMain(server.sections.main);
         // Extract cameras from the new nested structure
         const cameraData = server.sections.camerasName?.result.cameras;
@@ -102,6 +102,7 @@ export const useServerInfo = (url: string | null, port: string | null) => {
         }
 
         setUsers(server.sections.users || []);
+        setLoading(false);
       }
     }
   }, [servers, url, port, getServerByUrlPort]);
@@ -111,6 +112,7 @@ export const useServerInfo = (url: string | null, port: string | null) => {
     mediaStates,
     users,
     main,
+    loading,
     resubscribe,
   };
 };
