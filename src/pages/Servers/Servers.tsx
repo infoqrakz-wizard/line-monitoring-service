@@ -264,11 +264,10 @@ const Servers: React.FC = () => {
 
   // Подписываемся на мониторинг серверов когда они загружены
   useEffect(() => {
-    if (servers && servers.length > 0 && isConnected) {
-      const serverIds = servers.map((server) => `${server.url}:${server.port}`);
-      subscribeToServers(serverIds);
+    if (isConnected) {
+      subscribeToServers();
     }
-  }, [servers, isConnected]);
+  }, [isConnected]);
 
   return (
     <Stack className={classes.wrapper} gap="0" pos="relative">

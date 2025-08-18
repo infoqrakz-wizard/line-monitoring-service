@@ -11,6 +11,7 @@ import { useMonitoringStore } from "@/store/monitoring";
 import { DowntimeEvent } from "@/types";
 import classes from "./Monitoring.module.css";
 import PageHeader from "@/components/PageHeader";
+import { useServersStore } from "@/store/servers";
 
 const Monitoring: React.FC = () => {
   const [view, setView] = useState<MonitoringView>("current");
@@ -25,18 +26,43 @@ const Monitoring: React.FC = () => {
     downtimeEvents,
     allDowntimeEvents,
     error,
+    servers: monitoringServers,
     fetchDowntimeEvents,
     fetchAllDowntimeEvents,
     refreshAllDowntimeEvents,
     deleteDowntimeEvent,
     deleteDowntimeByUrlPort,
     clearDowntimeEvents,
+    subscribeToServers,
   } = useMonitoringStore();
+
+  const { total: totalServers, fetchServers } = useServersStore();
+
+  const [totalCameras, setTotalCameras] = useState(0);
+
+  useEffect(() => {
+    subscribeToServers();
+  }, [subscribeToServers]);
+
+  useEffect(() => {
+    setTotalCameras(
+      monitoringServers.reduce((acc, server) => {
+        if (server.sections.main.totalCameras) {
+          acc += server.sections.main.totalCameras;
+        }
+        return acc;
+      }, 0),
+    );
+  }, [monitoringServers]);
 
   // Fetch all data when component mounts
   useEffect(() => {
     void fetchAllDowntimeEvents();
   }, [fetchAllDowntimeEvents]);
+
+  useEffect(() => {
+    void fetchServers();
+  }, [fetchServers]);
 
   // Fetch filtered data when view changes
   useEffect(() => {
@@ -187,8 +213,8 @@ const Monitoring: React.FC = () => {
 
   // Calculate summary data using all events for current statistics
   const summary = {
-    servers: allDowntimeEvents?.filter((e) => e.type === null).length || 0,
-    cameras: allDowntimeEvents?.filter((e) => e.type === "2").length || 0,
+    servers: totalServers,
+    cameras: totalCameras,
     postponed: allDowntimeEvents?.filter((e) => e.up_at !== null).length || 0,
     current: allDowntimeEvents?.filter((e) => e.up_at === null).length || 0,
   };
@@ -214,16 +240,6 @@ const Monitoring: React.FC = () => {
         title="Мониторинг"
         rightSide={<MonitoringSummary {...summary} />}
       />
-      {/* <Flex
-        direction="row"
-        justify="space-between"
-        align="center"
-        className={classes.header}
-      >
-        <Title order={2}>Мониторинг</Title>
-        <MonitoringSummary {...summary} />
-      </Flex> */}
-
       {error && (
         <Alert
           icon={<IconAlertCircle size="1rem" />}

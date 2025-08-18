@@ -28,7 +28,7 @@ export type MonitoringState = {
   error: string | null;
   socket: WebSocket | null;
   isConnected: boolean;
-  subscribeToServers: (serverIds: string[]) => void;
+  subscribeToServers: () => void;
   subscribeToSpecificServer: (url: string, port: number) => void;
   unsubscribe: () => void;
   connect: () => void;
@@ -152,14 +152,14 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     }
   },
 
-  subscribeToServers: (serverIds: string[]) => {
+  subscribeToServers: () => {
     const { socket, isConnected } = get();
 
     if (!socket || !isConnected) {
       get().connect();
       // Попробуем подписаться после подключения
       setTimeout(() => {
-        get().subscribeToServers(serverIds);
+        get().subscribeToServers();
       }, 1000);
       return;
     }
@@ -181,7 +181,6 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
 
     try {
       socket.send(JSON.stringify(subscribeMessage));
-      console.log("Subscribed to servers:", serverIds);
     } catch (error) {
       console.error("Failed to subscribe to servers:", error);
       set({ error: "Ошибка подписки на серверы" });
