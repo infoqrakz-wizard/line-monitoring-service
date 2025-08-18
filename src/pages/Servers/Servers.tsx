@@ -16,10 +16,13 @@ import type {
   ServerStatus,
   ServerItemWithMonitoring,
   ServerMonitoringData,
+  DowntimeEvent,
 } from "@/types";
 import { useServersStore } from "@/store/servers";
 import { useMonitoringStore } from "@/store/monitoring";
 import Modal from "@/components/Modal/Modal";
+import { formatUptime } from "@/utils/uptime";
+import { downtime } from "@/api";
 
 import { useNavigate } from "react-router";
 import ActionButton from "@/components/ActionButton";
@@ -64,6 +67,10 @@ const Servers: React.FC = () => {
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [selectedServer, setSelectedServer] =
     useState<ServerItemWithMonitoring | null>(null);
+
+  const [serversDownMap, setServersDownMap] = useState<
+    Record<string, DowntimeEvent>
+  >({});
 
   const handleClickFilter = (filter: "all" | "active" | "inactive") => {
     if (filter === "active" && activeFilter === "active") {
@@ -139,6 +146,42 @@ const Servers: React.FC = () => {
 
   // Убираем клиентскую фильтрацию, так как теперь фильтрация происходит на сервере
   const filtered = serversWithMonitoring;
+
+  // Fetch current servers_down events once and on relevant changes
+  useEffect(() => {
+    let cancelled = false;
+    const fetchServersDown = async () => {
+      try {
+        const resp = await downtime.query({ filter: "servers_down" });
+        if (cancelled) {
+          return;
+        }
+        const map: Record<string, DowntimeEvent> = {};
+        resp.data.forEach((event) => {
+          // Only events that are still active (up_at null)
+          if (event.up_at === null) {
+            const key = `${event.url}:${event.port}`;
+            // Keep the latest down_at if multiple (compare strings as dates)
+            if (!map[key]) {
+              map[key] = event;
+            } else if (
+              new Date(event.down_at).getTime() >
+              new Date(map[key].down_at).getTime()
+            ) {
+              map[key] = event;
+            }
+          }
+        });
+        setServersDownMap(map);
+      } catch (e) {
+        // silent fail; uptime will fallback
+      }
+    };
+    void fetchServersDown();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQ, activeFilter, currentPage]);
 
   const handleClickDeleteServer = (url: string, port: number) => {
     const server = serversWithMonitoring.find(
@@ -372,7 +415,18 @@ const Servers: React.FC = () => {
                     {formatHddStatus(row.monitoring)}
                   </Table.Td>
                   <Table.Td className={classes.td}>
-                    {row.monitoring?.uptime || "-"}
+                    {row.status === "red" ? (
+                      <Badge color="red" size="sm">
+                        {formatUptime(
+                          row.monitoring,
+                          row.status,
+                          serversDownMap[`${row.url}:${row.port}`]?.down_at ??
+                            null,
+                        )}
+                      </Badge>
+                    ) : (
+                      formatUptime(row.monitoring, row.status)
+                    )}
                   </Table.Td>
                   <Table.Td className={classes.td}>
                     {`${arhiveDatesCount ? `${arhiveDatesCount} д.` : "-"}`}

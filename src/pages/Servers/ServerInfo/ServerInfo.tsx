@@ -237,6 +237,7 @@ const ServerInfo: React.FC = () => {
     ];
 
     await deleteUser(userId, [server?.name || ""], availableServersData);
+    await forceUpdateWS();
     setTimeout(() => {
       if (url && port) {
         resubscribe(url, parseInt(port));

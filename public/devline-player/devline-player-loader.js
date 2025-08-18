@@ -13,10 +13,10 @@
         "runtime.c95d270e.js",
         "react-vendor.0b70a512.js",
         "hls-vendor.a76735fd.js",
-        "ui-components.f30db1de.js",
+        "ui-components.68a2a280.js",
         "vendors.deb13bce.js",
-        "css/devline-player.1e961746.css",
-        "devline-player.e0621a88.js"
+        "css/devline-player.5063b9ea.css",
+        "devline-player.6c99d305.js"
     ],
     "version": "1.0.0",
     "entrypoint": "devline-player",

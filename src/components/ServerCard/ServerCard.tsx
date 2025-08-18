@@ -13,8 +13,11 @@ import type {
   ServerItemWithMonitoring,
   ServerStatus,
   ServerMonitoringData,
+  DowntimeEvent,
 } from "@/types";
 import { useNavigate } from "react-router";
+import { formatUptime } from "@/utils/uptime";
+import { downtime } from "@/api";
 import classes from "./ServerCard.module.css";
 import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
@@ -26,6 +29,38 @@ export type ServerCardProps = {
 
 const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
   const navigate = useNavigate();
+  const [downEvent, setDownEvent] = React.useState<DowntimeEvent | null>(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const fetchDown = async () => {
+      try {
+        if (server.status !== "red") {
+          setDownEvent(null);
+          return;
+        }
+        const resp = await downtime.query({ filter: "servers_down" });
+        if (cancelled) {
+          return;
+        }
+        const key = `${server.url}:${server.port}`;
+        const found = resp.data
+          .filter((e) => e.up_at === null)
+          .find((e) => `${e.url}:${e.port}` === key);
+        setDownEvent(found ?? null);
+      } catch (e) {
+        if (!cancelled) {
+          setDownEvent(null);
+        }
+      }
+    };
+    void fetchDown();
+    const id = setInterval(fetchDown, 60000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [server.status, server.url, server.port]);
 
   const getStatusColor = (status: ServerStatus) => {
     switch (status) {
@@ -162,9 +197,19 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
           <Text fw={600} size="sm" className={classes.tableKeyName}>
             Uptime
           </Text>
-          <Text size="sm" className={classes.tableValue}>
-            {server.monitoring?.uptime || "-"}
-          </Text>
+          {server.status === "red" ? (
+            <Badge color="red" size="xs" className={classes.tableValue}>
+              {formatUptime(
+                server.monitoring,
+                server.status,
+                downEvent?.down_at ?? null,
+              )}
+            </Badge>
+          ) : (
+            <Text size="sm" className={classes.tableValue}>
+              {formatUptime(server.monitoring, server.status)}
+            </Text>
+          )}
         </Group>
         <Divider className={classes.divider} />
         <Group justify="space-between">
