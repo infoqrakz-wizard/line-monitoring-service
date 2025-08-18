@@ -23,6 +23,7 @@ import PageHeader from "@/components/PageHeader";
 import classes from "./ServerInfo.module.css";
 import { useServersStore } from "@/store/servers";
 import { useDisclosure } from "@mantine/hooks";
+import LogItem from "./LogItem";
 
 const ServerInfo: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -37,7 +38,7 @@ const ServerInfo: React.FC = () => {
 
   const [
     openedNotification,
-    { toggle: toggleNotification, close: closeNotification }, 
+    { toggle: toggleNotification, close: closeNotification },
   ] = useDisclosure(false);
 
   const {
@@ -321,73 +322,12 @@ const ServerInfo: React.FC = () => {
                 </div>
                 <Stack gap="md">
                   {downtimeEvents.map((event) => (
-                    <div key={event.id} className={classes.eventCard}>
-                      <Stack
-                        justify="space-between"
-                        align="flex-start"
-                        dir="column"
-                        w="100%"
-                      >
-                        <div className={classes.eventIdContainer}>
-                          <div className={classes.eventId}>
-                            <Text size="sm" fw={500}>
-                              № {event.id} • от{" "}
-                              {new Date(event.down_at).toLocaleDateString(
-                                "ru-RU",
-                              )}
-                            </Text>
-                          </div>
-
-                          <Tooltip label="Удалить событие">
-                            <ActionIcon
-                              color="#676767"
-                              variant="subtle"
-                              onClick={() => handleDeleteEvent(event.id)}
-                              aria-label="Удалить событие"
-                            >
-                              <IconTrash size={20} />
-                            </ActionIcon>
-                          </Tooltip>
-                        </div>
-                        <div className={classes.eventInfo}>
-                          {event.comment && (
-                            <div className={classes.eventComment}>
-                              {event.comment}
-                            </div>
-                          )}
-
-                          <div className={classes.eventInfoRow}>
-                            <span className={classes.eventInfoItemLabel}>
-                              Сервер
-                            </span>
-                            <span className={classes.eventInfoItemValue}>
-                              {server?.name}
-                            </span>
-                          </div>
-                          <div className={classes.eventInfoRow}>
-                            <span className={classes.eventInfoItemLabel}>
-                              Down/Up
-                            </span>
-                            <span className={classes.eventInfoItemValue}>
-                              <Badge color="red" variant="light" size="sm">
-                                вне сети
-                              </Badge>
-                            </span>
-                          </div>
-                          <div className={classes.eventInfoRow}>
-                            <span className={classes.eventInfoItemLabel}>
-                              Время простоя
-                            </span>
-                            <span className={classes.eventInfoItemValue}>
-                              {calculateDowntime(
-                                event.down_at,
-                                new Date().toDateString(),
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      </Stack>
-                    </div>
+                    <LogItem
+                      key={event.id}
+                      event={event}
+                      server={server}
+                      handleDeleteEvent={handleDeleteEvent}
+                    />
                   ))}
                 </Stack>
               </div>
@@ -413,70 +353,12 @@ const ServerInfo: React.FC = () => {
                 </div>
                 <Stack gap="md">
                   {completedEvents.map((event) => (
-                    <div key={event.id} className={classes.eventCard}>
-                      <Stack
-                        justify="space-between"
-                        align="flex-start"
-                        dir="column"
-                        w="100%"
-                      >
-                        <div className={classes.eventIdContainer}>
-                          <div className={classes.eventId}>
-                            <Text size="sm" fw={500}>
-                              № {event.id} • от{" "}
-                              {new Date(event.down_at).toLocaleDateString(
-                                "ru-RU",
-                              )}
-                            </Text>
-                          </div>
-
-                          <Tooltip label="Удалить событие">
-                            <ActionIcon
-                              color="#676767"
-                              variant="subtle"
-                              onClick={() => handleDeleteEvent(event.id)}
-                              aria-label="Удалить событие"
-                            >
-                              <IconTrash size={20} />
-                            </ActionIcon>
-                          </Tooltip>
-                        </div>
-                        <div className={classes.eventInfo}>
-                          {event.comment && (
-                            <div className={classes.eventComment}>
-                              {event.comment}
-                            </div>
-                          )}
-
-                          <div className={classes.eventInfoRow}>
-                            <span className={classes.eventInfoItemLabel}>
-                              Сервер
-                            </span>
-                            <span className={classes.eventInfoItemValue}>
-                              {server?.name}
-                            </span>
-                          </div>
-                          <div className={classes.eventInfoRow}>
-                            <span className={classes.eventInfoItemLabel}>
-                              Down/Up
-                            </span>
-                            <span className={classes.eventInfoItemValue}>
-                              <Badge color="green" variant="light" size="sm">
-                                в сети
-                              </Badge>
-                            </span>
-                          </div>
-                          <div className={classes.eventInfoRow}>
-                            <span className={classes.eventInfoItemLabel}>
-                              Время простоя
-                            </span>
-                            <span className={classes.eventInfoItemValue}>
-                              {calculateDowntime(event.down_at, event.up_at!)}
-                            </span>
-                          </div>
-                        </div>
-                      </Stack>
-                    </div>
+                    <LogItem
+                      key={event.id}
+                      event={event}
+                      server={server}
+                      handleDeleteEvent={handleDeleteEvent}
+                    />
                   ))}
                 </Stack>
               </div>
@@ -719,19 +601,6 @@ const ServerInfo: React.FC = () => {
       </Dialog>
     </div>
   );
-};
-
-// Helper function to calculate downtime duration
-const calculateDowntime = (downAt: string, upAt: string): string => {
-  const down = new Date(downAt).getTime();
-  const up = new Date(upAt).getTime();
-  const diff = up - down;
-
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 };
 
 export default ServerInfo;

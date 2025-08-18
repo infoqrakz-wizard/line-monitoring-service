@@ -39,6 +39,7 @@
   right: 0px;
   top: 0px;
 }
+
 /* Event Log Styles */
 .eventLog {
   background: #fff;
@@ -81,106 +82,6 @@
 }
 
 
-.eventCard {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  box-shadow: rgba(172, 172, 172, 0.05) 0px 4px 8px 5px;
-  padding: 16px;
-  gap: 16px;
-  background: rgb(241, 241, 241);
-  border-radius: 12px;
-}
-
-.eventComment {
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 18px;
-  letter-spacing: -0.02em;
-  color: rgb(29, 29, 29);
-  margin: 0px;
-}
-
-.eventIdContainer {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.eventId {
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 14px;
-  letter-spacing: -0.02em;
-  color: rgb(103, 103, 103);
-  opacity: 0.6;
-  margin: 0px;
-}
-
-.eventCard:hover {
-  border-color: #dee2e6;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.eventInfo {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
-  justify-content: flex-start;
-  width: 100%;
-  font-family: Helvetica;
-}
-
-.eventInfoRow {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 8px 0px;
-  border-bottom: 1px solid rgb(207, 207, 207);
-  padding-top: 8px;
-}
-
-.eventInfoRow:first-child {
-  padding-top: 0px;
-}
-.eventInfoRow:last-child {
-  border-bottom: none;
-}
-
-.eventInfoItem {
-
-}
-
-.eventInfoItemLabel {
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 16px;
-  color: rgb(103, 103, 103);
-}
-
-.eventInfoItemValue {
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 16px;
-  color: rgb(29, 29, 29);
-}
-
-
-
-.eventActions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
-}
-
 /* Cameras Styles */
 .cameras {
   background: #fff;
@@ -210,9 +111,11 @@
 .summaryBoxTotal {
   background: rgb(227, 245, 255);
 }
+
 .summaryBoxActive {
   background: rgb(225, 253, 237);
 }
+
 .summaryBoxProblem {
   background: rgb(253, 231, 225);
 }
@@ -228,11 +131,12 @@
 
 .summaryBoxValue {
   font-weight: 600;
-    font-size: 24px;
-    line-height: 24px;
-    letter-spacing: -0.02em;
-    color: rgb(29, 29, 29);
+  font-size: 24px;
+  line-height: 24px;
+  letter-spacing: -0.02em;
+  color: rgb(29, 29, 29);
 }
+
 .cameraCard {
   padding-bottom: 12px;
   margin-bottom: 12px;
@@ -284,7 +188,8 @@
 
 .cameraName {
   font-size: 16px;
-  flex: 1 1 0%;}
+  flex: 1 1 0%;
+}
 
 
 
@@ -336,9 +241,7 @@
   color: #FFFFFF;
 }
 
-.userAvatarText {
-
-}
+.userAvatarText {}
 
 .userInfo {
   display: flex;
@@ -370,23 +273,28 @@
   .container {
     padding: 20px;
   }
-  
+
   .content {
     grid-template-columns: 1fr 1fr;
     gap: 20px;
   }
-  
+
   .cameras {
     grid-column: 1 / -1;
     order: 1;
+    padding: 20px 0px;
   }
-  
+
   .eventLog {
     order: 2;
+    grid-column: 1 / -1;
+    padding: 20px 0px;
   }
-  
+
   .users {
     order: 3;
+    grid-column: 1 / -1;
+    padding: 20px 0px;
   }
 }
 
@@ -428,28 +336,28 @@
   .container {
     padding: 16px;
   }
-  
+
   .header {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
     margin-bottom: 24px;
   }
-  
+
   .content {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .cameraSummary {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .cameraMetrics {
     padding: 6px 10px;
   }
-  
+
   .sectionHeader {
     flex-direction: column;
     gap: 12px;
