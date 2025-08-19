@@ -111,8 +111,16 @@ const ServerInfo: React.FC = () => {
           completedEventsPromise,
         ]);
 
-      setCompletedEvents(completedEvents.data);
-      setDowntimeEvents([...serverDownEvents.data, ...cameraDownEvents.data]);
+      setCompletedEvents(
+        completedEvents.data.filter(
+          (event) => event.url === url && event.port === parseInt(port),
+        ),
+      );
+      const filteredEvents = [
+        ...serverDownEvents.data,
+        ...cameraDownEvents.data,
+      ].filter((event) => event.url === url && event.port === parseInt(port));
+      setDowntimeEvents(filteredEvents);
       setLoadingEvents(false);
     } catch (error) {
       console.error("Failed to fetch downtime events:", error);
@@ -492,7 +500,9 @@ const ServerInfo: React.FC = () => {
                         Main (Video)
                       </Text>
                       <Text size="sm">
-                        {mainBitrate} Mbit/s, {cameraInfo?.main?.fps} fps
+                        {mainBitrate !== "-"
+                          ? `${mainBitrate} Mbit/s, ${cameraInfo?.main?.fps} fps`
+                          : "-"}
                       </Text>
                     </div>
                     <div className={classes.metric}>
@@ -500,14 +510,18 @@ const ServerInfo: React.FC = () => {
                         Sub (Video2)
                       </Text>
                       <Text size="sm">
-                        {subBitrate} Mbit/s, {cameraInfo?.sub?.fps} fps
+                        {subBitrate !== "-"
+                          ? `${subBitrate} Mbit/s, ${cameraInfo?.sub?.fps} fps`
+                          : "-"}
                       </Text>
                     </div>
                     <div className={classes.metric}>
                       <Text size="xs" c="dimmed">
                         Audio
                       </Text>
-                      <Text size="sm">{audioBitrate} kbit/s</Text>
+                      <Text size="sm">
+                        {audioBitrate !== "-" ? `${audioBitrate} kbit/s` : "-"}
+                      </Text>
                     </div>
                   </div>
                   <div className={classes.cameraPreview}>
@@ -644,6 +658,7 @@ const ServerInfo: React.FC = () => {
           void forceUpdateWS();
         }}
         loading={createLoading}
+        currentServer={server?.name || ""}
         availableServers={[
           {
             id: server?.id?.toString() || "",
