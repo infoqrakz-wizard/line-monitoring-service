@@ -48,7 +48,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
           .filter((e) => e.up_at === null)
           .find((e) => `${e.url}:${e.port}` === key);
         setDownEvent(found ?? null);
-      } catch (e) {
+      } catch {
         if (!cancelled) {
           setDownEvent(null);
         }
@@ -136,7 +136,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
     }
   };
 
-  const statusColor = getStatusColor(server.status || "rgb(250, 82, 82)");
+  const statusColor = getStatusColor(server.status || "red");
   const arhiveDatesCount =
     server.archiveState?.result.state.storages[0].archive.dates_count;
 
@@ -198,7 +198,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
               {formatUptime(
                 server.monitoring,
                 server.status,
-                downEvent?.down_at ?? null
+                downEvent?.down_at ?? null,
               )}
             </Text>
           ) : (
@@ -255,7 +255,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
             <Button
               className={classes.deleteBtn}
               variant="white"
-              color="red"
+              color="rgb(250, 82, 82)"
               aria-label="Удалить"
               onClick={() => onDelete?.(server.url, server.port)}
             >
