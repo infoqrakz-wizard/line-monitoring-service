@@ -138,7 +138,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
 
   const statusColor = getStatusColor(server.status || "red");
   const arhiveDatesCount =
-    server.archiveState?.result.state.storages[0].archive.dates_count;
+    server.archiveState?.result?.state?.storages[0]?.archive?.dates_count;
 
   return (
     <div className={classes.cardWrapper}>

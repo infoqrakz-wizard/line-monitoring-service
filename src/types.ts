@@ -51,7 +51,7 @@ export type ArchiveState = {
   result: {
     state: {
       storages: Array<{
-        archive: {
+        archive?: {
           dates_count: number;
           first_date: [number, number, number];
           last_date: [number, number, number];

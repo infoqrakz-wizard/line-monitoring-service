@@ -387,7 +387,8 @@ const Servers: React.FC = () => {
           <Table.Tbody>
             {filtered.map((row) => {
               const arhiveDatesCount =
-                row.archiveState?.result.state.storages[0].archive.dates_count;
+                row.archiveState?.result?.state?.storages[0]?.archive
+                  ?.dates_count;
 
               return (
                 <Table.Tr key={row.id}>
