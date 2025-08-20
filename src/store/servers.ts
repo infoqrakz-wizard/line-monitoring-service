@@ -10,6 +10,7 @@ import {
   type UpdateServerRequest,
   type PaginatedResponse,
 } from "@/api/servers";
+import { downtime as apiDowntime } from "@/api/downtime";
 
 export type ServersState = {
   servers: ServerItem[];
@@ -103,6 +104,11 @@ export const useServersStore = create<ServersState>((set, get) => ({
   },
 
   deleteServer: async (url, port) => {
+    await apiDowntime.delete({
+      url,
+      port,
+    });
+
     await apiDeleteServer(url, port);
     const servers = get().servers.filter(
       (s) => !(s.url === url && s.port === port),

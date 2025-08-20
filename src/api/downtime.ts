@@ -13,6 +13,6 @@ export const downtime = {
   },
 
   delete: async (deleteRequest: DowntimeDeleteRequest): Promise<void> => {
-    return request.delete("/downtime", deleteRequest);
+    return request.delete<void>("/downtime", deleteRequest);
   },
 };

@@ -39,11 +39,11 @@ const Servers: React.FC = () => {
     servers,
     loading,
     error,
-    fetchServers,
-    deleteServer,
     total,
     totalPages,
     currentPage,
+    fetchServers,
+    deleteServer,
     setCurrentPage,
   } = useServersStore();
 
@@ -192,8 +192,8 @@ const Servers: React.FC = () => {
   };
 
   const handleDeleteServer = async () => {
-    if (selectedServer) {
-      await deleteServer(selectedServer?.url, selectedServer?.port);
+    if (selectedServer?.url && selectedServer?.port) {
+      await deleteServer(selectedServer.url, selectedServer.port);
     }
 
     setIsRemoveModalOpen(false);
@@ -466,7 +466,7 @@ const Servers: React.FC = () => {
           {serversWithMonitoring.map((s) => {
             const key = `${s.url}:${s.port}`;
             const downEvent = serversDownMap[key] || null;
-            
+
             return (
               <ServerCard
                 key={s.id}
