@@ -1,11 +1,11 @@
-import React from "react";
+import { useEffect, useRef } from "react";
 import { Stack, Title, Paper } from "@mantine/core";
 import { loadYMap } from "@/lib/ymap";
 
 const MapPage: React.FC = () => {
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let destroyed = false;
     void loadYMap()
       .then((ymaps) => {

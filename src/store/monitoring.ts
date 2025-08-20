@@ -28,7 +28,7 @@ export type MonitoringState = {
   error: string | null;
   socket: WebSocket | null;
   isConnected: boolean;
-  subscribeToServers: () => void;
+  subscribeToServers: (serverIds?: string[]) => void;
   subscribeToSpecificServer: (url: string, port: number) => void;
   unsubscribe: () => void;
   connect: () => void;
@@ -152,7 +152,7 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     }
   },
 
-  subscribeToServers: () => {
+  subscribeToServers: (serverIds?: string[]) => {
     const { socket, isConnected } = get();
 
     if (!socket || !isConnected) {
@@ -167,8 +167,7 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     const subscribeMessage: SubscribeRequest = {
       type: "subscribe",
       payload: {
-        // servers: serverIds,
-        servers: "all",
+        servers: serverIds || "all",
         sections: [
           "main",
           "archiveState",

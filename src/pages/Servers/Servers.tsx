@@ -52,7 +52,6 @@ const Servers: React.FC = () => {
     loading: monitoringLoading,
     error: monitoringError,
     subscribeToServers,
-
     getServerStatus,
     connect,
     isConnected,
@@ -144,9 +143,6 @@ const Servers: React.FC = () => {
     });
   }, [servers, monitoringServers, getServerStatus]);
 
-  // Убираем клиентскую фильтрацию, так как теперь фильтрация происходит на сервере
-  const filtered = serversWithMonitoring;
-
   // Fetch current servers_down events once and on relevant changes
   useEffect(() => {
     let cancelled = false;
@@ -178,8 +174,10 @@ const Servers: React.FC = () => {
       }
     };
     void fetchServersDown();
+    const id = setInterval(fetchServersDown, 60000);
     return () => {
       cancelled = true;
+      clearInterval(id);
     };
   }, [debouncedQ, activeFilter, currentPage]);
 
@@ -304,9 +302,9 @@ const Servers: React.FC = () => {
   // Подписываемся на мониторинг серверов когда они загружены
   useEffect(() => {
     if (isConnected) {
-      subscribeToServers();
+      subscribeToServers(servers.map((s) => `${s.url}:${s.port}`));
     }
-  }, [isConnected]);
+  }, [isConnected, servers]);
 
   return (
     <Stack className={classes.wrapper} gap="0" pos="relative">
@@ -385,7 +383,7 @@ const Servers: React.FC = () => {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {filtered.map((row) => {
+            {serversWithMonitoring.map((row) => {
               const arhiveDatesCount =
                 row.archiveState?.result?.state?.storages[0]?.archive
                   ?.dates_count;
@@ -465,13 +463,19 @@ const Servers: React.FC = () => {
           }}
           spacing="md"
         >
-          {filtered.map((s) => (
-            <ServerCard
-              key={s.id}
-              server={s}
-              onDelete={handleClickDeleteServer}
-            />
-          ))}
+          {serversWithMonitoring.map((s) => {
+            const key = `${s.url}:${s.port}`;
+            const downEvent = serversDownMap[key] || null;
+            
+            return (
+              <ServerCard
+                key={s.id}
+                server={s}
+                onDelete={handleClickDeleteServer}
+                downEvent={downEvent}
+              />
+            );
+          })}
         </SimpleGrid>
       </div>
 

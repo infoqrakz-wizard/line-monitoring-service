@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Button, TextInput, TagsInput } from "@mantine/core";
 import { Modal } from "@/components/Modal";
 import classes from "./DeleteUserModal.module.css";
@@ -32,15 +32,15 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
   onClearError,
   availableServers,
 }) => {
-  const [login, setLogin] = React.useState("");
-  const [servers, setServers] = React.useState<string[]>([]);
-  const [submitting, setSubmitting] = React.useState(false);
+  const [login, setLogin] = useState("");
+  const [servers, setServers] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const canSubmit =
     Boolean(login) && servers.length > 0 && !submitting && !loading;
 
   // Clear form and error when modal opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (opened) {
       setLogin("");
       setServers([]);

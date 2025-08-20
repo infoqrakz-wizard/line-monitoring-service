@@ -1,4 +1,4 @@
-import React from "react";
+import { FC, useEffect, useState } from "react";
 import { Button, TextInput, PasswordInput, Switch, Group } from "@mantine/core";
 import { Modal } from "@/components/Modal";
 import classes from "./CreateAdminModal.module.css";
@@ -22,7 +22,7 @@ export type CreateAdminModalProps = {
   userId?: string;
 };
 
-const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
+const CreateAdminModal: FC<CreateAdminModalProps> = ({
   opened,
   loading,
   error,
@@ -32,10 +32,10 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
   onSubmit,
   onClearError,
 }) => {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [isAdmin, setIsAdmin] = React.useState(false);
-  const [submitting, setSubmitting] = React.useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const isEditMode = mode === "edit";
   const canSubmit = isEditMode
@@ -43,7 +43,7 @@ const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
     : Boolean(email) && Boolean(password) && !submitting && !loading;
 
   // Clear form and error when modal opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (opened) {
       if (isEditMode && initialData) {
         // Заполняем поля данными для редактирования

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Stack, Tabs, Tooltip, Group } from "@mantine/core";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { useUsersStore } from "@/store/users";
@@ -183,7 +183,7 @@ const Users: FC = () => {
   const handleClearCreateError = useCallback(() => setCreateError(null), []);
   const handleClearEditError = useCallback(() => setEditError(null), []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchAdmins({
       limit: 50,
       offset: 0,
@@ -191,7 +191,7 @@ const Users: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const viewUsers: AdminUser[] = React.useMemo(
+  const viewUsers: AdminUser[] = useMemo(
     () =>
       admins.map((u) => ({
         id: String(u.id),

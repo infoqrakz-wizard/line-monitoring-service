@@ -1,4 +1,4 @@
-import React from "react";
+import { FC} from "react";
 import {
   Card,
   Text,
@@ -17,7 +17,7 @@ import type {
 } from "@/types";
 import { useNavigate } from "react-router";
 import { formatUptime } from "@/utils/uptime";
-import { downtime } from "@/api";
+
 import classes from "./ServerCard.module.css";
 import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
@@ -25,42 +25,11 @@ import DeleteIcon from "@/assets/icons/delete.svg?react";
 export type ServerCardProps = {
   server: ServerItemWithMonitoring;
   onDelete?: (url: string, port: number) => void;
+  downEvent?: DowntimeEvent | null;
 };
 
-const ServerCard: React.FC<ServerCardProps> = ({ server, onDelete }) => {
+const ServerCard: FC<ServerCardProps> = ({ server, onDelete, downEvent }) => {
   const navigate = useNavigate();
-  const [downEvent, setDownEvent] = React.useState<DowntimeEvent | null>(null);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    const fetchDown = async () => {
-      try {
-        if (server.status !== "red") {
-          setDownEvent(null);
-          return;
-        }
-        const resp = await downtime.query({ filter: "servers_down" });
-        if (cancelled) {
-          return;
-        }
-        const key = `${server.url}:${server.port}`;
-        const found = resp.data
-          .filter((e) => e.up_at === null)
-          .find((e) => `${e.url}:${e.port}` === key);
-        setDownEvent(found ?? null);
-      } catch {
-        if (!cancelled) {
-          setDownEvent(null);
-        }
-      }
-    };
-    void fetchDown();
-    const id = setInterval(fetchDown, 60000);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, [server.status, server.url, server.port]);
 
   const getStatusColor = (status: ServerStatus) => {
     switch (status) {
