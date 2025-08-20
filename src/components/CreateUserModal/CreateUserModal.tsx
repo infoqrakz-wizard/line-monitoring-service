@@ -19,12 +19,8 @@ export type UserData = {
 
 export type CreateUserModalProps = {
   opened: boolean;
-  onClose: () => void;
-  onSubmit: (payload: UserData) => Promise<void> | void;
-  onSuccess?: () => void;
   loading?: boolean;
   error?: string | null;
-  onClearError?: () => void;
   server?: string;
   availableServers?: Array<{
     id: string;
@@ -32,17 +28,23 @@ export type CreateUserModalProps = {
     url: string;
     port: number;
   }>;
+  currentServer?: string;
+  onClose: () => void;
+  onSubmit: (payload: UserData) => Promise<void> | void;
+  onSuccess?: () => void;
+  onClearError?: () => void;
 };
 
 const CreateUserModal: React.FC<CreateUserModalProps> = ({
   opened,
+  loading,
+  error,
+  availableServers,
   onClose,
   onSubmit,
   onSuccess,
-  loading,
-  error,
   onClearError,
-  availableServers,
+  currentServer,
 }) => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -53,13 +55,20 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   const canSubmit =
     Boolean(login) && Boolean(password) && !submitting && !loading;
 
-  // Clear form and error when modal opens
+  useEffect(() => {
+    if (currentServer) {
+      setServers([currentServer]);
+    }
+    return () => {
+      setServers([]);
+    };
+  }, [currentServer]);
+
   useEffect(() => {
     if (opened) {
       setLogin("");
       setPassword("");
       setDescription("");
-      setServers([]);
       setSubmitting(false);
       onClearError?.();
     }
@@ -119,7 +128,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     <Modal
       opened={opened}
       onClose={handleClose}
-      title="Создать пользователя на серверах"
+      title="Создать пользователя"
       style={{
         zIndex: 50,
       }}
@@ -176,7 +185,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           </div>
         </div>
 
-        {availableServers && (
+        {availableServers && !currentServer && (
           <div className={classes.formField}>
             <label htmlFor="servers" className={classes.formFieldLabel}>
               Серверы

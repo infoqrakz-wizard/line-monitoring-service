@@ -330,7 +330,7 @@ const Users: FC = () => {
             const message =
               error instanceof Error
                 ? error.message
-                : "Не удалось создать пользователя на серверах";
+                : "Не удалось создать пользователя";
             setCreateUserError(message);
             throw error;
           } finally {
