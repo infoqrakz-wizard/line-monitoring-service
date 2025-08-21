@@ -26,7 +26,7 @@ export type ServersState = {
     offset?: number;
     page?: number;
     search?: string;
-    filter?: "all" | "active" | "inactive";
+    filter?: "all" | "available" | "unavailable";
   }) => Promise<void>;
   createServer: (payload: CreateServerRequest) => Promise<ServerItem>;
   updateServer: (
