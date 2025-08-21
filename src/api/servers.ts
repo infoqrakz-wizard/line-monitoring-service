@@ -45,7 +45,7 @@ export const listServers = async (
     limit?: number;
     offset?: number;
     search?: string;
-    filter?: "all" | "active" | "inactive";
+    filter?: "all" | "available" | "unavailable";
   } = {},
 ): Promise<PaginatedResponse<ServerItem>> => {
   const query = buildQueryString({

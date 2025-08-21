@@ -60,7 +60,7 @@ const Servers: React.FC = () => {
   const navigate = useNavigate();
 
   const [activeFilter, setActiveFilter] = useState<
-    "all" | "active" | "inactive"
+    "all" | "available" | "unavailable"
   >("all");
 
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
@@ -71,10 +71,10 @@ const Servers: React.FC = () => {
     Record<string, DowntimeEvent>
   >({});
 
-  const handleClickFilter = (filter: "all" | "active" | "inactive") => {
-    if (filter === "active" && activeFilter === "active") {
+  const handleClickFilter = (filter: "all" | "available" | "unavailable") => {
+    if (filter === "available" && activeFilter === "available") {
       setActiveFilter("all");
-    } else if (filter === "inactive" && activeFilter === "inactive") {
+    } else if (filter === "unavailable" && activeFilter === "unavailable") {
       setActiveFilter("all");
     } else {
       setActiveFilter(filter);
@@ -94,25 +94,19 @@ const Servers: React.FC = () => {
     return () => clearTimeout(timer);
   }, [q]);
 
-  // Инициализация данных при первой загрузке
   useEffect(() => {
-    void fetchServers({
-      page: 1,
-      search: "",
-      filter: "all",
-    });
-  }, [fetchServers]);
-
-  // Загружаем данные при изменении страницы, фильтров или поиска
-  useEffect(() => {
-    // Пропускаем первую загрузку, так как она уже обработана в инициализации
-    if (currentPage === 1 && debouncedQ === "" && activeFilter === "all") {
+    if (debouncedQ === "" && activeFilter === "all") {
+      void fetchServers({
+        page: currentPage,
+        search: "",
+        filter: "all",
+      });
       return;
     }
 
     void fetchServers({
       page: currentPage,
-      search: debouncedQ || undefined,
+      search: debouncedQ || "",
       filter: activeFilter,
     });
   }, [fetchServers, currentPage, debouncedQ, activeFilter]);
@@ -154,7 +148,6 @@ const Servers: React.FC = () => {
         }
         const map: Record<string, DowntimeEvent> = {};
         resp.data.forEach((event) => {
-          // Only events that are still active (up_at null)
           if (event.up_at === null) {
             const key = `${event.url}:${event.port}`;
             // Keep the latest down_at if multiple (compare strings as dates)
@@ -327,15 +320,15 @@ const Servers: React.FC = () => {
             <div className={classes.controlsRowDesktopInner}>
               <div className={classes.legendGroup}>
                 <div
-                  className={`${classes.legendItem} ${activeFilter === "active" ? classes.activeFilter : ""}`}
-                  onClick={() => handleClickFilter("active")}
+                  className={`${classes.legendItem} ${activeFilter === "available" ? classes.activeFilter : ""}`}
+                  onClick={() => handleClickFilter("available")}
                 >
                   <span className={classes.dotOnline} />
                   Доступные
                 </div>
                 <div
-                  className={`${classes.legendItem} ${activeFilter === "inactive" ? classes.activeFilter : ""}`}
-                  onClick={() => handleClickFilter("inactive")}
+                  className={`${classes.legendItem} ${activeFilter === "unavailable" ? classes.activeFilter : ""}`}
+                  onClick={() => handleClickFilter("unavailable")}
                 >
                   <span className={classes.dotOffline} />
                   Выключенные
