@@ -34,3 +34,32 @@
 .container .section {
     width: 40px;
 }
+
+.clearButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #676767;
+}
+
+.clearButton:hover {
+    background-color: rgba(103, 103, 103, 0.1);
+    color: #292929;
+}
+
+.clearButton:focus {
+    outline: 2px solid #CFCFCF;
+    outline-offset: 2px;
+}
+
+.clearButton svg {
+    width: 16px;
+    height: 16px;
+}

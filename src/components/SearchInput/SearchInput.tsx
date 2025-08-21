@@ -14,18 +14,24 @@ export type SearchInputProps = {
   className?: string;
   inputClassName?: string;
   rootClassName?: string;
+  withClearIcon?: boolean;
 };
 
 const SearchInput: React.FC<SearchInputProps> = ({
   value,
-  onChange,
   placeholder,
   disabled,
   containerClassName,
   className,
   inputClassName,
   rootClassName,
+  withClearIcon,
+  onChange,
 }) => {
+  const handleClearSearch = () => {
+    onChange("");
+  };
+
   return (
     <div className={`${classes.container} ${containerClassName}`}>
       <TextInput
@@ -44,6 +50,20 @@ const SearchInput: React.FC<SearchInputProps> = ({
           <span className={classes.searchIcon}>
             <SearchIcon />
           </span>
+        }
+        rightSection={
+          withClearIcon &&
+          value.length > 0 && (
+            <button
+              type="button"
+              className={classes.clearButton}
+              onClick={handleClearSearch}
+              aria-label="Очистить поиск"
+              tabIndex={0}
+            >
+              X
+            </button>
+          )
         }
         disabled={disabled}
       />
