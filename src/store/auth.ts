@@ -1,34 +1,69 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { create } from "zustand";
 import type { Role, User } from "@/types";
+import { authApi } from "@/api/auth";
+import { cookies } from "@/lib/cookies";
+import { getCookieSettings } from "@/config/environment";
 
 export type AuthState = {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   role: Role | null;
-  login: (payload: { user: User; token: string }) => void;
-  logout: () => void;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshToken: () => Promise<string>;
+  checkAuth: () => Promise<void>;
   setToken: (token: string | null) => void;
+  setUser: (user: User | null) => void;
 };
 
-const STORAGE_KEY = "lms_auth";
+const TOKEN_COOKIE_KEY = "lms_auth_token";
+const USER_COOKIE_KEY = "lms_auth_user";
 
-const readPersisted = (): Pick<AuthState, "user" | "token"> => {
+/**
+ * Получает настройки куки
+ */
+const getCookieOptions = () => {
+  const settings = getCookieSettings();
+
+  const options = {
+    maxAge: 10 * 60, // 10 минут для access token
+    path: "/",
+    secure: settings.secure,
+    sameSite: settings.sameSite,
+  };
+
+  return options;
+};
+
+/**
+ * Получает настройки для удаления куки
+ */
+const getCookieRemoveOptions = () => {
+  return {
+    path: "/",
+  };
+};
+
+const readPersisted = (): { user: User | null; token: string | null } => {
   try {
-    const text = localStorage.getItem(STORAGE_KEY);
-    if (!text) {
+    const token = cookies.get(TOKEN_COOKIE_KEY);
+    const userData = cookies.get(USER_COOKIE_KEY);
+
+    if (!token || !userData) {
       return {
         user: null,
         token: null,
       };
     }
-    const parsed = JSON.parse(text) as {
-      user: User | null;
-      token: string | null;
-    };
+
+    const user = JSON.parse(userData) as User;
+
     return {
-      user: parsed.user ?? null,
-      token: parsed.token ?? null,
+      user,
+      token,
     };
   } catch {
     return {
@@ -38,7 +73,23 @@ const readPersisted = (): Pick<AuthState, "user" | "token"> => {
   }
 };
 
-export const useAuthStore = create<AuthState>((set) => {
+const persistData = (user: User | null, token: string | null): void => {
+  const cookieOptions = getCookieOptions();
+
+  if (token) {
+    cookies.set(TOKEN_COOKIE_KEY, token, cookieOptions);
+  } else {
+    cookies.remove(TOKEN_COOKIE_KEY, getCookieRemoveOptions());
+  }
+
+  if (user) {
+    cookies.set(USER_COOKIE_KEY, JSON.stringify(user), cookieOptions);
+  } else {
+    cookies.remove(USER_COOKIE_KEY, getCookieRemoveOptions());
+  }
+};
+
+export const useAuthStore = create<AuthState>((set, get) => {
   const persisted =
     typeof window !== "undefined"
       ? readPersisted()
@@ -46,47 +97,133 @@ export const useAuthStore = create<AuthState>((set) => {
           user: null,
           token: null,
         };
+
+  const determineRole = (user: User): Role => {
+    return user.is_admin === true ? "admin" : "user";
+  };
+
   return {
     user: persisted.user,
     token: persisted.token,
     isAuthenticated: Boolean(persisted.token && persisted.user),
-    role: persisted.user?.role ?? null,
-    login: ({ user, token }) => {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          user,
-          token,
-        }),
-      );
-      set({
-        user,
-        token,
-        isAuthenticated: true,
-        role: user.role,
-      });
+    role: persisted.user ? determineRole(persisted.user) : null,
+    isLoading: false,
+    login: async (email: string, password: string) => {
+      set({ isLoading: true });
+      try {
+        const response = await authApi.login({
+          email,
+          password,
+        });
+
+        // Сохраняем только токен, пользователя получим через /api/auth/me
+        persistData(null, response.access);
+
+        set({
+          token: response.access,
+          isAuthenticated: false, // Пока не получим данные пользователя
+          isLoading: false,
+        });
+
+        await get().checkAuth();
+      } catch (error) {
+        set({ isLoading: false });
+        throw error;
+      }
     },
-    logout: () => {
-      localStorage.removeItem(STORAGE_KEY);
-      set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        role: null,
-      });
+    logout: async () => {
+      try {
+        const { token } = get();
+        if (token) {
+          await authApi.logout();
+        }
+      } catch (error) {
+        console.warn("Logout error:", error);
+      } finally {
+        cookies.remove(TOKEN_COOKIE_KEY, getCookieRemoveOptions());
+        cookies.remove(USER_COOKIE_KEY, getCookieRemoveOptions());
+
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          role: null,
+        });
+      }
+    },
+    refreshToken: async () => {
+      try {
+        // refreshToken автоматически отправляется в HttpOnly куки
+        const response = await authApi.refresh();
+        const newToken = response.access;
+
+        const current = readPersisted();
+        persistData(current.user, newToken);
+
+        set({
+          token: newToken,
+          isAuthenticated: Boolean(newToken && current.user),
+        });
+
+        return newToken;
+      } catch (error) {
+        console.error("Token refresh failed:", error);
+        void get().logout();
+        throw error;
+      }
+    },
+    checkAuth: async () => {
+      const { token } = get();
+      if (!token) {
+        return;
+      }
+
+      try {
+        const response = await authApi.me();
+        const user: User = {
+          id: response.user.id,
+          email: response.user.email,
+          name: response.user.email,
+          sc: "user",
+          is_admin: response.user.is_admin,
+          tv: response.user.tv,
+          role: response.user.is_admin ? "admin" : "user",
+        };
+
+        persistData(user, token);
+
+        set({
+          user,
+          isAuthenticated: true,
+          role: user.role,
+        });
+      } catch (error) {
+        try {
+          console.error("Auth check failed, trying to refresh token:", error);
+          await get().refreshToken();
+          await get().checkAuth();
+        } catch {
+          void get().logout();
+        }
+      }
     },
     setToken: (token) => {
       const current = readPersisted();
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          user: current.user,
-          token,
-        }),
-      );
+      persistData(current.user, token);
+
       set({
         token,
         isAuthenticated: Boolean(token && current.user),
+      });
+    },
+    setUser: (user) => {
+      const current = readPersisted();
+      persistData(user, current.token);
+
+      set({
+        user,
+        role: user ? determineRole(user) : null,
+        isAuthenticated: Boolean(current.token && user),
       });
     },
   };

@@ -10,6 +10,7 @@ import type {
   DowntimeFilter,
 } from "@/types";
 import { downtime } from "@/api";
+import { useAuthStore } from "@/store/auth";
 
 export type MonitoringState = {
   servers: ServerWithMonitoring[];
@@ -68,12 +69,21 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       return;
     }
 
+    // Получаем токен из auth store
+    const token = useAuthStore.getState().token;
+    if (!token) {
+      console.warn("No access token available for WebSocket connection");
+      set({ error: "Токен авторизации недоступен" });
+      return;
+    }
+
     set({
       loading: true,
       error: null,
     });
 
-    const ws = new WebSocket("ws://161.35.77.101:4000/ws");
+    const wsUrl = import.meta.env.VITE_WS_URL ?? "ws://161.35.77.101:4000";
+    const ws = new WebSocket(`ws://${wsUrl}/ws?token=${token}`);
 
     ws.onopen = () => {
       console.log("Monitoring WebSocket connected");
@@ -113,6 +123,14 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       }
     };
 
+    ws.onerror = (error) => {
+      console.error("Monitoring WebSocket error:", error);
+      set({
+        error: "Ошибка подключения к серверу мониторинга",
+        loading: false,
+        isConnected: false,
+      });
+    };
     ws.onclose = () => {
       console.log("Monitoring WebSocket disconnected");
       set({
@@ -121,11 +139,16 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         loading: false,
       });
 
-      // Попробовать переподключиться через 5 секунд
+      // Попробовать переподключиться через 5 секунд, но только если токен все еще доступен
       setTimeout(() => {
         const currentSocket = get().socket;
+        const currentToken = useAuthStore.getState().token;
         if (!currentSocket || currentSocket.readyState === WebSocket.CLOSED) {
-          get().connect();
+          if (currentToken) {
+            get().connect();
+          } else {
+            console.log("No token available, skipping reconnection");
+          }
         }
       }, 5000);
     };
@@ -148,18 +171,26 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         socket: null,
         isConnected: false,
         servers: [],
+        users: [],
       });
     }
   },
 
   subscribeToServers: (serverIds?: string[]) => {
     const { socket, isConnected } = get();
+    const token = useAuthStore.getState().token;
+
+    if (!token) {
+      console.warn("No access token available for subscription");
+      set({ error: "Токен авторизации недоступен" });
+      return;
+    }
 
     if (!socket || !isConnected) {
       get().connect();
       // Попробуем подписаться после подключения
       setTimeout(() => {
-        get().subscribeToServers();
+        get().subscribeToServers(serverIds);
       }, 1000);
       return;
     }
@@ -188,6 +219,13 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
 
   subscribeToSpecificServer: (url: string, port: number) => {
     const { socket, isConnected } = get();
+    const token = useAuthStore.getState().token;
+
+    if (!token) {
+      console.warn("No access token available for subscription");
+      set({ error: "Токен авторизации недоступен" });
+      return;
+    }
 
     if (!socket || !isConnected) {
       get().connect();

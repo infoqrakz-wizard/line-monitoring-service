@@ -54,7 +54,7 @@ export const listServers = async (
     search: params.search,
     filter: params.filter,
   });
-  return request.get<PaginatedResponse<ServerItem>>(`/servers${query}`);
+  return request.get<PaginatedResponse<ServerItem>>(`/api/servers${query}`);
 };
 
 export const getServer = async (
@@ -62,13 +62,13 @@ export const getServer = async (
   port: number,
 ): Promise<PaginatedResponse<ServerItem>> => {
   const query = buildQueryString({ urlPort: buildUrlPort(url, port) });
-  return request.get<PaginatedResponse<ServerItem>>(`/servers${query}`);
+  return request.get<PaginatedResponse<ServerItem>>(`/api/servers${query}`);
 };
 
 export const createServer = async (
   payload: CreateServerRequest,
 ): Promise<{ server: ServerItem }> => {
-  return request.post<{ server: ServerItem }>("/servers", payload);
+  return request.post<{ server: ServerItem }>("/api/servers", payload);
 };
 
 export const updateServer = async (
@@ -77,7 +77,7 @@ export const updateServer = async (
   payload: UpdateServerRequest,
 ): Promise<ServerItem> => {
   const query = buildQueryString({ urlPort: buildUrlPort(url, port) });
-  return request.patch<ServerItem>(`/servers${query}`, payload);
+  return request.patch<ServerItem>(`/api/servers${query}`, payload);
 };
 
 export const deleteServer = async (
@@ -85,9 +85,9 @@ export const deleteServer = async (
   port: number,
 ): Promise<void> => {
   // const query = buildQueryString({ urlPort: buildUrlPort(url, port) });
-  await request.delete<void>(`/servers?urlPort=${url}:${port}`);
+  await request.delete<void>(`/api/servers?urlPort=${url}:${port}`);
 };
 
 export const forceUpdateWS = async (): Promise<void> => {
-  await request.get<void>("/walkabout/servers/check");
+  await request.get<void>("/api/walkabout/servers/check");
 };

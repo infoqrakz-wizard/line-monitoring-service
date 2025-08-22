@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useAuthStore } from "@/store/auth";
 
 export type WsContextValue = {
   socket: WebSocket | null;
@@ -24,40 +25,49 @@ export const useWs = (): WsContextValue => {
 };
 
 export const WsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  // const token = useAuthStore((s) => s.token);
+  const token = useAuthStore((s) => s.token);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // if (!token) {
-    //   if (socketRef.current) {
-    //     socketRef.current.close();
-    //     socketRef.current = null;
-    //   }
-    //   setIsConnected(false);
-    //   return;
-    // }
+    if (!token) {
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
+      }
+      setIsConnected(false);
+      return;
+    }
 
-    // const urlBase = import.meta.env.VITE_WS_URL ?? '';
-    // const url = `${urlBase}?token=${encodeURIComponent(token)}`;
-    const url = `ws://${import.meta.env.VITE_WS_URL}/ws`;
+    const urlBase = import.meta.env.VITE_WS_URL ?? "";
+    const url = `ws://${urlBase}/ws?token=${token}`;
+
     const ws = new WebSocket(url);
     socketRef.current = ws;
 
-    const handleOpen = () => setIsConnected(true);
-    const handleClose = () => setIsConnected(false);
+    const handleOpen = () => {
+      setIsConnected(true);
+    };
+
+    const handleClose = () => {
+      setIsConnected(false);
+    };
+
+    const handleError = () => {
+      setIsConnected(false);
+    };
 
     ws.addEventListener("open", handleOpen);
     ws.addEventListener("close", handleClose);
-    ws.addEventListener("error", handleClose);
+    ws.addEventListener("error", handleError);
 
     return () => {
       ws.removeEventListener("open", handleOpen);
       ws.removeEventListener("close", handleClose);
-      ws.removeEventListener("error", handleClose);
+      ws.removeEventListener("error", handleError);
       ws.close();
     };
-  }, []);
+  }, [token]);
 
   const value = useMemo<WsContextValue>(
     () => ({

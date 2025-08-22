@@ -29,7 +29,9 @@
       "@/utils/*": ["src/utils/*"],
       "@/types": ["src/types"],
       "@/api": ["src/api"],
-      "@/api/*": ["src/api/*"]
+      "@/api/*": ["src/api/*"],
+      "@/config/*": ["src/config/*"],
+      "@/config": ["src/config"]
     }
   },
   "include": ["src"],

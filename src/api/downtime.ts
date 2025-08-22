@@ -9,10 +9,10 @@ export const downtime = {
   query: async (
     filter: DowntimeQueryRequest,
   ): Promise<DowntimeEventResponse> => {
-    return request.post<DowntimeEventResponse>("/downtime/query", filter);
+    return request.post<DowntimeEventResponse>("/api/downtime/query", filter);
   },
 
   delete: async (deleteRequest: DowntimeDeleteRequest): Promise<void> => {
-    return request.delete<void>("/downtime", deleteRequest);
+    return request.delete<void>("/api/downtime", deleteRequest);
   },
 };

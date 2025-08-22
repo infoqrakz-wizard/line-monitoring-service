@@ -60,28 +60,28 @@ export const listAdmins = async (
     limit: params.limit,
     offset: params.offset,
   });
-  return request.get<PaginatedAdminsResponse>(`/users${query}`);
+  return request.get<PaginatedAdminsResponse>(`/api/users${query}`);
 };
 
 export const getAdmin = async (id: number | string): Promise<AdminUser> => {
-  return request.get<AdminUser>(`/users/${id}`);
+  return request.get<AdminUser>(`/api/users/${id}`);
 };
 
 export const createAdmin = async (
   payload: CreateAdminRequest,
 ): Promise<AdminUser> => {
-  return request.post<AdminUser>("/users", payload);
+  return request.post<AdminUser>("/api/users", payload);
 };
 
 export const updateAdmin = async (
   id: number | string,
   payload: UpdateAdminRequest,
 ): Promise<AdminUser> => {
-  return request.patch<AdminUser>(`/users/${id}`, payload);
+  return request.patch<AdminUser>(`/api/users/${id}`, payload);
 };
 
 export const deleteAdmin = async (id: number | string): Promise<void> => {
-  await request.delete<void>(`/users/${id}`);
+  await request.delete<void>(`/api/users/${id}`);
 };
 
 export const createUser = async (
@@ -116,7 +116,7 @@ export const createUser = async (
     servers: serverIdentifiers,
   };
 
-  return request.post<CreateUserResponse>("/manage/users", apiPayload);
+  return request.post<CreateUserResponse>("/api/manage/users", apiPayload);
 };
 
 export const deleteUser = async (
@@ -145,5 +145,5 @@ export const deleteUser = async (
     servers: serverIdentifiers,
   };
 
-  return request.post<CreateUserResponse>("/manage/users", apiPayload);
+  return request.post<CreateUserResponse>("/api/manage/users", apiPayload);
 };

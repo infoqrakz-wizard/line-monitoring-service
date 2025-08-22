@@ -1,0 +1,80 @@
+/* Desktop styles (default) */
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 400px;
+}
+
+.form {
+  background: white;
+  border: 1px solid #e1e5e9;
+}
+
+.title {
+  color: #1a1b1e;
+  margin-bottom: 8px;
+}
+
+.formElement {
+  width: 100%;
+}
+
+.submitButton {
+  margin-top: 16px;
+  height: 44px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.submitButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.submitButton:disabled {
+  transform: none;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .formContainer {
+    max-width: 380px;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .container {
+    padding: 12px;
+    min-height: 100vh;
+  }
+  
+  .formContainer {
+    max-width: 100%;
+  }
+  
+  .form {
+    padding: 24px 20px;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+}
+

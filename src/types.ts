@@ -70,6 +70,9 @@ export type ArchiveState = {
 
 export type User = {
   id: string;
+  email?: string;
+  is_admin?: boolean;
+  tv?: number;
   name: string;
   sc: string;
   description?: string;

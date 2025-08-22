@@ -128,8 +128,13 @@ const AppLayout: React.FC = () => {
   };
 
   const handleLogout = () => {
-    logout();
-    void navigate("/login");
+    try {
+      void logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      void navigate("/login");
+    }
   };
 
   const handleOverlayClick = () => {
