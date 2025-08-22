@@ -42,11 +42,11 @@ export type MonitoringState = {
   setUsers: (users: User[]) => void;
   clearError: () => void;
   fetchDowntimeEvents: (filter: DowntimeFilter) => Promise<void>;
-  fetchAllDowntimeEvents: () => Promise<void>; // New method
+  fetchAllDowntimeEvents: () => Promise<void>;
   deleteDowntimeEvent: (id: number) => Promise<void>;
   deleteDowntimeByUrlPort: (url: string, port: number) => Promise<void>;
   clearDowntimeEvents: () => void;
-  refreshAllDowntimeEvents: () => Promise<void>; // New method
+  refreshAllDowntimeEvents: () => Promise<void>;
 };
 
 export const useMonitoringStore = create<MonitoringState>((set, get) => ({
@@ -352,13 +352,11 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         error: null,
       });
 
-      // Fetch both current and completed issues
       const [currentEvents, completedEvents] = await Promise.all([
         downtime.query({ filter: "servers_down" }),
         downtime.query({ filter: "completed" }),
       ]);
 
-      // Combine all events for summary statistics
       const allEvents = [...currentEvents.data, ...completedEvents.data];
 
       set({

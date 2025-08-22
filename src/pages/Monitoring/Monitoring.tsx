@@ -58,7 +58,7 @@ const Monitoring: React.FC = () => {
   // Fetch all data when component mounts
   useEffect(() => {
     void fetchAllDowntimeEvents();
-  }, [fetchAllDowntimeEvents]);
+  }, []);
 
   useEffect(() => {
     void fetchServers();
@@ -68,7 +68,7 @@ const Monitoring: React.FC = () => {
   useEffect(() => {
     const filter = view === "current" ? "servers_down" : "completed";
     void fetchDowntimeEvents(filter);
-  }, [view, fetchDowntimeEvents]);
+  }, [view]);
 
   const handleOpenDelete = (row: ProblemRow) => {
     setDeleteTarget({
