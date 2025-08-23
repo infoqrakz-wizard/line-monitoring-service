@@ -113,6 +113,7 @@ const CreateAdminModal: FC<CreateAdminModalProps> = ({
               required
               size="md"
               aria-label="Логин"
+              autoComplete="off"
             />
           </div>
         </div>
@@ -139,6 +140,7 @@ const CreateAdminModal: FC<CreateAdminModalProps> = ({
                   ? "Оставьте пустым, если не хотите менять пароль"
                   : undefined
               }
+              autoComplete="off"
             />
           </div>
         </div>
