@@ -10,6 +10,7 @@ import {
   Alert,
   Text,
   Paper,
+  Anchor,
 } from "@mantine/core";
 import { IconAlertCircle, IconMail, IconLock } from "@tabler/icons-react";
 import { useAuthStore } from "@/store/auth";
@@ -124,6 +125,16 @@ const Login: React.FC = () => {
                 >
                   {isLoading ? "Вход..." : "Войти"}
                 </Button>
+
+                <Anchor
+                  href="/password-reset"
+                  size="sm"
+                  c="dimmed"
+                  ta="center"
+                  className={classes.forgotPassword}
+                >
+                  Забыли пароль?
+                </Anchor>
               </Stack>
             </form>
           </Stack>

@@ -14,6 +14,7 @@ import Groups from "@/pages/Groups";
 import Admins from "@/pages/Admins";
 import NotificationsPage from "@/pages/Notifications";
 import Login from "@/pages/Login";
+import PasswordReset from "@/pages/PasswordReset";
 import CreateServer from "@/pages/Servers/CreateServer/CreateServer";
 import ServerInfo from "@/pages/Servers/ServerInfo";
 import { WsProvider } from "@/ws/WsProvider";
@@ -124,6 +125,7 @@ const App: React.FC = () => {
             <WsProvider>
               <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/password-reset" element={<PasswordReset />} />
                 <Route element={<Protected />}>
                   <Route element={<AppLayout />}>
                     <Route index element={<Monitoring />} />

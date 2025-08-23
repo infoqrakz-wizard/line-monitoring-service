@@ -27,6 +27,10 @@ export type MeResponse = {
   };
 };
 
+export type PasswordResetRequest = {
+  email: string;
+};
+
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     return request.post<LoginResponse>("/api/auth/login", credentials);
@@ -42,5 +46,9 @@ export const authApi = {
 
   me: async (): Promise<MeResponse> => {
     return request.get<MeResponse>("/api/auth/me");
+  },
+
+  requestPasswordReset: async (data: PasswordResetRequest): Promise<void> => {
+    return request.post("/api/auth/password-reset/request", data);
   },
 };

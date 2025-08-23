@@ -14,11 +14,17 @@ export interface EnvironmentConfig {
 export const getEnvironmentConfig = (): EnvironmentConfig => {
   const mode = import.meta.env.MODE;
   const appEnv = import.meta.env.VITE_APP_ENV;
-  const isDevline = mode === 'devline' || appEnv === 'devline';
-  
+  const isDevline = mode === "devline" || appEnv === "devline";
+
   return {
-    apiUrl: import.meta.env.VITE_API_URL || (isDevline ? "https://devline-api.example.com/" : "http://localhost:5173/"),
-    wsUrl: import.meta.env.VITE_WS_URL || (isDevline ? "wss://devline-ws.example.com/" : "ws://localhost:4000"),
+    apiUrl:
+      import.meta.env.VITE_API_URL ||
+      (isDevline
+        ? "https://devline-api.example.com/"
+        : "http://localhost:5173/"),
+    wsUrl:
+      import.meta.env.VITE_WS_URL ||
+      (isDevline ? "wss://devline-ws.example.com/" : "ws://localhost:4000"),
     appEnv: appEnv || mode,
   };
 };
@@ -29,8 +35,8 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
 export const getCookieSettings = () => {
   const mode = import.meta.env.MODE;
   const appEnv = import.meta.env.VITE_APP_ENV;
-  const isDevline = mode === 'devline' || appEnv === 'devline';
-  
+  const isDevline = mode === "devline" || appEnv === "devline";
+
   return {
     secure: isDevline, // HTTPS только для devline
     sameSite: "lax" as const,
@@ -46,5 +52,5 @@ export const cookieSettings = getCookieSettings();
 export const isDevlineMode = () => {
   const mode = import.meta.env.MODE;
   const appEnv = import.meta.env.VITE_APP_ENV;
-  return mode === 'devline' || appEnv === 'devline';
+  return mode === "devline" || appEnv === "devline";
 };

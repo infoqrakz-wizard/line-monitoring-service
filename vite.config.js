@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
 import svgr from "vite-plugin-svgr";
 export default defineConfig(function (_a) {
+    var command = _a.command, mode = _a.mode;
     var env = loadEnv(mode, process.cwd(), "");
     return {
         plugins: [react(), svgr()],
