@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useState } from "react";
-import { Button, Stack, Tooltip, Group } from "@mantine/core";
+import { Button, Stack, Tooltip, Group, Tabs } from "@mantine/core";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { useUsersStore } from "@/store/users";
 import { CreateUserModal, UserData } from "@/components/CreateUserModal";
@@ -16,6 +16,83 @@ import { forceUpdateWS } from "@/api/servers";
 import { useDisclosure } from "@mantine/hooks";
 import Toast from "@/components/Toast";
 import { IconCheck, IconX } from "@tabler/icons-react";
+
+type LogItem = {
+  id: string;
+  kind: "success" | "error" | "warning" | "pending";
+  text: string;
+  time: string;
+  date: string;
+};
+
+const logItems: LogItem[] = [
+  {
+    id: "l1",
+    kind: "success",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
+  },
+  {
+    id: "l2",
+    kind: "error",
+    text: "Не удалось добавить «user456» на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
+  },
+  {
+    id: "l3",
+    kind: "warning",
+    text: "Пользователь «user456» не найден на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
+  },
+  {
+    id: "l4",
+    kind: "success",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
+  },
+  {
+    id: "l5",
+    kind: "error",
+    text: "Не удалось добавить «user456» на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
+  },
+  {
+    id: "l6",
+    kind: "warning",
+    text: "Пользователь «user456» не найден на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
+  },
+];
+
+const pendingItems: LogItem[] = [
+  {
+    id: "p1",
+    kind: "pending",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
+  },
+  {
+    id: "p2",
+    kind: "pending",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
+  },
+  {
+    id: "p3",
+    kind: "pending",
+    text: "Пользователь «user456» удален на Чкалова, 270",
+    time: "14:13:45",
+    date: "20.05.2025",
+  },
+];
 
 const Users: FC = () => {
   const [q, setQ] = useState("");
@@ -179,84 +256,143 @@ const Users: FC = () => {
         }
       />
 
-      <div
-        className={classes.table}
-        role="table"
-        aria-label="Список пользователей"
+      <Tabs
+        variant="none"
+        defaultValue="users"
+        className={classes.tabsRoot}
+        keepMounted={false}
       >
-        <div className={`${classes.row} ${classes.headerRow}`} role="row">
-          <div
-            className={`${classes.col} ${classes.userCol}`}
-            role="columnheader"
-          >
-            Пользователь
-          </div>
-          <div
-            className={`${classes.col} ${classes.serverCol}`}
-            role="columnheader"
-          >
-            Серверы
-          </div>
-          <div
-            className={`${classes.col} ${classes.actionsCol}`}
-            role="columnheader"
-            aria-hidden="true"
-          />
-        </div>
+        <Tabs.List className={classes.tabsList}>
+          <Tabs.Tab className={classes.tab} value="users">
+            Пользователи <span className={classes.count}>({usersServersMapping.filter((u) => u.name.includes(q)).length})</span>
+          </Tabs.Tab>
+          <Tabs.Tab className={classes.tab} value="logs">
+            Логи событий
+          </Tabs.Tab>
+          <Tabs.Tab className={classes.tab} value="postponed">
+            Отложенные действия
+          </Tabs.Tab>
+        </Tabs.List>
 
-        {usersServersMapping
-          .filter((u) => u.name.includes(q))
-          .map((u) => {
-            // const isSelected = selectedIds.has(u.id);
-            return (
-              <div key={u.sc} className={classes.row} role="row">
-                <div
-                  className={`${classes.col} ${classes.userCol}`}
-                  role="cell"
-                >
-                  <div className={classes.userInfo}>
-                    <p className={classes.userName}>{u.name}</p>
-                    <div className={classes.serversCount}>
-                      {u.servers.length}
+        <Tabs.Panel value="users">
+          <div
+            className={classes.table}
+            role="table"
+            aria-label="Список пользователей"
+          >
+            <div className={`${classes.row} ${classes.headerRow}`} role="row">
+              <div
+                className={`${classes.col} ${classes.userCol}`}
+                role="columnheader"
+              >
+                Пользователь
+              </div>
+              <div
+                className={`${classes.col} ${classes.serverCol}`}
+                role="columnheader"
+              >
+                Серверы
+              </div>
+              <div
+                className={`${classes.col} ${classes.actionsCol}`}
+                role="columnheader"
+                aria-hidden="true"
+              />
+            </div>
+
+            {usersServersMapping
+              .filter((u) => u.name.includes(q))
+              .map((u) => {
+                // const isSelected = selectedIds.has(u.id);
+                return (
+                  <div key={u.id} className={classes.row} role="row">
+                    <div
+                      className={`${classes.col} ${classes.userCol}`}
+                      role="cell"
+                    >
+                      <div className={classes.userInfo}>
+                        <p className={classes.userName}>{u.name}</p>
+                        <div className={classes.serversCount}>
+                          {u.servers.length}
+                        </div>
+                      </div>
+                      {u.description && (
+                        <p className={classes.userDesc}>{u.description}</p>
+                      )}
+                    </div>
+
+                    <div
+                      className={`${classes.col} ${classes.serverCol}`}
+                      role="cell"
+                    >
+                      <div className={classes.serverList}>
+                        {u.servers.map((s) => (
+                          <div key={s.id} className={classes.serverItem}>
+                            {s.sections.main.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div
+                      className={`${classes.col} ${classes.actionsCol}`}
+                      role="cell"
+                    >
+                      <div className={classes.actionButtons}>
+                        <Group gap="xs">
+                          <Tooltip label="Удалить">
+                            <ActionButton
+                              className={classes.deleteIcon}
+                              onClick={() => handleDeleteConfirmOpen(u)}
+                            />
+                          </Tooltip>
+                        </Group>
+                      </div>
                     </div>
                   </div>
-                  {u.description && (
-                    <p className={classes.userDesc}>{u.description}</p>
-                  )}
-                </div>
+                );
+              })}
+          </div>
+        </Tabs.Panel>
 
-                <div
-                  className={`${classes.col} ${classes.serverCol}`}
-                  role="cell"
-                >
-                  <div className={classes.serverList}>
-                    {u.servers.map((s) => (
-                      <div key={s.id} className={classes.serverItem}>
-                        {s.sections.main.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div
-                  className={`${classes.col} ${classes.actionsCol}`}
-                  role="cell"
-                >
-                  <div className={classes.actionButtons}>
-                    <Group gap="xs">
-                      <Tooltip label="Удалить">
-                        <ActionButton
-                          className={classes.deleteIcon}
-                          onClick={() => handleDeleteConfirmOpen(u)}
-                        />
-                      </Tooltip>
-                    </Group>
-                  </div>
+        <Tabs.Panel value="logs">
+          <div className={classes.logsList}>
+            {logItems.map((l) => (
+              <div
+                key={l.id}
+                className={`${classes.logItem} ${classes[l.kind]}`}
+              >
+                <div className={classes.logIcon} aria-hidden="true" />
+                <div className={classes.logText}>{l.text}</div>
+                <div className={classes.logTime}>
+                  <span className={classes.logTimePeriod}>{l.time}</span>
+                  <span className={classes.separator}>•</span>
+                  <span className={classes.logTimeDate}>{l.date}</span>
                 </div>
               </div>
-            );
-          })}
-      </div>
+            ))}
+          </div>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="postponed">
+          <div className={classes.logsList}>
+            {pendingItems.map((l) => (
+              <div
+                key={l.id}
+                className={`${classes.logItem} ${classes[l.kind]}`}
+              >
+                <div className={classes.logIcon} aria-hidden="true" />
+                <div className={classes.logText}>{l.text}</div>
+                <div className={classes.logTime}>
+                  <span className={classes.logTimePeriod}>{l.time}</span>
+                  <span className={classes.separator}>•</span>
+                  <span className={classes.logTimeDate}>{l.date}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Tabs.Panel>
+      </Tabs>
 
       {/* Модальное окно создания пользователя на серверах */}
       <CreateUserModal

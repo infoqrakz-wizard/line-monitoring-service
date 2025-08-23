@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Stack, Tabs, Tooltip, Group } from "@mantine/core";
+import { Button, Stack, Tooltip, Group } from "@mantine/core";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { useUsersStore } from "@/store/users";
 import { CreateAdminModal, UserData } from "@/components/CreateAdminModal";
@@ -20,83 +20,6 @@ type AdminUser = {
   actionsCount?: number;
   deletable?: boolean;
 };
-
-type LogItem = {
-  id: string;
-  kind: "success" | "error" | "warning" | "pending";
-  text: string;
-  time: string;
-  date: string;
-};
-
-const logItems: LogItem[] = [
-  {
-    id: "l1",
-    kind: "success",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l2",
-    kind: "error",
-    text: "Не удалось добавить «user456» на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l3",
-    kind: "warning",
-    text: "Пользователь «user456» не найден на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l4",
-    kind: "success",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l5",
-    kind: "error",
-    text: "Не удалось добавить «user456» на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l6",
-    kind: "warning",
-    text: "Пользователь «user456» не найден на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-];
-
-const pendingItems: LogItem[] = [
-  {
-    id: "p1",
-    kind: "pending",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "p2",
-    kind: "pending",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "p3",
-    kind: "pending",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-];
 
 const Users: FC = () => {
   const [q, setQ] = useState("");
@@ -215,7 +138,7 @@ const Users: FC = () => {
     );
   }, [q, viewUsers]);
 
-  const shownCount = filtered.length; // For the tab counter demo
+
 
   const handleDeleteAdmin = async (userId: string) => {
     try {
@@ -234,7 +157,7 @@ const Users: FC = () => {
   return (
     <Stack className={classes.wrapper} gap="md">
       <PageHeader
-        title="Пользователи"
+        title="Администраторы"
         rightSide={
           <div className={classes.actionsDesktop}>
             <Button
@@ -261,135 +184,76 @@ const Users: FC = () => {
         }
       />
 
-      <Tabs
-        variant="none"
-        defaultValue="users"
-        className={classes.tabsRoot}
-        keepMounted={false}
+      <div
+        className={classes.table}
+        role="table"
+        aria-label="Список пользователей"
       >
-        <Tabs.List className={classes.tabsList}>
-          <Tabs.Tab className={classes.tab} value="users">
-            Пользователи <span className={classes.count}>({shownCount})</span>
-          </Tabs.Tab>
-          <Tabs.Tab className={classes.tab} value="logs">
-            Логи событий
-          </Tabs.Tab>
-          <Tabs.Tab className={classes.tab} value="postponed">
-            Отложенные действия
-          </Tabs.Tab>
-        </Tabs.List>
-
-        <Tabs.Panel value="users">
+        <div className={`${classes.row} ${classes.headerRow}`} role="row">
           <div
-            className={classes.table}
-            role="table"
-            aria-label="Список пользователей"
+            className={`${classes.col} ${classes.userCol} ${classes.headerCol}`}
+            role="columnheader"
           >
-            <div className={`${classes.row} ${classes.headerRow}`} role="row">
+            Пользователь
+          </div>
+          <div
+            className={`${classes.col} ${classes.actionsCol}`}
+            role="columnheader"
+            aria-hidden="true"
+          />
+        </div>
+
+        {filtered.map((u) => {
+          // const isSelected = selectedIds.has(u.id);
+          return (
+            <div key={u.id} className={classes.row} role="row">
               <div
-                className={`${classes.col} ${classes.userCol} ${classes.headerCol}`}
-                role="columnheader"
+                className={`${classes.col} ${classes.userCol}`}
+                role="cell"
               >
-                Пользователь
+                <div className={classes.userInfo}>
+                  <p className={classes.userName}>
+                    {u.login}{" "}
+                    {u.isAdmin && (
+                      <span aria-label="Администратор">⭐</span>
+                    )}
+                  </p>
+                  {typeof u.actionsCount === "number" && (
+                    <div className={classes.badge}>{u.actionsCount}</div>
+                  )}
+                </div>
+                {u.description && (
+                  <p className={classes.userDesc}>{u.description}</p>
+                )}
               </div>
+
               <div
                 className={`${classes.col} ${classes.actionsCol}`}
-                role="columnheader"
-                aria-hidden="true"
-              />
+                role="cell"
+              >
+                <div className={classes.actionButtons}>
+                  <Group gap="xs">
+                    <Tooltip label="Редактировать">
+                      <ActionButton
+                        className={classes.editIcon}
+                        onClick={() => {
+                          handleEditOpen(u);
+                        }}
+                      />
+                    </Tooltip>
+                    <Tooltip label="Удалить">
+                      <ActionButton
+                        className={classes.deleteIcon}
+                        onClick={() => handleDeleteConfirmOpen(u)}
+                      />
+                    </Tooltip>
+                  </Group>
+                </div>
+              </div>
             </div>
-
-            {filtered.map((u) => {
-              // const isSelected = selectedIds.has(u.id);
-              return (
-                <div key={u.id} className={classes.row} role="row">
-                  <div
-                    className={`${classes.col} ${classes.userCol}`}
-                    role="cell"
-                  >
-                    <div className={classes.userInfo}>
-                      <p className={classes.userName}>
-                        {u.login}{" "}
-                        {u.isAdmin && (
-                          <span aria-label="Администратор">⭐</span>
-                        )}
-                      </p>
-                      {typeof u.actionsCount === "number" && (
-                        <div className={classes.badge}>{u.actionsCount}</div>
-                      )}
-                    </div>
-                    {u.description && (
-                      <p className={classes.userDesc}>{u.description}</p>
-                    )}
-                  </div>
-
-                  <div
-                    className={`${classes.col} ${classes.actionsCol}`}
-                    role="cell"
-                  >
-                    <div className={classes.actionButtons}>
-                      <Group gap="xs">
-                        <Tooltip label="Редактировать">
-                          <ActionButton
-                            className={classes.editIcon}
-                            onClick={() => {
-                              handleEditOpen(u);
-                            }}
-                          />
-                        </Tooltip>
-                        <Tooltip label="Удалить">
-                          <ActionButton
-                            className={classes.deleteIcon}
-                            onClick={() => handleDeleteConfirmOpen(u)}
-                          />
-                        </Tooltip>
-                      </Group>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="logs">
-          <div className={classes.logsList}>
-            {logItems.map((l) => (
-              <div
-                key={l.id}
-                className={`${classes.logItem} ${classes[l.kind]}`}
-              >
-                <div className={classes.logIcon} aria-hidden="true" />
-                <div className={classes.logText}>{l.text}</div>
-                <div className={classes.logTime}>
-                  <span className={classes.logTimePeriod}>{l.time}</span>
-                  <span className={classes.separator}>•</span>
-                  <span className={classes.logTimeDate}>{l.date}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="postponed">
-          <div className={classes.logsList}>
-            {pendingItems.map((l) => (
-              <div
-                key={l.id}
-                className={`${classes.logItem} ${classes[l.kind]}`}
-              >
-                <div className={classes.logIcon} aria-hidden="true" />
-                <div className={classes.logText}>{l.text}</div>
-                <div className={classes.logTime}>
-                  <span className={classes.logTimePeriod}>{l.time}</span>
-                  <span className={classes.separator}>•</span>
-                  <span className={classes.logTimeDate}>{l.date}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Tabs.Panel>
-      </Tabs>
+          );
+        })}
+      </div>
 
       {/* Модальное окно создания пользователя */}
       <CreateAdminModal

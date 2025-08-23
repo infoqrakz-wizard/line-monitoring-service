@@ -109,7 +109,7 @@ const AppLayout: React.FC = () => {
     },
     {
       to: "/admins",
-      label: "Пользователи",
+      label: "Администраторы",
       icon: (
         <img
           src={settingsIconUrl}
