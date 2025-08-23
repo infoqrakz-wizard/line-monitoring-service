@@ -10,6 +10,8 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.devline
+env.example
 
 # Next.js
 .next/
@@ -100,6 +102,7 @@ coverage/
 design/
 deploy.sh
 deploy-quick.sh
+deploy-devline.sh
 line-monitoring-service-*.tar.gz
 
 tsconfig.tsbuildinfo
