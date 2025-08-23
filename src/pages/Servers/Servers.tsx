@@ -350,6 +350,7 @@ const Servers: React.FC = () => {
               placeholder="Найти сервер..."
               containerClassName={classes.searchInputDesktopContainer}
               className={classes.searchInputDesktop}
+              withClearIcon={q.length > 0}
               inputClassName={classes.searchInputDesktopInput}
               rootClassName={classes.searchInputDesktopRoot}
             />
