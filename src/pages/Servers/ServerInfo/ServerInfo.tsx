@@ -285,7 +285,6 @@ const ServerInfo: React.FC = () => {
     <div className={classes.container}>
       <PageHeader
         withBackButton
-        backPath="/servers"
         title={`${server?.name || ""}`}
         rightSide={
           <div className={classes.serverInfo}>
