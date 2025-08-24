@@ -93,6 +93,10 @@ export const createUser = async (
     url: string;
     port: number;
   }>,
+  options: {
+    createOnUnavailableServers: boolean;
+    createOnNewServers: boolean;
+  },
 ): Promise<CreateUserResponse> => {
   let serverIdentifiers;
 
@@ -114,6 +118,7 @@ export const createUser = async (
     method: "create",
     user,
     servers: serverIdentifiers,
+    options,
   };
 
   return request.post<CreateUserResponse>("/api/manage/users", apiPayload);

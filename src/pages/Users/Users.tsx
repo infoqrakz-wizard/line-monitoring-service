@@ -428,10 +428,16 @@ const Users: FC = () => {
               port: server.sections.main.port,
             }));
 
+            const options = {
+              createOnUnavailableServers: payload.createOnUnavailableServers,
+              createOnNewServers: payload.createOnNewServers,
+            };
+
             const response = await createUser(
               userData,
               payload.servers,
               availableServersData,
+              options,
             );
 
             const getServerNames = (r: { server: string }) => {

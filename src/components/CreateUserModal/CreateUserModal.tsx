@@ -5,6 +5,7 @@ import {
   PasswordInput,
   Textarea,
   TagsInput,
+  Checkbox,
 } from "@mantine/core";
 import { Modal } from "@/components/Modal";
 import classes from "./CreateUserModal.module.css";
@@ -15,6 +16,8 @@ export type UserData = {
   password: string;
   description: string;
   servers: string[];
+  createOnUnavailableServers: boolean;
+  createOnNewServers: boolean;
 };
 
 export type CreateUserModalProps = {
@@ -40,16 +43,19 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   loading,
   error,
   availableServers,
+  currentServer,
   onClose,
   onSubmit,
   onSuccess,
   onClearError,
-  currentServer,
 }) => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [description, setDescription] = useState("");
   const [servers, setServers] = useState<string[]>([]);
+  const [createOnUnavailableServers, setCreateOnUnavailableServers] =
+    useState(false);
+  const [createOnNewServers, setCreateOnNewServers] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const canSubmit =
@@ -69,6 +75,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
       setLogin("");
       setPassword("");
       setDescription("");
+      setCreateOnUnavailableServers(false);
+      setCreateOnNewServers(false);
       setSubmitting(false);
       onClearError?.();
     }
@@ -96,6 +104,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         password,
         description,
         servers,
+        createOnUnavailableServers,
+        createOnNewServers,
       });
 
       await forceUpdateWS();
@@ -211,6 +221,37 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
             </div>
           </div>
         )}
+
+        <div className={classes.formField}>
+          <div className={classes.checkboxesContainer}>
+            <Checkbox
+              classNames={{
+                label: classes.checkboxLabel,
+                input: classes.checkboxInput,
+              }}
+              id="createOnUnavailableServers"
+              label="Создать на недоступных серверах"
+              checked={createOnUnavailableServers}
+              onChange={(event) =>
+                setCreateOnUnavailableServers(event.currentTarget.checked)
+              }
+              disabled={submitting || !!loading}
+            />
+            <Checkbox
+              classNames={{
+                label: classes.checkboxLabel,
+                input: classes.checkboxInput,
+              }}
+              id="createOnNewServers"
+              label="Создание на новых серверах"
+              checked={createOnNewServers}
+              onChange={(event) =>
+                setCreateOnNewServers(event.currentTarget.checked)
+              }
+              disabled={submitting || !!loading}
+            />
+          </div>
+        </div>
 
         {error && (
           <div className={classes.error}>

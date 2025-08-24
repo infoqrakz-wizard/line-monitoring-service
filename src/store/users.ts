@@ -33,6 +33,10 @@ export type UsersState = {
       url: string;
       port: number;
     }>,
+    options: {
+      createOnUnavailableServers: boolean;
+      createOnNewServers: boolean;
+    },
   ) => Promise<CreateUserResponse>;
   deleteUser: (
     name: string,
@@ -88,8 +92,13 @@ export const useUsersStore = create<UsersState>((set, get) => ({
     return created;
   },
 
-  createUser: async (user, serverNames, availableServers) => {
-    return await usersApi.createUser(user, serverNames, availableServers);
+  createUser: async (user, serverNames, availableServers, options) => {
+    return await usersApi.createUser(
+      user,
+      serverNames,
+      availableServers,
+      options,
+    );
   },
 
   deleteUser: async (name, serverNames, availableServers) => {

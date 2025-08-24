@@ -194,9 +194,15 @@ const ServerInfo: React.FC = () => {
   const handleAddUser = async ({
     login,
     password,
+    description,
+    createOnUnavailableServers,
+    createOnNewServers,
   }: {
     login: string;
     password: string;
+    description: string;
+    createOnUnavailableServers: boolean;
+    createOnNewServers: boolean;
   }) => {
     try {
       setCreateLoading(true);
@@ -210,14 +216,20 @@ const ServerInfo: React.FC = () => {
         },
       ];
 
+      const options = {
+        createOnUnavailableServers,
+        createOnNewServers,
+      };
+
       await createUser(
         {
           name: login,
           password,
-          description: "",
+          description,
         },
         [server?.name || ""],
         availableServersData,
+        options,
       );
       setCreateLoading(false);
       setShowAddUserModal(false);
