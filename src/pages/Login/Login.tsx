@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import {
   Container,
   Stack,
@@ -23,8 +23,6 @@ const Login: React.FC = () => {
 
   const { login, isLoading, isAuthenticated, autoLogin } = useAuthStore();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
 
   // Автоматическая попытка входа при загрузке страницы
   useEffect(() => {
@@ -47,9 +45,9 @@ const Login: React.FC = () => {
   // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
-      void navigate(from, { replace: true });
+      void navigate("/servers", { replace: true });
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +60,7 @@ const Login: React.FC = () => {
 
     try {
       await login(email.trim(), password);
-      void navigate(from, { replace: true });
+      void navigate("/servers", { replace: true });
     } catch {
       const errorMessage = "Проверьте email и пароль.";
       setError(errorMessage);
