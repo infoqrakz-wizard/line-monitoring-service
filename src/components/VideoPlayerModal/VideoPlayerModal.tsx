@@ -102,7 +102,10 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 
     try {
       // Создаем экземпляр плеера
-      const protocol = window.location.protocol;
+      const protocol = window.location.protocol.substring(
+        0,
+        window.location.protocol.length - 1,
+      );
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       playerInstanceRef.current = new window.DevLinePlayer(
