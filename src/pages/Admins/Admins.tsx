@@ -143,7 +143,11 @@ const Users: FC = () => {
     try {
       setDeleteLoading(true);
       await deleteAdmin(userId);
-      await forceUpdateWS();
+
+      await fetchAdmins({
+        limit: 50,
+        offset: 0,
+      });
       handleDeleteConfirmClose();
     } catch (error) {
       console.error("Failed to delete user:", error);

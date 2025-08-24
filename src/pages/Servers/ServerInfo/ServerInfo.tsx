@@ -231,6 +231,8 @@ const ServerInfo: React.FC = () => {
         availableServersData,
         options,
       );
+      await forceUpdateWS();
+
       setCreateLoading(false);
       setShowAddUserModal(false);
       resubscribe(url!, parseInt(port!));

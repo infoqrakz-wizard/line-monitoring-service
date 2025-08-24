@@ -108,7 +108,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         createOnNewServers,
       });
 
-      await forceUpdateWS();
       onSuccess?.();
 
       onClose();
