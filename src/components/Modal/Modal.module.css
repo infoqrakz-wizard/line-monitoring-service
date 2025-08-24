@@ -1,66 +1,64 @@
-
 .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
 }
 
 .content {
-    text-align: center;
-    max-width: 612px;
-    width: 100%;
+  text-align: center;
+  max-width: 612px;
+  width: 100%;
 
-    padding: 54px 50px;
-    background: #FFFFFF;
-    box-shadow: 0px 4px 12px rgba(144, 144, 144, 0.08);
-    border-radius: 12px;
+  padding: 54px 50px;
+  background: #ffffff;
+  box-shadow: 0px 4px 12px rgba(144, 144, 144, 0.08);
+  border-radius: 12px;
 }
 
 .title {
-    margin-bottom: 48px;
-    font-weight: 600;
-    font-size: 24px;
-    line-height: 28px;
-    color: #1D1D1D;
+  margin-bottom: 48px;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 28px;
+  color: #1d1d1d;
 }
 
 .withoutTitleMargin {
-    margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 
 .btnDelete {
-    display: block;
-    margin: 0 auto 8px;
-    border: none;
-    cursor: pointer;
+  display: block;
+  margin: 0 auto 8px;
+  border: none;
+  cursor: pointer;
 
-    padding: 20px 40px;
-    width: 240px;
-    background: #1D1D1D;
-    border-radius: 12px;
+  padding: 20px 40px;
+  width: 240px;
+  background: #1d1d1d;
+  border-radius: 12px;
 
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 14px;
-    color: #FFFFFF;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 14px;
+  color: #ffffff;
 }
 
 .btnCancel {
-    background: none;
-    border: none;
-    color: #000;
-    cursor: pointer;
-    padding: 20px 40px;
-    width: 240px;
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 14px;
+  background: none;
+  border: none;
+  color: #000;
+  cursor: pointer;
+  padding: 20px 40px;
+  width: 240px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 14px;
 }
-

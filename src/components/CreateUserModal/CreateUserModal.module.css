@@ -73,14 +73,6 @@
   gap: 4px;
 }
 
-.checkboxLabel {
-  cursor: pointer !important;
-}
-
-.checkboxInput {
-  cursor: pointer !important;
-}
-
 /* Tablet styles */
 @media (max-width: 1024px) {
   .form {
@@ -95,12 +87,12 @@
     min-width: 100%;
     gap: 16px;
   }
-  
+
   .footer {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .footer button {
     width: 100%;
   }

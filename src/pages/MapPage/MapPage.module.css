@@ -1,6 +1,5 @@
 /* Desktop styles (default) */
 .container {
-  padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -33,11 +32,11 @@
   .container {
     padding: 16px;
   }
-  
+
   .mapWrapper {
     border-radius: 8px;
   }
-  
+
   .legend {
     padding: 12px;
     border-radius: 6px;

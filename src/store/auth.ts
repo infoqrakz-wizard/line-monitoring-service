@@ -130,18 +130,18 @@ export const useAuthStore = create<AuthState>((set, get) => {
         await get().checkAuth();
       } catch (error) {
         set({ isLoading: false });
-        
+
         // Логируем ошибку с дополнительной информацией
         if (error instanceof ApiError) {
           console.error("Login failed:", {
             status: error.status,
             message: error.getServerMessage(),
-            data: error.data
+            data: error.data,
           });
         } else {
           console.error("Login failed:", error);
         }
-        
+
         throw error;
       }
     },
@@ -155,7 +155,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         if (error instanceof ApiError) {
           console.warn("Logout error:", {
             status: error.status,
-            message: error.getServerMessage()
+            message: error.getServerMessage(),
           });
         } else {
           console.warn("Logout error:", error);

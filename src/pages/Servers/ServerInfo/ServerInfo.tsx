@@ -269,13 +269,8 @@ const ServerInfo: React.FC = () => {
           resubscribe(url, parseInt(port));
         }
       }, 1000);
-    } finally {
-      // Remove loading state for this user
-      setDeletingUsers((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(userId);
-        return newSet;
-      });
+    } catch (error) {
+      console.error("Failed to delete user:", error);
     }
   };
 
@@ -640,7 +635,11 @@ const ServerInfo: React.FC = () => {
                         </div>
                       </Group>
 
-                      {!isServerUser && (
+                      {!isServerUser && deletingUsers.has(user.name) && (
+                        <Loader size={20} color="#676767" />
+                      )}
+
+                      {!isServerUser && !deletingUsers.has(user.name) && (
                         <ActionIcon
                           variant="subtle"
                           color="#676767"
@@ -648,11 +647,7 @@ const ServerInfo: React.FC = () => {
                           aria-label="Удалить пользователя"
                           disabled={deletingUsers.has(user.name)}
                         >
-                          {deletingUsers.has(user.name) ? (
-                            <Loader size={20} color="#676767" />
-                          ) : (
-                            <IconTrash size={32} />
-                          )}
+                          <IconTrash size={32} />
                         </ActionIcon>
                       )}
                     </Group>

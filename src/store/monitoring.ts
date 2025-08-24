@@ -84,7 +84,7 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     });
 
     const wsUrl = import.meta.env.VITE_WS_URL ?? "ws://161.35.77.101:4000";
-    const ws = new WebSocket(`ws://${wsUrl}/ws?token=${token}`);
+    const ws = new WebSocket(`${wsUrl}/ws?token=${token}`);
 
     ws.onopen = () => {
       console.log("Monitoring WebSocket connected");

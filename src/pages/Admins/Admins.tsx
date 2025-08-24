@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Stack, Tooltip, Group } from "@mantine/core";
+import { Button, Tooltip, Group } from "@mantine/core";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { useUsersStore } from "@/store/users";
 import { CreateAdminModal, UserData } from "@/components/CreateAdminModal";
@@ -153,7 +153,7 @@ const Users: FC = () => {
   };
 
   return (
-    <Stack className={classes.wrapper} gap="md">
+    <div className={classes.wrapper}>
       <PageHeader
         title="Администраторы"
         rightSide={
@@ -204,7 +204,7 @@ const Users: FC = () => {
         {filtered.map((u) => {
           // const isSelected = selectedIds.has(u.id);
           return (
-            <div key={u.id} className={classes.row} role="row">
+            <div key={`${u.id}-${u.login}`} className={classes.row} role="row">
               <div className={`${classes.col} ${classes.userCol}`} role="cell">
                 <div className={classes.userInfo}>
                   <p className={classes.userName}>
@@ -345,7 +345,7 @@ const Users: FC = () => {
         onClose={handleDeleteConfirmClose}
         loading={deleteLoading}
       />
-    </Stack>
+    </div>
   );
 };
 

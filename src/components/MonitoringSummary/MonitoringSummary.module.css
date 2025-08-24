@@ -1,109 +1,109 @@
 .items {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    gap: 6px
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 6px;
 }
 
 .item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 10px 8px 12px 12px;
-    width: 190px;
-    height: 68px;
-    border-radius: 14px
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 8px 12px 12px;
+  width: 190px;
+  height: 68px;
+  border-radius: 14px;
 }
 
 .itemName {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 16px;
-    color: #1D1D1D;
-    opacity: .45;
-    text-align: left
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 16px;
+  color: #1d1d1d;
+  opacity: 0.45;
+  text-align: left;
 }
 
 .itemValue {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-weight: 600;
-    font-size: 24px;
-    line-height: 24px;
-    letter-spacing: -.02em;
-    color: #1D1D1D;
-    text-align: left
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 24px;
+  letter-spacing: -0.02em;
+  color: #1d1d1d;
+  text-align: left;
 }
 
 .itemValue::after {
-    content: '';
-    display: block;
-    position: relative;
-    min-width: 32px;
-    width: 32px;
-    height: 32px;
-    opacity: .45
+  content: "";
+  display: block;
+  position: relative;
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+  opacity: 0.45;
 }
 
 .itemServers {
-    background: #E1FDED
+  background: #e1fded;
 }
 
 .itemServers .itemValue::after {
-    background-image: url('../../assets/icons/servers-small.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100%
+  background-image: url("../../assets/icons/servers-small.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
 }
 
 .itemCameras {
-    background: #E3F5FF
+  background: #e3f5ff;
 }
 
 .itemCameras .itemValue::after {
-    background-image: url('../../assets/icons/cameras.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100%
+  background-image: url("../../assets/icons/cameras.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
 }
 
 .itemPostponed {
-    background: #EDE1FD
+  background: #ede1fd;
 }
 
 .itemPostponed .itemValue::after {
-    background-image: url('../../assets/icons/postponedProblems.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100%;
-    color: #1D1D1D;
-    opacity: 1;
+  background-image: url("../../assets/icons/postponedProblems.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
+  color: #1d1d1d;
+  opacity: 1;
 }
 
 .itemCurrent {
-    background: #FDE7E1
+  background: #fde7e1;
 }
 
 .itemCurrent .itemValue::after {
-    background-image: url('../../assets/icons/problems.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100%
+  background-image: url("../../assets/icons/problems.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
 }
 
-@media (max-width:1280px) {
-    .items {
-        flex-wrap: wrap;
-        margin-top: 25px
-    }
+@media (max-width: 1280px) {
+  .items {
+    flex-wrap: wrap;
+    margin-top: 25px;
+  }
 
-    .item {
-        max-width: calc(50% - 3px);
-        width: 100%
-    }
+  .item {
+    max-width: calc(50% - 3px);
+    width: 100%;
+  }
 
-    .item {
-        height: auto
-    }
+  .item {
+    height: auto;
+  }
 }

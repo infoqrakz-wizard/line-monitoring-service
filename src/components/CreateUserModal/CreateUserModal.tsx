@@ -5,11 +5,11 @@ import {
   PasswordInput,
   Textarea,
   TagsInput,
-  Checkbox,
 } from "@mantine/core";
 import { Modal } from "@/components/Modal";
 import classes from "./CreateUserModal.module.css";
 import { forceUpdateWS } from "@/api/servers";
+import Checkbox from "../Checkbox";
 
 export type UserData = {
   login: string;
@@ -225,10 +225,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         <div className={classes.formField}>
           <div className={classes.checkboxesContainer}>
             <Checkbox
-              classNames={{
-                label: classes.checkboxLabel,
-                input: classes.checkboxInput,
-              }}
               id="createOnUnavailableServers"
               label="Создать на недоступных серверах"
               checked={createOnUnavailableServers}
@@ -238,10 +234,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
               disabled={submitting || !!loading}
             />
             <Checkbox
-              classNames={{
-                label: classes.checkboxLabel,
-                input: classes.checkboxInput,
-              }}
               id="createOnNewServers"
               label="Создание на новых серверах"
               checked={createOnNewServers}

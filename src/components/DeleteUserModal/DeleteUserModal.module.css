@@ -56,12 +56,12 @@
     min-width: 100%;
     gap: 16px;
   }
-  
+
   .footer {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .footer button {
     width: 100%;
   }

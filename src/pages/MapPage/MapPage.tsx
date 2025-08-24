@@ -7,6 +7,7 @@ import { useServersStore } from "@/store/servers";
 import { useMonitoringStore } from "@/store/monitoring";
 import type { ServerItem, ServerStatus } from "@/types";
 import classes from "./MapPage.module.css";
+import PageHeader from "@/components/PageHeader";
 
 const MapPage: React.FC = () => {
   const navigate = useNavigate();
@@ -97,68 +98,44 @@ const MapPage: React.FC = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className={classes.container}>
-        <Stack gap="md">
-          <Title order={1} size="h3">
-            Карта серверов
-          </Title>
-          <LoadingOverlay visible={true} />
+  return (
+    <div className={classes.container}>
+      <PageHeader title="Карта" />
+
+      <div className={classes.mapWrapper}>
+        {isLoading ? (
           <div
             style={{
-              height: "400px",
+              padding: "40px",
+              textAlign: "center",
+              color: "#666",
               backgroundColor: "#f8f9fa",
               borderRadius: "8px",
             }}
+          >
+            <LoadingOverlay visible={true} />
+            Загрузка карты...
+          </div>
+        ) : serversWithCoordinates.length > 0 ? (
+          <YandexMap
+            servers={serversWithCoordinates}
+            serverStatuses={serverStatuses}
+            onServerClick={handleServerClick}
           />
-        </Stack>
+        ) : (
+          <div
+            style={{
+              padding: "40px",
+              textAlign: "center",
+              color: "#666",
+              backgroundColor: "#f8f9fa",
+              borderRadius: "8px",
+            }}
+          >
+            Нет серверов с координатами для отображения на карте
+          </div>
+        )}
       </div>
-    );
-  }
-
-  return (
-    <div className={classes.container}>
-      <Stack gap="md">
-        <Title order={1} size="h3">
-          Карта серверов
-        </Title>
-
-        <div className={classes.mapWrapper}>
-          {isLoading ? (
-            <div
-              style={{
-                padding: "40px",
-                textAlign: "center",
-                color: "#666",
-                backgroundColor: "#f8f9fa",
-                borderRadius: "8px",
-              }}
-            >
-              <LoadingOverlay visible={true} />
-              Загрузка карты...
-            </div>
-          ) : serversWithCoordinates.length > 0 ? (
-            <YandexMap
-              servers={serversWithCoordinates}
-              serverStatuses={serverStatuses}
-              onServerClick={handleServerClick}
-            />
-          ) : (
-            <div
-              style={{
-                padding: "40px",
-                textAlign: "center",
-                color: "#666",
-                backgroundColor: "#f8f9fa",
-                borderRadius: "8px",
-              }}
-            >
-              Нет серверов с координатами для отображения на карте
-            </div>
-          )}
-        </div>
-      </Stack>
     </div>
   );
 };

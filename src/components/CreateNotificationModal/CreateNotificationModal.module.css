@@ -1,0 +1,22 @@
+/* Desktop styles (default) */
+.form {
+  width: 100%;
+}
+
+.formField {
+  width: 100%;
+}
+
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .form {
+    width: 100%;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .form {
+    width: 100%;
+  }
+}

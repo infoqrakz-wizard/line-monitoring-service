@@ -309,7 +309,11 @@ const Users: FC = () => {
               .map((u) => {
                 // const isSelected = selectedIds.has(u.id);
                 return (
-                  <div key={u.id} className={classes.row} role="row">
+                  <div
+                    key={`${u.id}-${u.name}`}
+                    className={classes.row}
+                    role="row"
+                  >
                     <div
                       className={`${classes.col} ${classes.userCol}`}
                       role="cell"

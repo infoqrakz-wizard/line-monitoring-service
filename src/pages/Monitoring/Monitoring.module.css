@@ -1,6 +1,5 @@
 /* Desktop styles (default) */
 .container {
-  padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -18,11 +17,11 @@
   .container {
     padding: 20px;
   }
-  
+
   .header {
     margin-bottom: 28px;
   }
-  
+
   .errorAlert {
     margin-bottom: 20px;
   }
@@ -33,14 +32,14 @@
   .container {
     padding: 16px;
   }
-  
+
   .header {
     margin-bottom: 24px;
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
   }
-  
+
   .errorAlert {
     margin-bottom: 16px;
   }

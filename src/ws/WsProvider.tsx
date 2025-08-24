@@ -40,7 +40,7 @@ export const WsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     }
 
     const urlBase = import.meta.env.VITE_WS_URL ?? "";
-    const url = `ws://${urlBase}/ws?token=${token}`;
+    const url = `${urlBase}/ws?token=${token}`;
 
     const ws = new WebSocket(url);
     socketRef.current = ws;

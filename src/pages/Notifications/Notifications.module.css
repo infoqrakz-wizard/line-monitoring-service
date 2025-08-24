@@ -3,51 +3,19 @@
   margin: 0 auto;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .actionsDesktop {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.actionsMobile {
-  display: none;
-}
-
-.addMobile {
-  align-self: flex-start;
-}
-
-.tabsRoot {
-}
-
-.tabsList {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-  flex-wrap: nowrap;
-  width: 100%;
-}
-
-.count {
-  color: #cfcfcf;
-}
-
-.deleteBtn {
+.addButton {
   white-space: nowrap;
 }
 
-.deleteIcon {
-  padding-inline: 10px !important;
-}
-
-.editIcon {
-  padding-inline: 10px !important;
+.searchInputRoot,
+.searchInput {
+  width: 300px;
 }
 
 /* Table-like layout */
@@ -60,7 +28,7 @@
 
 .row {
   display: grid;
-  grid-template-columns: 1fr 160px;
+  grid-template-columns: 2fr 1fr 2fr 160px;
   align-items: start;
   gap: 12px;
   padding: 14px 16px;
@@ -92,18 +60,15 @@
 .col {
 }
 
-.inputCol {
+.subscriberCol {
 }
 
-.userCol {
-}
-
-.serverCol {
-}
-
-.deleteCol {
+.statusCol {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+}
+
+.typesCol {
 }
 
 .actionsCol {
@@ -117,129 +82,43 @@
   align-items: center;
 }
 
-.userInfo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.userName {
-  margin: 0;
-  font-weight: 600;
-}
-
-.userDesc {
-  margin: 6px 0 0 0;
-  color: #676767;
-  font-size: 14px;
-}
-
-.badge {
-  background: #f1f3f5;
-  border-radius: 8px;
-  padding: 2px 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.serverList {
-  display: inline;
-}
-
-.serverItem {
-  color: #1d1d1d;
-}
-
-.serverMore {
-  margin-top: 8px;
-  color: #1d1d1d;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-/* Logs */
-.logsList {
+.subscriberInfo {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
 
-.logItem {
-  display: grid;
-  grid-template-columns: 28px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid #e9ecef;
-  border-radius: 12px;
-  background: #fff;
-}
-
-.logIcon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #adb5bd;
-}
-
-.logText {
+.chatId {
+  margin: 0;
+  font-weight: 600;
   color: #1d1d1d;
 }
 
-.logTime {
+.botToken {
+  margin: 0;
   color: #676767;
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.notificationTypes {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.logTimePeriod {
-}
-
-.logTimeDate {
-}
-
-.separator {
-  color: #adb5bd;
-}
-
-.success .logIcon {
-  background: #2f9e44;
-}
-
-.error .logIcon {
-  background: #e03131;
-}
-
-.warning .logIcon {
-  background: #f08c00;
-}
-
-.pending .logIcon {
-  background: #868e96;
-}
-
-.tab {
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 10px 16px;
-  border: none;
-  cursor: pointer;
-  background: transparent;
-  color: #cfcfcf;
-  /* border-bottom: 1.5px solid transparent; */
-  transition: 0.3s;
+.emptyState {
+  padding: 40px 20px;
   text-align: center;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  /* border-bottom: 1.5px solid transparent !important; */
 }
 
-.tab[data-active="true"] {
-  color: #1d1d1d !important;
-  border-bottom: 1.5px solid #1d1d1d !important;
+.pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 20px;
 }
 
 .editIcon {
@@ -256,29 +135,27 @@
 }
 
 .deleteIcon {
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1.53734 16C1.2208 16 0.902066 15.9689 0.584834 15.9055C0.337387 15.856 0.144004 15.6626 0.0945332 15.4152C-0.223323 13.8261 0.27104 12.1933 1.41696 11.0473L9.52345 2.94084C9.64064 2.82362 9.79961 2.75777 9.9654 2.75777C10.1312 2.75777 10.2902 2.82362 10.4074 2.94084L13.0592 5.5926C13.3032 5.83671 13.3032 6.23244 13.0591 6.47652L4.95264 14.583C4.03554 15.5001 2.80624 16 1.53734 16ZM1.26077 14.7392C2.29747 14.8189 3.32238 14.4454 4.06869 13.6991L11.7332 6.03459L9.9654 4.26674L2.3009 11.9312C1.55453 12.6776 1.18092 13.7024 1.26077 14.7392Z' fill='%23676767'/%3e%3cpath d='M13.943 4.70869C13.6989 4.46459 13.6989 4.06885 13.943 3.82478L14.385 3.38283C14.8724 2.89543 14.8724 2.1024 14.385 1.615C13.8976 1.12761 13.1046 1.12761 12.6171 1.615L12.1752 2.05693C11.9311 2.30103 11.5354 2.30103 11.2913 2.05696C11.0472 1.81289 11.0472 1.41712 11.2913 1.17305L11.7332 0.731092C12.708 -0.243698 14.2941 -0.243698 15.2689 0.731092C16.2437 1.70591 16.2437 3.29198 15.269 4.26677L14.8269 4.70876C14.5829 4.9527 14.1872 4.95286 13.943 4.70869Z' fill='%23676767'/%3e%3c/svg%3e ");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='14' height='16' viewBox='0 0 14 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1.375 12.875V3.75H0.75C0.404822 3.75 0.125 3.47018 0.125 3.125C0.125 2.77982 0.404822 2.5 0.75 2.5H3.93753C4.22707 1.0736 5.48815 0 7 0C8.51185 0 9.77293 1.0736 10.0625 2.5H13.25C13.5952 2.5 13.875 2.77982 13.875 3.125C13.875 3.47018 13.5952 3.75 13.25 3.75H2.625V12.875C2.625 13.9105 3.46446 14.75 4.5 14.75H9.5C10.5355 14.75 11.375 13.9105 11.375 12.875V5.625C11.375 5.27982 11.6548 5 12 5C12.3452 5 12.625 5.27982 12.625 5.625V12.875C12.625 14.6009 11.2259 16 9.5 16H4.5C2.7741 16 1.375 14.6009 1.375 12.875ZM3.875 11.625V6.875C3.875 6.52982 4.15482 6.25 4.5 6.25C4.84518 6.25 5.125 6.52982 5.125 6.875V11.625C5.125 11.9702 4.84518 12.25 4.5 12.25C4.15482 12.25 3.875 11.9702 3.875 11.625ZM6.375 11.625V6.875C6.375 6.52982 6.65482 6.25 7 6.25C7.34518 6.25 7.625 6.52982 7.625 6.875V11.625C7.625 11.9702 7.34518 12.25 7 12.25C6.65482 12.25 6.375 11.9702 6.375 11.625ZM8.875 11.625V6.875C8.875 6.52982 9.15482 6.25 9.5 6.25C9.84518 6.25 10.125 6.52982 10.125 6.875V11.625C10.125 11.9702 9.84518 12.25 9.5 12.25C9.15482 12.25 8.875 11.9702 8.875 11.625ZM7 1.25C6.18361 1.25 5.48912 1.77176 5.23172 2.5H8.76828C8.51088 1.77176 7.81639 1.25 7 1.25Z' fill='%23676767'/%3e%3c/svg%3e ");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 16px 16px;
   width: 44px;
   height: 44px;
-
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='14' height='16' viewBox='0 0 14 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1.375 12.875V3.75H0.75C0.404822 3.75 0.125 3.47018 0.125 3.125C0.125 2.77982 0.404822 2.5 0.75 2.5H3.93753C4.22707 1.0736 5.48815 0 7 0C8.51185 0 9.77293 1.0736 10.0625 2.5H13.25C13.5952 2.5 13.875 2.77982 13.875 3.125C13.875 3.47018 13.5952 3.75 13.25 3.75H2.625V12.875C2.625 13.9105 3.46446 14.75 4.5 14.75H9.5C10.5355 14.75 11.375 13.9105 11.375 12.875V5.625C11.375 5.27982 11.6548 5 12 5C12.3452 5 12.625 5.27982 12.625 5.625V12.875C12.625 14.6009 11.2259 16 9.5 16H4.5C2.7741 16 1.375 14.6009 1.375 12.875ZM3.875 11.625V6.875C3.875 6.52982 4.15482 6.25 4.5 6.25C4.84518 6.25 5.125 6.52982 5.125 6.875V11.625C5.125 11.9702 4.84518 12.25 4.5 12.25C4.15482 12.25 3.875 11.9702 3.875 11.625ZM6.375 11.625V6.875C6.375 6.52982 6.65482 6.25 7 6.25C7.34518 6.25 7.625 6.52982 7.625 6.875V11.625C7.625 11.9702 7.34518 12.25 7 12.25C6.65482 12.25 6.375 11.9702 6.375 11.625ZM8.875 11.625V6.875C8.875 6.52982 9.15482 6.25 9.5 6.25C9.84518 6.25 10.125 6.52982 10.125 6.875V11.625C10.125 11.9702 9.84518 12.25 9.5 12.25C9.15482 12.25 8.875 11.9702 8.875 11.625ZM7 1.25C6.18361 1.25 5.48912 1.77176 5.23172 2.5H8.76828C8.51088 1.77176 7.81639 1.25 7 1.25Z' fill='%23676767'/%3e%3c/svg%3e ");
 }
 
 .deleteIcon:hover {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='14' height='16' viewBox='0 0 14 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1.375 12.875V3.75H0.75C0.404822 3.75 0.125 3.47018 0.125 3.125C0.125 2.77982 0.404822 2.5 0.75 2.5H3.93753C4.22707 1.0736 5.48815 0 7 0C8.51185 0 9.77293 1.0736 10.0625 2.5H13.25C13.5952 2.5 13.875 2.77982 13.875 3.125C13.875 3.47018 13.5952 3.75 13.25 3.75H2.625V12.875C2.625 13.9105 3.46446 14.75 4.5 14.75H9.5C10.5355 14.75 11.375 13.9105 11.375 12.875V5.625C11.375 5.27982 11.6548 5 12 5C12.3452 5 12.625 5.27982 12.625 5.625V12.875C12.625 14.6009 11.2259 16 9.5 16H4.5C2.7741 16 1.375 14.6009 1.375 12.875ZM3.875 11.625V6.875C3.875 6.52982 4.15482 6.25 4.5 6.25C4.84518 6.25 5.125 6.52982 5.125 6.875V11.625C5.125 11.9702 4.84518 12.25 4.5 12.25C4.15482 12.25 3.875 11.9702 3.875 11.625ZM6.375 11.625V6.875C6.375 6.52982 6.65482 6.25 7 6.25C7.34518 6.25 7.625 6.52982 7.625 6.875V11.625C7.625 11.9702 7.34518 12.25 7 12.25C6.65482 12.25 6.375 11.9702 6.375 11.625ZM8.875 11.625V6.875C8.875 6.52982 9.15482 6.25 9.5 6.25C9.84518 6.25 10.125 6.52982 10.125 6.875V11.625C10.125 11.9702 9.84518 12.25 9.5 12.25C9.15482 12.25 8.875 11.9702 8.875 11.625ZM7 1.25C6.18361 1.25 5.48912 1.77176 5.23172 2.5H8.76828C8.51088 1.77176 7.81639 1.25 7 1.25Z' fill='white'/%3e%3c/svg%3e ");
 }
 
-.userName {
-  display: flex;
-  gap: 2px;
-}
-
 /* Tablet styles */
 @media (max-width: 1024px) {
+  .wrapper {
+    max-width: 100%;
+    padding: 20px;
+  }
+
   .row {
-    grid-template-columns: 1fr 140px;
+    grid-template-columns: 2fr 1fr 2fr 140px;
   }
 
   .actionsDesktop {
@@ -297,35 +174,38 @@
 
 /* Mobile styles */
 @media (max-width: 767px) {
-  /* .actionsDesktop {
-    display: none;
-  } */
+  .wrapper {
+    padding: 16px;
+  }
 
   .addButton {
     width: 100% !important;
   }
 
-  .actionsMobile {
-    display: flex;
-    flex-direction: column;
+  .row {
+    grid-template-columns: 1fr;
     gap: 8px;
   }
 
-  .row {
-    grid-template-columns: 1fr 130px;
+  .headerRow {
+    display: none;
   }
 
-  .serverCol {
+  .subscriberCol {
     grid-column: 1 / -1;
   }
 
-  .deleteCol {
-    grid-column: 2 / -1;
+  .statusCol {
+    grid-column: 1 / -1;
     justify-content: flex-start;
   }
 
+  .typesCol {
+    grid-column: 1 / -1;
+  }
+
   .actionsCol {
-    /* grid-column: 2 / -1; */
+    grid-column: 1 / -1;
     justify-content: flex-start;
   }
 
@@ -333,22 +213,11 @@
     gap: 6px;
   }
 
-  .headerRow {
-    display: none;
+  .notificationTypes {
+    gap: 4px;
   }
 
-  .tabsList {
-    gap: 8px;
-    padding-bottom: 2px;
-  }
-
-  .tab {
-    font-family: Arial !important;
-    color: #cfcfcf !important;
-    flex: 1;
-    padding: 10px 8px;
-    font-size: 14px;
-    line-height: 1.2;
-    text-wrap: auto !important;
+  .pagination {
+    padding: 16px;
   }
 }

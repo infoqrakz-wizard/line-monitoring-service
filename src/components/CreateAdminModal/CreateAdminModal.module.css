@@ -130,7 +130,7 @@
   width: 100%;
 
   padding: 54px 50px;
-  background: #FFFFFF;
+  background: #ffffff;
   box-shadow: 0px 4px 12px rgba(144, 144, 144, 0.08);
   border-radius: 12px;
 }
@@ -144,7 +144,7 @@
   font-weight: 600;
   font-size: 24px;
   line-height: 28px;
-  color: #1D1D1D;
+  color: #1d1d1d;
 }
 
 .btn_delete {
@@ -155,13 +155,13 @@
 
   padding: 20px 40px;
   width: 240px;
-  background: #1D1D1D;
+  background: #1d1d1d;
   border-radius: 12px;
 
   font-weight: 600;
   font-size: 14px;
   line-height: 14px;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .btn_cancel {

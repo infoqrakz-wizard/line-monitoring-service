@@ -13,9 +13,9 @@
   min-width: 44px;
   width: 44px;
   height: 44px;
-  background-color: #EBEBEB;
+  background-color: #ebebeb;
   border-radius: 12px;
-  background-image: url('../../../assets/icons/back.svg');
+  background-image: url("../../../assets/icons/back.svg");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 16px 16px;

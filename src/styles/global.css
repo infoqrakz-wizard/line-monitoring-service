@@ -8,18 +8,18 @@
 
 :root {
   --font-family: "Manrope", sans-serif;
-  
-  --color-primary: #1D1D1D;
+
+  --color-primary: #1d1d1d;
   --color-secondary: #676767;
   --color-background: rgba(249, 249, 249, 1);
-  --color-white: #FFFFFF;
-  --color-border: #CFCFCF;
+  --color-white: #ffffff;
+  --color-border: #cfcfcf;
   --color-shadow: rgba(118, 118, 118, 0.06);
-  
+
   --border-radius: 12px;
   --border-radius-small: 8px;
   --border-radius-medium: 14px;
-  
+
   --shadow-light: 0 4px 8px 3px var(--color-shadow);
   --shadow-medium: 0 4px 10px 2px rgba(148, 148, 148, 0.14);
   --shadow-heavy: 2px 0 8px rgba(0, 0, 0, 0.1);
@@ -125,5 +125,5 @@ a {
 }
 
 *:focus {
-    outline: none;
+  outline: none;
 }

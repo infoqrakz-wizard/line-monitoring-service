@@ -81,7 +81,6 @@
   margin: 0 !important;
 }
 
-
 /* Cameras Styles */
 .cameras {
   background: #fff;
@@ -168,8 +167,6 @@
   border-radius: 6px;
 }
 
-
-
 .cameraNameContainer {
   display: flex;
   justify-content: space-between;
@@ -190,8 +187,6 @@
   font-size: 16px;
   flex: 1 1 0%;
 }
-
-
 
 .cameraPreview {
   width: 100%;
@@ -236,7 +231,7 @@
 
 .playButton {
   background: rgba(255, 255, 255, 0.9) !important;
-  color: #1D1D1D !important;
+  color: #1d1d1d !important;
   border: none !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   transition: all 0.3s ease !important;
@@ -258,7 +253,7 @@
 .userCard {
   padding-bottom: 12px;
   margin-bottom: 12px;
-  border-bottom: 1px solid #CFCFCF;
+  border-bottom: 1px solid #cfcfcf;
 }
 
 .userCard:hover {
@@ -275,17 +270,18 @@
   justify-content: center;
   width: 50px;
   height: 50px;
-  background: #EABEFB;
+  background: #eabefb;
   border-radius: 40px;
   margin-right: 12px;
   font-weight: 600;
   font-size: 14px;
   line-height: 16px;
   text-align: center;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
-.userAvatarText {}
+.userAvatarText {
+}
 
 .userInfo {
   display: flex;
@@ -298,7 +294,7 @@
   font-weight: 800;
   font-size: 14px;
   line-height: 16px;
-  color: #1D1D1D;
+  color: #1d1d1d;
 }
 
 .userDescription {
@@ -373,7 +369,6 @@
   line-height: 14px;
   color: rgb(29, 29, 29);
 }
-
 
 /* Mobile styles */
 @media (max-width: 767px) {

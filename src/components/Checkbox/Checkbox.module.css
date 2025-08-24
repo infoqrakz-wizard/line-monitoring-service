@@ -1,0 +1,5 @@
+.checkboxLabel,
+.checkboxInput {
+  cursor: pointer !important;
+  text-align: left !important;
+}

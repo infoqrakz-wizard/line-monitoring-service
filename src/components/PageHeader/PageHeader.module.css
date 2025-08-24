@@ -1,58 +1,58 @@
 .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 68px;
-    padding: 0 20px 20px;
-    margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+  padding: 0 20px 20px;
+  margin-bottom: 30px;
 }
 
 .leftSide {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .rightSide {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .backButton {
-    cursor: pointer;
-    content: '';
-    display: block;
-    position: relative;
-    min-width: 44px;
-    width: 44px;
-    height: 44px;
-    background-color: #EBEBEB;
-    border-radius: 12px;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M9.33333 4.33333L6 7.66667L9.33333 11' stroke='%23676767' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 16px 16px;
-    margin-right: 15px;
+  cursor: pointer;
+  content: "";
+  display: block;
+  position: relative;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  background-color: #ebebeb;
+  border-radius: 12px;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M9.33333 4.33333L6 7.66667L9.33333 11' stroke='%23676767' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+  margin-right: 15px;
 }
 
 @media (max-width: 1280px) {
-    .header {
-        height: auto;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 24px;
-        margin-top: 20px;
-        padding: 0;
-    }
+  .header {
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    margin-top: 20px;
+    padding: 0;
+  }
 
-    .rightSide {
-        width: 100%;
-    }
+  .rightSide {
+    width: 100%;
+  }
 }
 
 @media (max-width: 767px) {
-    .header {
-        margin-top: 5px;
-    }
+  .header {
+    margin-top: 5px;
+  }
 }
