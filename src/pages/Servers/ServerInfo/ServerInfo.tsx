@@ -11,6 +11,7 @@ import {
   ActionIcon,
   Tooltip,
   Dialog,
+  Loader,
 } from "@mantine/core";
 import {
   IconTrash,
@@ -63,6 +64,7 @@ const ServerInfo: React.FC = () => {
   } = useServerInfo(url, port);
 
   const [createLoading, setCreateLoading] = useState(false);
+  const [deletingUsers, setDeletingUsers] = useState<Set<string>>(new Set());
 
   const { fetchServers, findByUrlPort, forceUpdateWS } = useServersStore();
 
@@ -234,23 +236,35 @@ const ServerInfo: React.FC = () => {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    // Create availableServers data for the current server
-    const availableServersData = [
-      {
-        id: server?.id?.toString() || "",
-        name: server?.name || "",
-        url: url || "",
-        port: parseInt(port || "0"),
-      },
-    ];
+    // Set loading state for this user
+    setDeletingUsers((prev) => new Set(prev).add(userId));
 
-    await deleteUser(userId, [server?.name || ""], availableServersData);
-    await forceUpdateWS();
-    setTimeout(() => {
-      if (url && port) {
-        resubscribe(url, parseInt(port));
-      }
-    }, 1000);
+    try {
+      // Create availableServers data for the current server
+      const availableServersData = [
+        {
+          id: server?.id?.toString() || "",
+          name: server?.name || "",
+          url: url || "",
+          port: parseInt(port || "0"),
+        },
+      ];
+
+      await deleteUser(userId, [server?.name || ""], availableServersData);
+      await forceUpdateWS();
+      setTimeout(() => {
+        if (url && port) {
+          resubscribe(url, parseInt(port));
+        }
+      }, 1000);
+    } finally {
+      // Remove loading state for this user
+      setDeletingUsers((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    }
   };
 
   const handleOpenVideoPlayer = (cameraId: number) => {
@@ -620,8 +634,13 @@ const ServerInfo: React.FC = () => {
                           color="#676767"
                           onClick={() => handleDeleteUser(user.name)}
                           aria-label="Удалить пользователя"
+                          disabled={deletingUsers.has(user.name)}
                         >
-                          <IconTrash size={32} />
+                          {deletingUsers.has(user.name) ? (
+                            <Loader size={20} color="#676767" />
+                          ) : (
+                            <IconTrash size={32} />
+                          )}
                         </ActionIcon>
                       )}
                     </Group>
