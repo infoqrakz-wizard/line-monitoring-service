@@ -16,6 +16,7 @@ export type AuthState = {
   logout: () => Promise<void>;
   refreshToken: () => Promise<string>;
   checkAuth: () => Promise<void>;
+  autoLogin: () => Promise<boolean>;
   setToken: (token: string | null) => void;
   setUser: (user: User | null) => void;
 };
@@ -198,6 +199,27 @@ export const useAuthStore = create<AuthState>((set, get) => {
         }
         void get().logout();
         throw error;
+      }
+    },
+    autoLogin: async () => {
+      try {
+        const response = await authApi.refresh();
+        const newToken = response.access;
+
+        if (!newToken) {
+          return false;
+        }
+
+        persistData(null, newToken);
+        set({
+          token: newToken,
+          isAuthenticated: false,
+        });
+
+        await get().checkAuth();
+        return true;
+      } catch {
+        return false;
       }
     },
     checkAuth: async () => {

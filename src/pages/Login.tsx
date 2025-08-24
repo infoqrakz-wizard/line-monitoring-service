@@ -21,10 +21,28 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const { login, isLoading, isAuthenticated } = useAuthStore();
+  const { login, isLoading, isAuthenticated, autoLogin } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
+
+  // Автоматическая попытка входа при загрузке страницы
+  useEffect(() => {
+    const attemptAutoLogin = async () => {
+      try {
+        const success = await autoLogin();
+        if (success) {
+          // Автоматическая авторизация прошла успешно
+          // checkAuth уже вызван в autoLogin, поэтому isAuthenticated обновится автоматически
+          return;
+        }
+      } catch (error) {
+        console.error("Auto login error:", error);
+      }
+    };
+
+    void attemptAutoLogin();
+  }, [autoLogin]);
 
   // Редирект если уже авторизован
   useEffect(() => {
