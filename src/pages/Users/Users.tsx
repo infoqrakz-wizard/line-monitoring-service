@@ -16,6 +16,7 @@ import { forceUpdateWS } from "@/api/servers";
 import { useDisclosure } from "@mantine/hooks";
 import Toast from "@/components/Toast";
 import { IconCheck, IconX } from "@tabler/icons-react";
+import { ApiError } from "@/lib/request";
 
 type LogItem = {
   id: string;
@@ -264,7 +265,10 @@ const Users: FC = () => {
       >
         <Tabs.List className={classes.tabsList}>
           <Tabs.Tab className={classes.tab} value="users">
-            Пользователи <span className={classes.count}>({usersServersMapping.filter((u) => u.name.includes(q)).length})</span>
+            Пользователи{" "}
+            <span className={classes.count}>
+              ({usersServersMapping.filter((u) => u.name.includes(q)).length})
+            </span>
           </Tabs.Tab>
           <Tabs.Tab className={classes.tab} value="logs">
             Логи событий
@@ -463,10 +467,14 @@ const Users: FC = () => {
 
             subscribeToServers();
           } catch (error) {
-            const message =
-              error instanceof Error
-                ? error.message
-                : "Не удалось создать пользователя";
+            let message = "Не удалось создать пользователя";
+
+            if (error instanceof ApiError) {
+              message = error.getServerMessage();
+            } else if (error instanceof Error) {
+              message = error.message;
+            }
+
             setCreateUserError(message);
             throw error;
           } finally {
@@ -507,10 +515,14 @@ const Users: FC = () => {
             );
             subscribeToServers();
           } catch (error) {
-            const message =
-              error instanceof Error
-                ? error.message
-                : "Не удалось удалить пользователя с серверов";
+            let message = "Не удалось удалить пользователя с серверов";
+
+            if (error instanceof ApiError) {
+              message = error.getServerMessage();
+            } else if (error instanceof Error) {
+              message = error.message;
+            }
+
             setDeleteUserError(message);
             throw error;
           } finally {

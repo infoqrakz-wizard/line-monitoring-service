@@ -42,16 +42,13 @@ const CreateAdminModal: FC<CreateAdminModalProps> = ({
     ? Boolean(email) && !submitting && !loading // В режиме редактирования пароль не обязателен
     : Boolean(email) && Boolean(password) && !submitting && !loading;
 
-  // Clear form and error when modal opens
   useEffect(() => {
     if (opened) {
       if (isEditMode && initialData) {
-        // Заполняем поля данными для редактирования
         setEmail(initialData.email);
-        setPassword(""); // Пароль оставляем пустым при редактировании
+        setPassword("");
         setIsAdmin(initialData.is_admin);
       } else {
-        // Очищаем поля для создания нового пользователя
         setEmail("");
         setPassword("");
         setIsAdmin(false);
@@ -85,7 +82,6 @@ const CreateAdminModal: FC<CreateAdminModalProps> = ({
       });
       onClose();
     } catch (err) {
-      // Error is handled by parent component
       console.error("Failed to create/update user:", err);
     } finally {
       setSubmitting(false);
@@ -161,9 +157,7 @@ const CreateAdminModal: FC<CreateAdminModalProps> = ({
 
         {error && (
           <div className={classes.error}>
-            <span className={classes.errorText}>
-              Ошибка при создании пользователя
-            </span>
+            <span className={classes.errorText}>{error}</span>
           </div>
         )}
 

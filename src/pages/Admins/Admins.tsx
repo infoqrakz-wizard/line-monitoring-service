@@ -10,6 +10,7 @@ import PlusIcon from "../../assets/icons/plus.svg?react";
 import ActionButton from "@/components/ActionButton/ActionButton";
 import { UpdateAdminRequest } from "@/api/user";
 import { forceUpdateWS } from "@/api/servers";
+import { ApiError } from "@/lib/request";
 
 type AdminUser = {
   id: string;
@@ -138,8 +139,6 @@ const Users: FC = () => {
     );
   }, [q, viewUsers]);
 
-
-
   const handleDeleteAdmin = async (userId: string) => {
     try {
       setDeleteLoading(true);
@@ -148,7 +147,6 @@ const Users: FC = () => {
       handleDeleteConfirmClose();
     } catch (error) {
       console.error("Failed to delete user:", error);
-      // Можно добавить уведомление об ошибке
     } finally {
       setDeleteLoading(false);
     }
@@ -207,16 +205,11 @@ const Users: FC = () => {
           // const isSelected = selectedIds.has(u.id);
           return (
             <div key={u.id} className={classes.row} role="row">
-              <div
-                className={`${classes.col} ${classes.userCol}`}
-                role="cell"
-              >
+              <div className={`${classes.col} ${classes.userCol}`} role="cell">
                 <div className={classes.userInfo}>
                   <p className={classes.userName}>
                     {u.login}{" "}
-                    {u.isAdmin && (
-                      <span aria-label="Администратор">⭐</span>
-                    )}
+                    {u.isAdmin && <span aria-label="Администратор">⭐</span>}
                   </p>
                   {typeof u.actionsCount === "number" && (
                     <div className={classes.badge}>{u.actionsCount}</div>
@@ -277,10 +270,14 @@ const Users: FC = () => {
               offset: 0,
             });
           } catch (error) {
-            const message =
-              error instanceof Error
-                ? error.message
-                : "Не удалось создать пользователя";
+            let message = "Не удалось создать пользователя";
+
+            if (error instanceof ApiError) {
+              message = error.data.error;
+            } else if (error instanceof Error) {
+              message = error.message;
+            }
+
             setCreateError(message);
             throw error; // Re-throw to let the modal handle the loading state
           } finally {
@@ -324,10 +321,14 @@ const Users: FC = () => {
               offset: 0,
             });
           } catch (error) {
-            const message =
-              error instanceof Error
-                ? error.message
-                : "Не удалось обновить пользователя";
+            let message = "Не удалось обновить пользователя";
+
+            if (error instanceof ApiError) {
+              message = error.getServerMessage();
+            } else if (error instanceof Error) {
+              message = error.message;
+            }
+
             setEditError(message);
             throw error;
           } finally {

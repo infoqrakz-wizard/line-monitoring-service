@@ -1,13 +1,6 @@
 import { cookies } from "@/lib/cookies";
 import { env } from "@/config/environment";
 
-export type ApiError = {
-  status: number;
-  message: string;
-  statusText?: string;
-  data?: unknown;
-};
-
 const buildHeaders = (init?: RequestInit): HeadersInit => {
   const token = cookies.get("lms_auth_token");
 
@@ -39,6 +32,35 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
   failedQueue = [];
 };
+
+// Кастомный класс для ошибок API
+export class ApiError extends Error {
+  public readonly status: number;
+  public readonly statusText: string;
+  public readonly data: any;
+
+  constructor(status: number, statusText: string, message: string, data?: any) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.statusText = statusText;
+    this.data = data;
+  }
+
+  getServerMessage(): string {
+    if (this.data && typeof this.data === "object") {
+      const obj = this.data as Record<string, unknown>;
+      return (
+        (typeof obj.error === "string" && obj.error) ||
+        (typeof obj.message === "string" && obj.message) ||
+        (typeof obj.detail === "string" && obj.detail) ||
+        (typeof obj.title === "string" && obj.title) ||
+        this.message
+      );
+    }
+    return this.message;
+  }
+}
 
 export const apiFetch = async <T = unknown>(
   path: string,
@@ -121,16 +143,15 @@ export const apiFetch = async <T = unknown>(
               return raw || retryRes.statusText || "Request failed";
             };
 
-            const payload: ApiError = {
-              status: retryRes.status,
-              statusText: retryRes.statusText,
-              message: deriveMessage(),
-              data: parsedBody ?? raw,
-            };
-            throw new Error(JSON.stringify(payload));
+            throw new ApiError(
+              retryRes.status,
+              retryRes.statusText,
+              deriveMessage(),
+              parsedBody ?? raw,
+            );
           }
         } else {
-          throw new Error("Failed to refresh token");
+          throw new ApiError(401, "Unauthorized", "Failed to refresh token");
         }
       } catch (refreshError) {
         processQueue(refreshError, null);
@@ -142,10 +163,9 @@ export const apiFetch = async <T = unknown>(
     }
 
     // Handle other errors
-    const raw = await res.text();
     let parsedBody: unknown = undefined;
     try {
-      parsedBody = raw ? JSON.parse(raw) : undefined;
+      parsedBody = await res.json();
     } catch {
       parsedBody = undefined;
     }
@@ -162,16 +182,10 @@ export const apiFetch = async <T = unknown>(
           return m;
         }
       }
-      return raw || res.statusText || "Request failed";
+      return res.statusText || "Request failed";
     };
 
-    const payload: ApiError = {
-      status: res.status,
-      statusText: res.statusText,
-      message: deriveMessage(),
-      data: parsedBody ?? raw,
-    };
-    throw new Error(JSON.stringify(payload));
+    throw new ApiError(res.status, res.statusText, deriveMessage(), parsedBody);
   } catch (error) {
     console.error(error);
     throw error;
@@ -179,43 +193,59 @@ export const apiFetch = async <T = unknown>(
 };
 
 export const parseApiError = (error: unknown): ApiError | null => {
-  if (!(error instanceof Error)) {
-    return null;
+  if (error instanceof ApiError) {
+    return error;
   }
-  try {
-    const parsed = JSON.parse(error.message) as Partial<ApiError> | undefined;
-    if (!parsed || typeof parsed.status !== "number") {
+
+  if (error instanceof Error) {
+    try {
+      const parsed = JSON.parse(error.message) as
+        | Partial<{
+            status: number;
+            message: string;
+            statusText: string;
+            data: unknown;
+          }>
+        | undefined;
+
+      if (!parsed || typeof parsed.status !== "number") {
+        return null;
+      }
+
+      let message = typeof parsed.message === "string" ? parsed.message : "";
+
+      // Some backends return JSON string inside message; try to unpack it
+      try {
+        const inner = JSON.parse(message) as unknown;
+        if (
+          inner &&
+          typeof inner === "object" &&
+          ("message" in (inner as Record<string, unknown>) ||
+            "error" in (inner as Record<string, unknown>))
+        ) {
+          const m =
+            (inner as Record<string, unknown>).message ??
+            (inner as Record<string, unknown>).error;
+          if (typeof m === "string") {
+            message = m;
+          }
+        }
+      } catch {
+        // ignore JSON parse errors for inner message
+      }
+
+      return new ApiError(
+        parsed.status,
+        parsed.statusText || "",
+        message,
+        parsed.data,
+      );
+    } catch {
       return null;
     }
-    let message = typeof parsed.message === "string" ? parsed.message : "";
-    // Some backends return JSON string inside message; try to unpack it
-    try {
-      const inner = JSON.parse(message) as unknown;
-      if (
-        inner &&
-        typeof inner === "object" &&
-        ("message" in (inner as Record<string, unknown>) ||
-          "error" in (inner as Record<string, unknown>))
-      ) {
-        const m =
-          (inner as Record<string, unknown>).message ??
-          (inner as Record<string, unknown>).error;
-        if (typeof m === "string") {
-          message = m;
-        }
-      }
-    } catch {
-      // ignore JSON parse errors for inner message
-    }
-    return {
-      status: parsed.status,
-      message,
-      statusText: parsed.statusText,
-      data: parsed.data,
-    };
-  } catch {
-    return null;
   }
+
+  return null;
 };
 
 export const request = {

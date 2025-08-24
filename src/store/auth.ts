@@ -4,6 +4,7 @@ import type { Role, User } from "@/types";
 import { authApi } from "@/api/auth";
 import { cookies } from "@/lib/cookies";
 import { getCookieSettings } from "@/config/environment";
+import { ApiError } from "@/lib/request";
 
 export type AuthState = {
   user: User | null;
@@ -128,6 +129,18 @@ export const useAuthStore = create<AuthState>((set, get) => {
         await get().checkAuth();
       } catch (error) {
         set({ isLoading: false });
+        
+        // Логируем ошибку с дополнительной информацией
+        if (error instanceof ApiError) {
+          console.error("Login failed:", {
+            status: error.status,
+            message: error.getServerMessage(),
+            data: error.data
+          });
+        } else {
+          console.error("Login failed:", error);
+        }
+        
         throw error;
       }
     },
@@ -138,7 +151,14 @@ export const useAuthStore = create<AuthState>((set, get) => {
           await authApi.logout();
         }
       } catch (error) {
-        console.warn("Logout error:", error);
+        if (error instanceof ApiError) {
+          console.warn("Logout error:", {
+            status: error.status,
+            message: error.getServerMessage()
+          });
+        } else {
+          console.warn("Logout error:", error);
+        }
       } finally {
         cookies.remove(TOKEN_COOKIE_KEY, getCookieRemoveOptions());
         cookies.remove(USER_COOKIE_KEY, getCookieRemoveOptions());
@@ -167,7 +187,15 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
         return newToken;
       } catch (error) {
-        console.error("Token refresh failed:", error);
+        if (error instanceof ApiError) {
+          console.error("Token refresh failed:", {
+            status: error.status,
+            message: error.getServerMessage(),
+            data: error.data,
+          });
+        } else {
+          console.error("Token refresh failed:", error);
+        }
         void get().logout();
         throw error;
       }

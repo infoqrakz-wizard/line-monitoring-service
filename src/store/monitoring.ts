@@ -11,6 +11,7 @@ import type {
 } from "@/types";
 import { downtime } from "@/api";
 import { useAuthStore } from "@/store/auth";
+import { ApiError } from "@/lib/request";
 
 export type MonitoringState = {
   servers: ServerWithMonitoring[];
@@ -118,7 +119,15 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
           });
         }
       } catch (error) {
-        console.error("Failed to parse monitoring message:", error);
+        if (error instanceof ApiError) {
+          console.error("Failed to parse monitoring message:", {
+            status: error.status,
+            message: error.getServerMessage(),
+            data: error.data,
+          });
+        } else {
+          console.error("Failed to parse monitoring message:", error);
+        }
         set({ error: "Ошибка парсинга данных" });
       }
     };
@@ -212,7 +221,15 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     try {
       socket.send(JSON.stringify(subscribeMessage));
     } catch (error) {
-      console.error("Failed to subscribe to servers:", error);
+      if (error instanceof ApiError) {
+        console.error("Failed to subscribe to servers:", {
+          status: error.status,
+          message: error.getServerMessage(),
+          data: error.data,
+        });
+      } else {
+        console.error("Failed to subscribe to servers:", error);
+      }
       set({ error: "Ошибка подписки на серверы" });
     }
   },
