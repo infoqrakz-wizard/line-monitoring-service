@@ -342,6 +342,13 @@ const CreateServer: React.FC = () => {
         patch.password = formData.password;
       }
 
+      if (
+        formData.maps?.x !== originalServer.maps?.x ||
+        formData.maps?.y !== originalServer.maps?.y
+      ) {
+        patch.maps = formData.maps;
+      }
+
       if (Object.keys(patch).length === 0) {
         void navigate("/servers");
         return;
