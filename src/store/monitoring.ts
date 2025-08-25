@@ -99,6 +99,13 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     ws.onmessage = (event) => {
       try {
         const response: MonitoringResponse = JSON.parse(event.data as string);
+
+        if (response.type === "auth.expiring") {
+          const authStore = useAuthStore.getState();
+          void authStore.refreshToken();
+          return;
+        }
+
         if (response.type === "snapshot" && response.data) {
           const serversUsers = response.data.servers
             .flatMap((server) => server.sections.users)
