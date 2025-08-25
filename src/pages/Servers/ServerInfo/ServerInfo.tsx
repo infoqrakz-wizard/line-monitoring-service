@@ -3,7 +3,6 @@ import { useSearchParams, useNavigate } from "react-router";
 import {
   Stack,
   Group,
-  Title,
   Text,
   Button,
   Badge,
@@ -119,10 +118,7 @@ const ServerInfo: React.FC = () => {
     }
   }, [url, port, subscribeToSpecificServer]);
 
-  const { deleteUser, createUser } = useUsersStore((s) => ({
-    deleteUser: s.deleteUser,
-    createUser: s.createUser,
-  }));
+  const { deleteUser, createUser } = useUsersStore();
 
   const server = url && port ? findByUrlPort(url, parseInt(port)) : undefined;
   const username = server?.username || "";
@@ -374,6 +370,27 @@ const ServerInfo: React.FC = () => {
     }
   };
 
+  const handleEnableCamera = async (cameraId: string) => {
+    if (!url || !port) {
+      return;
+    }
+
+    try {
+      await cameraApi.setConfig(
+        url,
+        parseInt(port),
+        username,
+        password,
+        cameraId,
+        { enabled: true },
+      );
+      await forceUpdateWS();
+    } catch (err) {
+      console.error("Error enabling camera:", err);
+      // Здесь можно добавить уведомление об ошибке если нужно
+    }
+  };
+
   const getCameraPreviewUrl = (cameraId: string) => {
     if (!url || !port || !username) {
       return "";
@@ -384,11 +401,8 @@ const ServerInfo: React.FC = () => {
   };
 
   if (!url || !port) {
-    return (
-      <div className={classes.container}>
-        <Title order={1}>Server not found</Title>
-      </div>
-    );
+    void navigate("/servers");
+    return null;
   }
 
   const hasUsers = serverUsers?.length && serverUsers.length > 0;
@@ -587,7 +601,26 @@ const ServerInfo: React.FC = () => {
               )}
               <Stack gap="0px">
                 {cameras.map((camera) => {
-                  const isWorking = camera.enabled;
+                  let cameraStatus: "working" | "error" | "offline" = "offline";
+
+                  if (
+                    camera.enabled &&
+                    camera.mediaState?.streams?.video?.active
+                  ) {
+                    cameraStatus = "working";
+                  } else if (
+                    // cameras[0].enabled: false
+                    // cameras[0].streams.video.active: false
+                    !camera.mediaState?.enabled &&
+                    !camera.mediaState?.streams?.video?.active
+                  ) {
+                    cameraStatus = "offline";
+                  } else if (
+                    camera.mediaState?.enabled &&
+                    !camera.mediaState?.streams?.video?.active
+                  ) {
+                    cameraStatus = "error";
+                  }
 
                   const cameraInfo = mediaStates.find(
                     (state) => state.cameraId === parseInt(camera.id),
@@ -621,6 +654,18 @@ const ServerInfo: React.FC = () => {
                     ).toFixed(2);
                   }
 
+                  const statusText = {
+                    working: "работает",
+                    error: "ошибка",
+                    offline: "выключена",
+                  };
+
+                  const statusColor = {
+                    working: "green",
+                    error: "rgb(250, 82, 82)",
+                    offline: "gray",
+                  };
+
                   const isHaveVideo = mainBitrate !== "-";
 
                   return (
@@ -635,10 +680,10 @@ const ServerInfo: React.FC = () => {
                           </span>
                           <span className={classes.cameraStatus}>
                             <Badge
-                              color={isWorking ? "green" : "rgb(250, 82, 82)"}
+                              color={statusColor[cameraStatus]}
                               variant="light"
                             >
-                              {isWorking ? "работает" : "ошибка"}
+                              {statusText[cameraStatus]}
                             </Badge>
                           </span>
                         </div>
@@ -714,6 +759,23 @@ const ServerInfo: React.FC = () => {
                                   aria-label="Открыть видео-плеер"
                                 >
                                   <IconPlayerPlay size={16} />
+                                </Button>
+                              </Tooltip>
+                            </div>
+                          )}
+
+                          {!isHaveVideo && cameraStatus === "offline" && (
+                            <div className={classes.cameraPreviewOverlay}>
+                              <Tooltip label="Включить камеру">
+                                <Button
+                                  variant="white"
+                                  size="sm"
+                                  radius="xl"
+                                  onClick={() => handleEnableCamera(camera.id)}
+                                  className={classes.playButton}
+                                  aria-label="Включить камеру"
+                                >
+                                  Включить
                                 </Button>
                               </Tooltip>
                             </div>

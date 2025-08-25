@@ -7,23 +7,26 @@ export type FlattenedCamera = {
   id: string;
   name: string;
   enabled: boolean;
-  streams?: {
-    audio?: {
-      enabled: boolean;
-      datarate: number;
-      framerate: number;
-    };
-    video?: {
-      active: boolean;
-      enabled: boolean;
-      datarate: number;
-      framerate: number;
-    };
-    video2?: {
-      active: boolean;
-      enabled: boolean;
-      datarate: number;
-      framerate: number;
+  mediaState?: {
+    enabled: boolean;
+    streams?: {
+      audio?: {
+        enabled: boolean;
+        datarate: number;
+        framerate: number;
+      };
+      video?: {
+        active: boolean;
+        enabled: boolean;
+        datarate: number;
+        framerate: number;
+      };
+      video2?: {
+        active: boolean;
+        enabled: boolean;
+        datarate: number;
+        framerate: number;
+      };
     };
   };
 };
@@ -79,15 +82,21 @@ export const useServerInfo = (url: string | null, port: string | null) => {
           setMain(server.sections.main);
 
           // Extract cameras from the new nested structure
-          const cameraData = server.sections.camerasName?.result.cameras;
-          if (cameraData) {
+          const camerasData = server.sections.camerasName?.result.cameras;
+          if (camerasData) {
             const flattenedCameras: FlattenedCamera[] = Object.entries(
-              cameraData,
-            ).map(([id, camera]) => ({
-              id,
-              enabled: camera.enabled,
-              name: camera.name,
-            }));
+              camerasData,
+            ).map(([id, camera]) => {
+              const cameraMediaState =
+                server.sections.mediaState?.result.state.cameras[camera.id];
+
+              return {
+                id,
+                enabled: camera.enabled,
+                name: camera.name,
+                mediaState: cameraMediaState,
+              };
+            });
             setCameras(flattenedCameras);
           } else {
             setCameras([]);

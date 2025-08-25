@@ -215,25 +215,6 @@ export type CameraInfoResult = {
         card_num: number;
         id: number;
         name: string;
-        // streams: {
-        //   audio: {
-        //     enabled: boolean;
-        //     datarate: number;
-        //     framerate: number;
-        //   };
-        //   video: {
-        //     active: boolean;
-        //     enabled: boolean;
-        //     datarate: number;
-        //     framerate: number;
-        //   };
-        //   video2: {
-        //     active: boolean;
-        //     enabled: boolean;
-        //     datarate: number;
-        //     framerate: number;
-        //   };
-        // };
       };
     };
   };
