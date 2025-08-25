@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useAuthStore } from "@/store/auth";
 import { LoadingOverlay } from "@mantine/core";
@@ -9,24 +9,35 @@ export type ProtectedProps = {
 };
 
 const Protected: React.FC<ProtectedProps> = ({ allowedRoles }) => {
-  const { isAuthenticated, role, isLoading, checkAuth, token } = useAuthStore(
-    (s) => ({
+  const { isAuthenticated, role, isLoading, isChecking, checkAuth, token } =
+    useAuthStore((s) => ({
       isAuthenticated: s.isAuthenticated,
       role: s.role,
       isLoading: s.isLoading,
+      isChecking: s.isChecking,
       checkAuth: s.checkAuth,
       token: s.token,
-    }),
-  );
+    }));
   const location = useLocation();
+  const authCheckRef = useRef<boolean>(false);
 
   useEffect(() => {
-    if (token && !isAuthenticated && !isLoading) {
-      void checkAuth();
+    // Предотвращаем множественные вызовы checkAuth
+    if (
+      token &&
+      !isAuthenticated &&
+      !isLoading &&
+      !isChecking &&
+      !authCheckRef.current
+    ) {
+      authCheckRef.current = true;
+      void checkAuth().finally(() => {
+        authCheckRef.current = false;
+      });
     }
-  }, [token, isAuthenticated, isLoading, checkAuth]);
+  }, [token, isAuthenticated, isLoading, isChecking, checkAuth]);
 
-  if (isLoading) {
+  if (isLoading || isChecking || (token && !isAuthenticated)) {
     return (
       <div
         style={{

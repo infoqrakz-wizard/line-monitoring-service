@@ -12,6 +12,7 @@ export type AuthState = {
   isAuthenticated: boolean;
   role: Role | null;
   isLoading: boolean;
+  isChecking: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<string>;
@@ -110,6 +111,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     isAuthenticated: Boolean(persisted.token && persisted.user),
     role: persisted.user ? determineRole(persisted.user) : null,
     isLoading: false,
+    isChecking: false,
     login: async (email: string, password: string) => {
       set({ isLoading: true });
       try {
@@ -169,6 +171,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
           token: null,
           isAuthenticated: false,
           role: null,
+          isLoading: false,
+          isChecking: false,
         });
       }
     },
@@ -184,6 +188,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         set({
           token: newToken,
           isAuthenticated: Boolean(newToken && current.user),
+          isChecking: false,
         });
 
         return newToken;
@@ -214,6 +219,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         set({
           token: newToken,
           isAuthenticated: false,
+          isChecking: false,
         });
 
         await get().checkAuth();
@@ -227,6 +233,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
       if (!token) {
         return;
       }
+
+      set({ isChecking: true }); // Устанавливаем флаг проверки
 
       try {
         const response = await authApi.me();
@@ -246,6 +254,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           user,
           isAuthenticated: true,
           role: user.role,
+          isChecking: false, // Сбрасываем флаг
         });
       } catch (error) {
         try {
@@ -254,6 +263,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
           await get().checkAuth();
         } catch {
           void get().logout();
+        } finally {
+          set({ isChecking: false }); // Сбрасываем флаг в любом случае
         }
       }
     },
@@ -264,6 +275,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
       set({
         token,
         isAuthenticated: Boolean(token && current.user),
+        isChecking: false,
       });
     },
     setUser: (user) => {
@@ -274,6 +286,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         user,
         role: user ? determineRole(user) : null,
         isAuthenticated: Boolean(current.token && user),
+        isChecking: false,
       });
     },
   };

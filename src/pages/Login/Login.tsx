@@ -45,7 +45,12 @@ const Login: React.FC = () => {
   // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
-      void navigate("/servers", { replace: true });
+      // Добавляем небольшую задержку для стабилизации состояния
+      const timer = setTimeout(() => {
+        void navigate("/servers", { replace: true });
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated, navigate]);
 
