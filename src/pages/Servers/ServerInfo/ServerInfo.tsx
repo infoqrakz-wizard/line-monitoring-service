@@ -24,7 +24,7 @@ import {
 import { useServerInfo } from "@/hooks/useServerInfo";
 import { downtime } from "@/api";
 import { cameraApi, type CameraConfig } from "@/api/camera";
-import type { DowntimeEvent } from "@/types";
+import type { DowntimeEvent, ServerStatus } from "@/types";
 import { CreateUserModal } from "@/components/CreateUserModal";
 import { useUsersStore } from "@/store/users";
 import { useAuthStore } from "@/store/auth";
@@ -37,6 +37,8 @@ import { useServersStore } from "@/store/servers";
 import { useDisclosure } from "@mantine/hooks";
 import LogItem from "./LogItem";
 import ActionButton from "@/components/ActionButton";
+import PageTitle from "@/components/PageTitle";
+import { useMonitoringStore } from "@/store/monitoring";
 
 const ServerInfo: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -76,8 +78,31 @@ const ServerInfo: React.FC = () => {
 
   const [createLoading, setCreateLoading] = useState(false);
   const [deletingUsers, setDeletingUsers] = useState<Set<string>>(new Set());
+  const [serverStatus, setServerStatus] = useState<ServerStatus | "gray">(
+    "gray",
+  );
 
   const { fetchServers, findByUrlPort, forceUpdateWS } = useServersStore();
+
+  const {
+    subscribeToSpecificServer,
+    getServerStatus,
+    servers: monitoringServers,
+  } = useMonitoringStore();
+
+  useEffect(() => {
+    if (url && port && monitoringServers.length > 0) {
+      setServerStatus(
+        getServerStatus(
+          monitoringServers.find(
+            (s) =>
+              s.sections.main.url === url &&
+              s.sections.main.port === parseInt(port),
+          )!,
+        ),
+      );
+    }
+  }, [url, port, monitoringServers, getServerStatus]);
 
   const { role } = useAuthStore((s) => ({
     role: s.role,
@@ -86,6 +111,12 @@ const ServerInfo: React.FC = () => {
   useEffect(() => {
     void fetchServers();
   }, [fetchServers]);
+
+  useEffect(() => {
+    if (url && port) {
+      subscribeToSpecificServer(url, parseInt(port));
+    }
+  }, [url, port, subscribeToSpecificServer]);
 
   const { deleteUser, createUser } = useUsersStore((s) => ({
     deleteUser: s.deleteUser,
@@ -365,7 +396,14 @@ const ServerInfo: React.FC = () => {
     <div className={classes.container}>
       <PageHeader
         withBackButton
-        title={`${server?.name || ""}`}
+        title={
+          <div className={classes.serverInfoTitle}>
+            <div
+              className={`${classes.serverStatusBadge} ${classes[serverStatus]}`}
+            />
+            <PageTitle>{server?.name || ""}</PageTitle>
+          </div>
+        }
         rightSide={
           <div className={classes.serverInfo}>
             <div className={classes.serverInfoItem}>
@@ -394,6 +432,7 @@ const ServerInfo: React.FC = () => {
               <Tooltip label="Редактировать">
                 <ActionButton
                   className={classes.editIcon}
+                  size="lg"
                   onClick={() =>
                     navigate(
                       `/servers/edit?url=${encodeURIComponent(url || "")}&port=${encodeURIComponent(port || "")}`,
@@ -509,173 +548,195 @@ const ServerInfo: React.FC = () => {
         {/* Cameras - Middle */}
         <div className={classes.cameras}>
           <div className={classes.sectionHeaderTitle}>Камеры</div>
-          <div className={classes.cameraSummary}>
-            <div className={`${classes.summaryBox} ${classes.summaryBoxTotal}`}>
-              <div className={classes.summaryBoxTitle}>Всего камер</div>
-              <div className={classes.summaryBoxValue}>
-                {main?.totalCameras}
-              </div>
-            </div>
-            <div
-              className={`${classes.summaryBox} ${classes.summaryBoxActive}`}
-            >
-              <div className={classes.summaryBoxTitle}>Активных</div>
-              <div className={classes.summaryBoxValue}>
-                {main?.enabledCameras}
-              </div>
-            </div>
-            <div
-              className={`${classes.summaryBox} ${classes.summaryBoxProblem}`}
-            >
-              <div className={classes.summaryBoxTitle}>Проблемных</div>
-              <div className={classes.summaryBoxValue}>
-                {loadingServerInfo
-                  ? ""
-                  : (main?.totalCameras || 0) -
-                    (main?.enabledAllStreamsOk || 0)}
-              </div>
-            </div>
-          </div>
-
-          <Stack gap="0px">
-            {cameras.map((camera) => {
-              const isWorking = camera.enabled;
-
-              const cameraInfo = mediaStates.find(
-                (state) => state.cameraId === parseInt(camera.id),
-              );
-
-              let mainBitrate = "-";
-              if (cameraInfo?.main?.bitrate) {
-                mainBitrate = (cameraInfo?.main?.bitrate / 1024 / 1024).toFixed(
-                  2,
-                );
-              }
-
-              let subBitrate = "-";
-              if (cameraInfo?.sub?.bitrate) {
-                subBitrate = (cameraInfo?.sub?.bitrate / 1024 / 1024).toFixed(
-                  2,
-                );
-              }
-
-              let audioBitrate = "-";
-
-              if (cameraInfo?.audio?.bitrate) {
-                audioBitrate = (
-                  cameraInfo?.audio?.bitrate /
-                  1024 /
-                  1024
-                ).toFixed(2);
-              }
-
-              const isHaveVideo = mainBitrate !== "-";
-
-              return (
-                <div key={camera.id} className={classes.cameraCard}>
-                  <div className={classes.cameraHeader}>
-                    <div className={classes.cameraNameContainer}>
-                      <span className={classes.cameraNumber}>№{camera.id}</span>
-                      <span className={classes.cameraName}>{camera.name}</span>
-                      <span className={classes.cameraStatus}>
-                        <Badge
-                          color={isWorking ? "green" : "rgb(250, 82, 82)"}
-                          variant="light"
-                        >
-                          {isWorking ? "работает" : "ошибка"}
-                        </Badge>
-                      </span>
+          {serverStatus === "red" && (
+            <Text c="dimmed" ta="center" py="xl">
+              Нет доступа
+            </Text>
+          )}
+          {serverStatus !== "red" && (
+            <>
+              {!loadingServerInfo && (
+                <div className={classes.cameraSummary}>
+                  <div
+                    className={`${classes.summaryBox} ${classes.summaryBoxTotal}`}
+                  >
+                    <div className={classes.summaryBoxTitle}>Всего камер</div>
+                    <div className={classes.summaryBoxValue}>
+                      {main?.totalCameras}
                     </div>
                   </div>
-
-                  <div className={classes.cameraMetrics}>
-                    <div className={classes.metric}>
-                      <Text size="xs" c="dimmed">
-                        Main (Video)
-                      </Text>
-                      <Text size="sm">
-                        {mainBitrate !== "-"
-                          ? `${mainBitrate} Mbit/s, ${cameraInfo?.main?.fps} fps`
-                          : "-"}
-                      </Text>
-                    </div>
-                    <div className={classes.metric}>
-                      <Text size="xs" c="dimmed">
-                        Sub (Video2)
-                      </Text>
-                      <Text size="sm">
-                        {subBitrate !== "-"
-                          ? `${subBitrate} Mbit/s, ${cameraInfo?.sub?.fps} fps`
-                          : "-"}
-                      </Text>
-                    </div>
-                    <div className={classes.metric}>
-                      <Text size="xs" c="dimmed">
-                        Audio
-                      </Text>
-                      <Text size="sm">
-                        {audioBitrate !== "-" ? `${audioBitrate} kbit/s` : "-"}
-                      </Text>
+                  <div
+                    className={`${classes.summaryBox} ${classes.summaryBoxActive}`}
+                  >
+                    <div className={classes.summaryBoxTitle}>Активных</div>
+                    <div className={classes.summaryBoxValue}>
+                      {main?.enabledCameras}
                     </div>
                   </div>
-                  <div className={classes.cameraPreview}>
-                    <div className={classes.cameraPreviewContainer}>
-                      <Image
-                        src={getCameraPreviewUrl(camera.id)}
-                        alt={`Preview camera ${camera.id}`}
-                        fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDY0MCA0ODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyMCIgeT0iMjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Q0EzQUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qn9GA0LXQtNC/0YDQvtGB0LzQvtGC0YAg0L3QtdC00L7RgdGC0YPQv9C10L08L3RleHQ+Cjwvc3ZnPgo="
-                      />
-                      {role === "admin" && (
-                        <div className={classes.cameraEditButtonContainer}>
-                          <Tooltip label="Редактировать настройки камеры">
-                            <ActionButton
-                              size="sm"
-                              className={classes.cameraEditButton}
-                              onClick={() => handleOpenCameraConfig(camera.id)}
-                              aria-label="Редактировать настройки камеры"
-                            >
-                              <IconEdit size={16} />
-                            </ActionButton>
-                          </Tooltip>
-                        </div>
-                      )}
-
-                      {isHaveVideo && (
-                        <div className={classes.cameraPreviewOverlay}>
-                          <Tooltip label="Открыть видео-плеер">
-                            <Button
-                              variant="white"
-                              size="sm"
-                              radius="xl"
-                              onClick={() =>
-                                handleOpenVideoPlayer(parseInt(camera.id))
-                              }
-                              className={classes.playButton}
-                              aria-label="Открыть видео-плеер"
-                            >
-                              <IconPlayerPlay size={16} />
-                            </Button>
-                          </Tooltip>
-                        </div>
-                      )}
+                  <div
+                    className={`${classes.summaryBox} ${classes.summaryBoxProblem}`}
+                  >
+                    <div className={classes.summaryBoxTitle}>Проблемных</div>
+                    <div className={classes.summaryBoxValue}>
+                      {(main?.totalCameras || 0) -
+                        (main?.enabledAllStreamsOk || 0)}
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              )}
+              <Stack gap="0px">
+                {cameras.map((camera) => {
+                  const isWorking = camera.enabled;
 
-            {loadingServerInfo && (
-              <Text c="dimmed" ta="center" py="xl">
-                Загрузка...
-              </Text>
-            )}
+                  const cameraInfo = mediaStates.find(
+                    (state) => state.cameraId === parseInt(camera.id),
+                  );
 
-            {!loadingServerInfo && cameras.length === 0 && (
-              <Text c="dimmed" ta="center" py="xl">
-                Нет камер для отображения
-              </Text>
-            )}
-          </Stack>
+                  let mainBitrate = "-";
+                  if (cameraInfo?.main?.bitrate) {
+                    mainBitrate = (
+                      cameraInfo?.main?.bitrate /
+                      1024 /
+                      1024
+                    ).toFixed(2);
+                  }
+
+                  let subBitrate = "-";
+                  if (cameraInfo?.sub?.bitrate) {
+                    subBitrate = (
+                      cameraInfo?.sub?.bitrate /
+                      1024 /
+                      1024
+                    ).toFixed(2);
+                  }
+
+                  let audioBitrate = "-";
+
+                  if (cameraInfo?.audio?.bitrate) {
+                    audioBitrate = (
+                      cameraInfo?.audio?.bitrate /
+                      1024 /
+                      1024
+                    ).toFixed(2);
+                  }
+
+                  const isHaveVideo = mainBitrate !== "-";
+
+                  return (
+                    <div key={camera.id} className={classes.cameraCard}>
+                      <div className={classes.cameraHeader}>
+                        <div className={classes.cameraNameContainer}>
+                          <span className={classes.cameraNumber}>
+                            №{camera.id}
+                          </span>
+                          <span className={classes.cameraName}>
+                            {camera.name}
+                          </span>
+                          <span className={classes.cameraStatus}>
+                            <Badge
+                              color={isWorking ? "green" : "rgb(250, 82, 82)"}
+                              variant="light"
+                            >
+                              {isWorking ? "работает" : "ошибка"}
+                            </Badge>
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={classes.cameraMetrics}>
+                        <div className={classes.metric}>
+                          <Text size="xs" c="dimmed">
+                            Main (Video)
+                          </Text>
+                          <Text size="sm">
+                            {mainBitrate !== "-"
+                              ? `${mainBitrate} Mbit/s, ${cameraInfo?.main?.fps} fps`
+                              : "-"}
+                          </Text>
+                        </div>
+                        <div className={classes.metric}>
+                          <Text size="xs" c="dimmed">
+                            Sub (Video2)
+                          </Text>
+                          <Text size="sm">
+                            {subBitrate !== "-"
+                              ? `${subBitrate} Mbit/s, ${cameraInfo?.sub?.fps} fps`
+                              : "-"}
+                          </Text>
+                        </div>
+                        <div className={classes.metric}>
+                          <Text size="xs" c="dimmed">
+                            Audio
+                          </Text>
+                          <Text size="sm">
+                            {audioBitrate !== "-"
+                              ? `${audioBitrate} kbit/s`
+                              : "-"}
+                          </Text>
+                        </div>
+                      </div>
+                      <div className={classes.cameraPreview}>
+                        <div className={classes.cameraPreviewContainer}>
+                          <Image
+                            src={getCameraPreviewUrl(camera.id)}
+                            alt={`Preview camera ${camera.id}`}
+                            fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDY0MCA0ODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyMCIgeT0iMjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Q0EzQUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qn9GA0LXQtNC/0YDQvtGB0LzQvtGC0YAg0L3QtdC00L7RgdGC0YPQv9C10L08L3RleHQ+Cjwvc3ZnPgo="
+                          />
+                          {role === "admin" && (
+                            <div className={classes.cameraEditButtonContainer}>
+                              <Tooltip label="Редактировать настройки камеры">
+                                <ActionButton
+                                  size="sm"
+                                  className={classes.cameraEditButton}
+                                  onClick={() =>
+                                    handleOpenCameraConfig(camera.id)
+                                  }
+                                  aria-label="Редактировать настройки камеры"
+                                >
+                                  <IconEdit size={16} />
+                                </ActionButton>
+                              </Tooltip>
+                            </div>
+                          )}
+
+                          {isHaveVideo && (
+                            <div className={classes.cameraPreviewOverlay}>
+                              <Tooltip label="Открыть видео-плеер">
+                                <Button
+                                  variant="white"
+                                  size="sm"
+                                  radius="xl"
+                                  onClick={() =>
+                                    handleOpenVideoPlayer(parseInt(camera.id))
+                                  }
+                                  className={classes.playButton}
+                                  aria-label="Открыть видео-плеер"
+                                >
+                                  <IconPlayerPlay size={16} />
+                                </Button>
+                              </Tooltip>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {loadingServerInfo && (
+                  <Text c="dimmed" ta="center" py="xl">
+                    Загрузка...
+                  </Text>
+                )}
+
+                {serverStatus !== "gray" && !loadingServerInfo && cameras.length === 0 && (
+                  <Text c="dimmed" ta="center" py="xl">
+                    Нет камер для отображения
+                  </Text>
+                )}
+              </Stack>
+            </>
+          )}
         </div>
 
         {/* Users - Right Side */}
@@ -695,7 +756,13 @@ const ServerInfo: React.FC = () => {
             )}
           </div>
 
-          {!hasUsers && (
+          {loadingServerInfo && !hasUsers && (
+            <Text c="dimmed" ta="center" py="xl">
+              Загрузка...
+            </Text>
+          )}
+
+          {!hasUsers && !loadingServerInfo && (
             <Text c="dimmed" ta="center" py="xl">
               Нет доступа
             </Text>

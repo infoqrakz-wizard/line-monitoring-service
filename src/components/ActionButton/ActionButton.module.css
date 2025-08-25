@@ -29,3 +29,11 @@
   border-radius: 8px;
   margin-right: 0px;
 }
+
+.button.lg {
+  min-width: 58px;
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  margin-right: 0px;
+}

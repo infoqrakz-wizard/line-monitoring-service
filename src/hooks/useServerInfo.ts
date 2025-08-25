@@ -35,8 +35,12 @@ export const useServerInfo = (url: string | null, port: string | null) => {
   const [main, setMain] = useState<ServerMonitoringData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const { subscribeToSpecificServer, getServerByUrlPort, servers } =
-    useMonitoringStore();
+  const {
+    subscribeToSpecificServer,
+    getServerByUrlPort,
+    servers,
+    loading: loadingMonitoring,
+  } = useMonitoringStore();
 
   const resubscribe = useCallback(
     (url: string, port: number) => {
@@ -52,6 +56,10 @@ export const useServerInfo = (url: string | null, port: string | null) => {
   }, [url, port]);
 
   useEffect(() => {
+    if (loadingMonitoring) {
+      return;
+    }
+
     if (url && port) {
       const server = getServerByUrlPort(url, parseInt(port));
       if (server) {
@@ -105,7 +113,7 @@ export const useServerInfo = (url: string | null, port: string | null) => {
         setLoading(false);
       }
     }
-  }, [servers, url, port, getServerByUrlPort]);
+  }, [servers, url, port, getServerByUrlPort, loadingMonitoring]);
 
   return {
     cameras,

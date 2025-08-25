@@ -298,10 +298,10 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   },
 
   getServerStatus: (server: ServerWithMonitoring): ServerStatus => {
-    const { main } = server.sections;
+    const main = server?.sections?.main;
 
     // Красный статус
-    if (!main.ok || main.status !== 200) {
+    if (!main || !main.ok || main.status !== 200) {
       return "red";
     }
 

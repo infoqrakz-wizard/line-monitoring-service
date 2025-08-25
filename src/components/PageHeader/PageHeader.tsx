@@ -8,7 +8,7 @@ export default function PageHeader({
   withBackButton,
 }: {
   rightSide?: React.ReactNode;
-  title: string;
+  title: string | React.ReactNode;
   withBackButton?: boolean;
 }) {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export default function PageHeader({
         {withBackButton && (
           <div className={classes.backButton} onClick={() => navigate(-1)} />
         )}
-        <PageTitle>{title}</PageTitle>
+        {typeof title === "string" ? <PageTitle>{title}</PageTitle> : title}
       </div>
       <div className={classes.rightSide}>{rightSide}</div>
     </div>

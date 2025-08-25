@@ -7,10 +7,10 @@ const ActionButton = forwardRef<
     children?: React.ReactNode;
     className?: string;
     disabled?: boolean;
-    size?: "sm" | "lg";
+    size?: "sm" | "md" | "lg";
     onClick?: () => void;
   }
->(({ children, className, onClick, disabled = false, size = "lg" }, ref) => (
+>(({ children, className, onClick, disabled = false, size = "md" }, ref) => (
   <button
     className={`${classes.button} ${className} ${classes[size]}`}
     onClick={onClick}
