@@ -108,6 +108,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
               required
               size="md"
               aria-label="Логин пользователя"
+              autoComplete="off"
             />
           </div>
         </div>

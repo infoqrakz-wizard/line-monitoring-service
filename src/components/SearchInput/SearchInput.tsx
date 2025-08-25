@@ -46,6 +46,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         onChange={(e) => onChange(e.currentTarget.value)}
         placeholder={placeholder ?? "Поиск..."}
         aria-label="Поиск"
+        autoComplete="off"
         leftSection={
           <span className={classes.searchIcon}>
             <SearchIcon />

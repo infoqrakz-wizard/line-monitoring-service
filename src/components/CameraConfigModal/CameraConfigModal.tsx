@@ -220,6 +220,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   }
                   disabled={!config.enabled || loading}
                   mt="md"
+                  autoComplete="off"
                 />
               </div>
 
@@ -241,6 +242,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   }
                   disabled={!config.enabled || loading}
                   readOnly
+                  autoComplete="off"
                 />
 
                 <Select
@@ -254,6 +256,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   data={recordModeOptions}
                   disabled={!config.enabled || loading}
                   mt="md"
+                  autoComplete="off"
                 />
               </div>
 

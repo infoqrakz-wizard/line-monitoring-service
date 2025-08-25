@@ -9,7 +9,6 @@ import PageHeader from "@/components/PageHeader";
 import PlusIcon from "../../assets/icons/plus.svg?react";
 import ActionButton from "@/components/ActionButton/ActionButton";
 import { UpdateAdminRequest } from "@/api/user";
-import { forceUpdateWS } from "@/api/servers";
 import { ApiError } from "@/lib/request";
 
 type AdminUser = {

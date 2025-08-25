@@ -428,16 +428,17 @@ const CreateServer: React.FC = () => {
             </label>
             <div className={classes.formFieldInput}>
               <TextInput
+                classNames={{
+                  input: errors.serverName ? classes.inputError : "",
+                }}
+                required
+                size="md"
                 value={formData.serverName}
+                autoComplete="off"
                 onChange={(e) =>
                   handleInputChange("serverName", e.target.value)
                 }
                 onBlur={(e) => handleFieldBlur("serverName", e.target.value)}
-                required
-                size="md"
-                classNames={{
-                  input: errors.serverName ? classes.inputError : "",
-                }}
               />
               <div className={classes.errorMessage}>
                 {errors.serverName || ""}
@@ -456,6 +457,7 @@ const CreateServer: React.FC = () => {
                 onBlur={(e) => handleFieldBlur("ipAddress", e.target.value)}
                 required
                 size="md"
+                autoComplete="off"
                 classNames={{
                   input: errors.ipAddress ? classes.inputError : "",
                 }}
@@ -483,6 +485,7 @@ const CreateServer: React.FC = () => {
                 classNames={{
                   input: errors.port ? classes.inputError : "",
                 }}
+                autoComplete="off"
               />
               <div className={classes.errorMessage}>{errors.port || ""}</div>
             </div>
@@ -499,6 +502,7 @@ const CreateServer: React.FC = () => {
                 onBlur={(e) => handleFieldBlur("login", e.target.value)}
                 required
                 size="md"
+                autoComplete="off"
                 classNames={{
                   input: errors.login ? classes.inputError : "",
                 }}
@@ -521,6 +525,7 @@ const CreateServer: React.FC = () => {
                 onBlur={(e) => handleFieldBlur("password", e.target.value)}
                 required={!isEditMode}
                 size="md"
+                autoComplete="off"
                 classNames={{
                   input: errors.password ? classes.inputError : "",
                 }}
@@ -544,6 +549,7 @@ const CreateServer: React.FC = () => {
                 hideControls
                 size="md"
                 min={1}
+                autoComplete="off"
                 classNames={{
                   input: errors.mapsX ? classes.inputError : "",
                 }}
@@ -565,6 +571,7 @@ const CreateServer: React.FC = () => {
                 hideControls
                 size="md"
                 min={1}
+                autoComplete="off"
                 classNames={{
                   input: errors.mapsY ? classes.inputError : "",
                 }}

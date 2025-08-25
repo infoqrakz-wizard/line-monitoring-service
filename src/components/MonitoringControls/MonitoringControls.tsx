@@ -43,6 +43,7 @@ const MonitoringControls: React.FC<MonitoringControlsProps> = ({
         placeholder="Поиск по проблемам..."
         leftSection={<IconSearch size={20} />}
         className={classes.search}
+        autoComplete="off"
       />
     </div>
   );

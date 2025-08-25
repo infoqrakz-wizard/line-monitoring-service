@@ -8,7 +8,6 @@ import {
 } from "@mantine/core";
 import { Modal } from "@/components/Modal";
 import classes from "./CreateUserModal.module.css";
-import { forceUpdateWS } from "@/api/servers";
 import Checkbox from "../Checkbox";
 
 export type UserData = {

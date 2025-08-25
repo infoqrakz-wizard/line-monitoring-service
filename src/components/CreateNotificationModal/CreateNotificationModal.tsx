@@ -135,6 +135,7 @@ const CreateNotificationModal: React.FC<CreateNotificationModalProps> = ({
               onChange={(e) => handleInputChange("bot_token", e.target.value)}
               required
               description="Токен, полученный от @BotFather"
+              autoComplete="off"
             />
           </div>
 
@@ -146,6 +147,7 @@ const CreateNotificationModal: React.FC<CreateNotificationModalProps> = ({
               onChange={(e) => handleInputChange("chat_id", e.target.value)}
               required
               description="ID чата или канала для отправки уведомлений"
+              autoComplete="off"
             />
           </div>
 
