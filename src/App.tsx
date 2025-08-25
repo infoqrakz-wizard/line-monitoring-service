@@ -17,7 +17,6 @@ import Login from "@/pages/Login";
 import PasswordReset from "@/pages/PasswordReset";
 import CreateServer from "@/pages/Servers/CreateServer/CreateServer";
 import ServerInfo from "@/pages/Servers/ServerInfo";
-import { WsProvider } from "@/ws/WsProvider";
 
 import "@mantine/core/styles.css";
 import "modern-css-reset/dist/reset.min.css";
@@ -122,30 +121,25 @@ const App: React.FC = () => {
         <Notifications position="top-right" />
         <BrowserRouter>
           <AuthProvider>
-            <WsProvider>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/password-reset" element={<PasswordReset />} />
-                <Route element={<Protected />}>
-                  <Route element={<AppLayout />}>
-                    <Route index element={<Monitoring />} />
-                    <Route path="servers" element={<Servers />} />
-                    <Route path="servers/create" element={<CreateServer />} />
-                    <Route path="servers/edit" element={<CreateServer />} />
-                    <Route path="servers/info" element={<ServerInfo />} />
-                    <Route path="users" element={<Users />} />
-                    <Route path="map" element={<MapPage />} />
-                    <Route path="groups" element={<Groups />} />
-                    <Route path="admins" element={<Admins />} />
-                    <Route
-                      path="notifications"
-                      element={<NotificationsPage />}
-                    />
-                  </Route>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/password-reset" element={<PasswordReset />} />
+              <Route element={<Protected />}>
+                <Route element={<AppLayout />}>
+                  <Route index element={<Monitoring />} />
+                  <Route path="servers" element={<Servers />} />
+                  <Route path="servers/create" element={<CreateServer />} />
+                  <Route path="servers/edit" element={<CreateServer />} />
+                  <Route path="servers/info" element={<ServerInfo />} />
+                  <Route path="users" element={<Users />} />
+                  <Route path="map" element={<MapPage />} />
+                  <Route path="groups" element={<Groups />} />
+                  <Route path="admins" element={<Admins />} />
+                  <Route path="notifications" element={<NotificationsPage />} />
                 </Route>
-                <Route path="*" element={<Navigate to="/login" replace />} />
-              </Routes>
-            </WsProvider>
+              </Route>
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
           </AuthProvider>
         </BrowserRouter>
       </MantineProvider>
