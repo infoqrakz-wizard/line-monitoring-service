@@ -328,7 +328,10 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     return servers.find((server) => {
       const serverUrl = server.sections.main.url;
       const serverPort = server.sections.main.port;
-      return serverUrl === url && serverPort === port;
+      return (
+        (serverUrl === url && serverPort === port) ||
+        server.id === `${url}:${port}`
+      );
     });
   },
 

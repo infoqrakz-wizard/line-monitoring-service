@@ -73,6 +73,7 @@ const ServerInfo: React.FC = () => {
     main,
     users: serverUsers,
     loading: loadingServerInfo,
+    serverResponded,
     resubscribe,
   } = useServerInfo(url, port);
 
@@ -555,7 +556,7 @@ const ServerInfo: React.FC = () => {
           )}
           {serverStatus !== "red" && (
             <>
-              {!loadingServerInfo && (
+              {!loadingServerInfo && main?.totalCameras && (
                 <div className={classes.cameraSummary}>
                   <div
                     className={`${classes.summaryBox} ${classes.summaryBoxTotal}`}
@@ -723,15 +724,23 @@ const ServerInfo: React.FC = () => {
                   );
                 })}
 
-                {loadingServerInfo && (
+                {loadingServerInfo && !serverResponded && (
                   <Text c="dimmed" ta="center" py="xl">
                     Загрузка...
                   </Text>
                 )}
 
-                {serverStatus !== "gray" && !loadingServerInfo && cameras.length === 0 && (
+                {!loadingServerInfo &&
+                  cameras.length === 0 &&
+                  serverResponded && (
+                    <Text c="dimmed" ta="center" py="xl">
+                      Нет камер для отображения
+                    </Text>
+                  )}
+
+                {!loadingServerInfo && !serverResponded && (
                   <Text c="dimmed" ta="center" py="xl">
-                    Нет камер для отображения
+                    Ожидание ответа от сервера...
                   </Text>
                 )}
               </Stack>
@@ -745,7 +754,7 @@ const ServerInfo: React.FC = () => {
             className={`${classes.sectionHeader} ${classes.sectionHeaderUsers}`}
           >
             <div className={classes.sectionHeaderTitle}>Пользователи</div>
-            {!!hasUsers && (
+            {!!hasUsers && serverResponded && (
               <Button
                 variant="black"
                 leftSection={<IconPlus size={20} />}
@@ -756,18 +765,24 @@ const ServerInfo: React.FC = () => {
             )}
           </div>
 
-          {loadingServerInfo && !hasUsers && (
+          {loadingServerInfo && !serverResponded && (
             <Text c="dimmed" ta="center" py="xl">
               Загрузка...
             </Text>
           )}
 
-          {!hasUsers && !loadingServerInfo && (
+          {serverResponded && !hasUsers && !loadingServerInfo && (
             <Text c="dimmed" ta="center" py="xl">
               Нет доступа
             </Text>
           )}
-          {!!hasUsers && (
+
+          {!serverResponded && !loadingServerInfo && (
+            <Text c="dimmed" ta="center" py="xl">
+              Ожидание ответа от сервера...
+            </Text>
+          )}
+          {!!hasUsers && serverResponded && (
             <Stack gap="md" mt="md">
               {users.map((user) => {
                 const isServerUser = user.name === username;
@@ -811,13 +826,13 @@ const ServerInfo: React.FC = () => {
                 );
               })}
 
-              {!loadingServerInfo && users.length === 0 && (
+              {!loadingServerInfo && users.length === 0 && serverResponded && (
                 <Text c="dimmed" ta="center" py="xl">
                   Нет пользователей для отображения
                 </Text>
               )}
 
-              {loadingServerInfo && (
+              {loadingServerInfo && !serverResponded && (
                 <Text c="dimmed" ta="center" py="xl">
                   Загрузка...
                 </Text>

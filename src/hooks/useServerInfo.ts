@@ -34,6 +34,7 @@ export const useServerInfo = (url: string | null, port: string | null) => {
   const [users, setUsers] = useState<User[]>([]);
   const [main, setMain] = useState<ServerMonitoringData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [serverResponded, setServerResponded] = useState(false);
 
   const {
     subscribeToSpecificServer,
@@ -51,6 +52,8 @@ export const useServerInfo = (url: string | null, port: string | null) => {
 
   useEffect(() => {
     if (url && port) {
+      setServerResponded(false);
+      setLoading(true);
       subscribeToSpecificServer(url, parseInt(port));
     }
   }, [url, port]);
@@ -62,58 +65,91 @@ export const useServerInfo = (url: string | null, port: string | null) => {
 
     if (url && port) {
       const server = getServerByUrlPort(url, parseInt(port));
+
       if (server) {
-        setMain(server.sections.main);
-        // Extract cameras from the new nested structure
-        const cameraData = server.sections.camerasName?.result.cameras;
-        if (cameraData) {
-          const flattenedCameras: FlattenedCamera[] = Object.entries(
-            cameraData,
-          ).map(([id, camera]) => ({
-            id,
-            enabled: camera.enabled,
-            name: camera.name,
-          }));
-          setCameras(flattenedCameras);
+        // Сервер ответил - помечаем это
+        setServerResponded(true);
+
+        // Проверяем, есть ли основные данные сервера
+        if (
+          server.sections.main &&
+          Object.keys(server.sections.main).length > 1
+        ) {
+          // Сервер доступен и предоставляет полные данные
+          setMain(server.sections.main);
+
+          // Extract cameras from the new nested structure
+          const cameraData = server.sections.camerasName?.result.cameras;
+          if (cameraData) {
+            const flattenedCameras: FlattenedCamera[] = Object.entries(
+              cameraData,
+            ).map(([id, camera]) => ({
+              id,
+              enabled: camera.enabled,
+              name: camera.name,
+            }));
+            setCameras(flattenedCameras);
+          } else {
+            setCameras([]);
+          }
+
+          // Extract media state data
+          const mediaData = server.sections.mediaState?.result.state.cameras;
+          if (mediaData) {
+            const flattenedMediaStates: MediaState[] = Object.entries(
+              mediaData,
+            ).map(([id, camera]) => ({
+              cameraId: parseInt(id),
+              main: {
+                bitrate: camera.streams.video.datarate,
+                fps: camera.streams.video.framerate,
+              },
+              sub: {
+                bitrate: camera.streams.video2.datarate,
+                fps: camera.streams.video2.framerate,
+              },
+              audio: {
+                bitrate: camera.streams.audio?.datarate || 0,
+              },
+              status:
+                camera.streams.video.active && camera.enabled
+                  ? "working"
+                  : camera.enabled
+                    ? "error"
+                    : "offline",
+            }));
+            setMediaStates(flattenedMediaStates);
+          } else {
+            setMediaStates([]);
+          }
+
+          setUsers(server.sections.users || []);
         } else {
+          // Сервер недоступен - устанавливаем пустые данные
+          setMain(server.sections.main || null);
           setCameras([]);
-        }
-
-        // Extract media state data
-        const mediaData = server.sections.mediaState?.result.state.cameras;
-        if (mediaData) {
-          const flattenedMediaStates: MediaState[] = Object.entries(
-            mediaData,
-          ).map(([id, camera]) => ({
-            cameraId: parseInt(id),
-            main: {
-              bitrate: camera.streams.video.datarate,
-              fps: camera.streams.video.framerate,
-            },
-            sub: {
-              bitrate: camera.streams.video2.datarate,
-              fps: camera.streams.video2.framerate,
-            },
-            audio: {
-              bitrate: camera.streams.audio?.datarate || 0,
-            },
-            status:
-              camera.streams.video.active && camera.enabled
-                ? "working"
-                : camera.enabled
-                  ? "error"
-                  : "offline",
-          }));
-          setMediaStates(flattenedMediaStates);
-        } else {
           setMediaStates([]);
+          setUsers([]);
         }
 
-        setUsers(server.sections.users || []);
+        setLoading(false);
+      } else if (serverResponded && !loadingMonitoring) {
+        // Сервер не найден, но мы уже получили ответ от WebSocket
+        setMain(null);
+        setCameras([]);
+        setMediaStates([]);
+        setUsers([]);
         setLoading(false);
       }
     }
-  }, [servers, url, port, getServerByUrlPort, loadingMonitoring]);
+  }, [
+    servers,
+    url,
+    port,
+    getServerByUrlPort,
+    loadingMonitoring,
+    serverResponded,
+  ]);
 
   return {
     cameras,
@@ -121,6 +157,7 @@ export const useServerInfo = (url: string | null, port: string | null) => {
     users,
     main,
     loading,
+    serverResponded,
     resubscribe,
   };
 };
