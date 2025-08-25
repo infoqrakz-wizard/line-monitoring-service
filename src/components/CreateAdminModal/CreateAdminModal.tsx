@@ -110,6 +110,7 @@ const CreateAdminModal: FC<CreateAdminModalProps> = ({
               size="md"
               aria-label="Логин"
               autoComplete="off"
+              name="new-email"
             />
           </div>
         </div>
@@ -137,6 +138,7 @@ const CreateAdminModal: FC<CreateAdminModalProps> = ({
                   : undefined
               }
               autoComplete="off"
+              name="new-password"
             />
           </div>
         </div>

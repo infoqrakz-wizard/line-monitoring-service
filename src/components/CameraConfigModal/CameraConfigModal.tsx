@@ -222,6 +222,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   disabled={!config.enabled || loading}
                   mt="md"
                   autoComplete="off"
+                  name="camera-name"
                 />
               </div>
 
@@ -243,6 +244,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   }
                   disabled={!config.enabled || loading}
                   autoComplete="off"
+                  name="camera-url"
                 />
 
                 <Select
@@ -296,6 +298,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   }
                   mt="md"
                   autoComplete="off"
+                  name="camera-url-2"
                 />
 
                 <Select

@@ -163,6 +163,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
               size="md"
               aria-label="Логин пользователя"
               autoComplete="off"
+              name="new-login"
             />
           </div>
         </div>
@@ -181,6 +182,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
               size="md"
               aria-label="Пароль пользователя"
               autoComplete="off"
+              name="new-password"
             />
           </div>
         </div>
@@ -198,6 +200,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
               size="md"
               aria-label="Описание пользователя"
               autoComplete="off"
+              name="new-description"
             />
           </div>
         </div>

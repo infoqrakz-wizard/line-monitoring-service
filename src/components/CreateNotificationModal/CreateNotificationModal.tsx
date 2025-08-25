@@ -136,6 +136,7 @@ const CreateNotificationModal: React.FC<CreateNotificationModalProps> = ({
               required
               description="Токен, полученный от @BotFather"
               autoComplete="off"
+              name="bot-token"
             />
           </div>
 
@@ -148,6 +149,7 @@ const CreateNotificationModal: React.FC<CreateNotificationModalProps> = ({
               required
               description="ID чата или канала для отправки уведомлений"
               autoComplete="off"
+              name="chat-id"
             />
           </div>
 

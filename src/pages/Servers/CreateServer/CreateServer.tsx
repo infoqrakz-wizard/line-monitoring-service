@@ -383,6 +383,7 @@ const CreateServer: React.FC = () => {
                 size="md"
                 value={formData.serverName}
                 autoComplete="off"
+                name="server-name"
                 onChange={(e) =>
                   handleInputChange("serverName", e.target.value)
                 }
@@ -404,6 +405,7 @@ const CreateServer: React.FC = () => {
                 required
                 size="md"
                 autoComplete="off"
+                name="server-ip"
                 classNames={{
                   input: errors.ipAddress ? classes.inputError : "",
                 }}
@@ -427,6 +429,7 @@ const CreateServer: React.FC = () => {
                 size="md"
                 min={1}
                 max={65535}
+                name="server-port"
                 classNames={{
                   input: errors.port ? classes.inputError : "",
                 }}
@@ -447,6 +450,7 @@ const CreateServer: React.FC = () => {
                 required
                 size="md"
                 autoComplete="off"
+                name="server-login"
                 classNames={{
                   input: errors.login ? classes.inputError : "",
                 }}
@@ -469,6 +473,7 @@ const CreateServer: React.FC = () => {
                 required={!isEditMode}
                 size="md"
                 autoComplete="off"
+                name="server-password"
                 classNames={{
                   input: errors.password ? classes.inputError : "",
                 }}
@@ -493,6 +498,7 @@ const CreateServer: React.FC = () => {
                 required
                 size="md"
                 autoComplete="off"
+                name="server-coordinates"
                 classNames={{
                   input: errors.coordinates ? classes.inputError : "",
                 }}
