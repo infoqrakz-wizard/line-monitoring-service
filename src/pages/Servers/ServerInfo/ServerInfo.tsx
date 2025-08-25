@@ -767,7 +767,7 @@ const ServerInfo: React.FC = () => {
                           </Text>
                           <Text size="sm">
                             {mainBitrate !== "-"
-                              ? `${mainBitrate} Mbit/s, ${cameraInfo?.main?.fps} fps`
+                              ? `${mainBitrate} Mbit/s, ${Math.round(cameraInfo?.main?.fps || 0)} fps`
                               : "-"}
                           </Text>
                         </div>
@@ -777,7 +777,7 @@ const ServerInfo: React.FC = () => {
                           </Text>
                           <Text size="sm">
                             {subBitrate !== "-"
-                              ? `${subBitrate} Mbit/s, ${cameraInfo?.sub?.fps} fps`
+                              ? `${subBitrate} Mbit/s, ${Math.round(cameraInfo?.sub?.fps || 0)} fps`
                               : "-"}
                           </Text>
                         </div>
