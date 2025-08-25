@@ -60,9 +60,12 @@ export const listServers = async (
 export const getServer = async (
   url: string,
   port: number,
-): Promise<PaginatedResponse<ServerItem>> => {
+): Promise<ServerItem> => {
   const query = buildQueryString({ urlPort: buildUrlPort(url, port) });
-  return request.get<PaginatedResponse<ServerItem>>(`/api/servers${query}`);
+  const response = await request.get<PaginatedResponse<ServerItem>>(
+    `/api/servers${query}`,
+  );
+  return response.servers[0];
 };
 
 export const createServer = async (

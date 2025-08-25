@@ -67,6 +67,9 @@ const ServerInfo: React.FC = () => {
   const [selectedCameraForConfig, setSelectedCameraForConfig] =
     useState<string>("");
 
+  const [serverLoading, setServerLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+
   const {
     cameras,
     users,
@@ -84,7 +87,7 @@ const ServerInfo: React.FC = () => {
     "gray",
   );
 
-  const { fetchServers, findByUrlPort, forceUpdateWS } = useServersStore();
+  const { fetchServer, findByUrlPort, forceUpdateWS } = useServersStore();
 
   const {
     subscribeToSpecificServer,
@@ -111,8 +114,19 @@ const ServerInfo: React.FC = () => {
   }));
 
   useEffect(() => {
-    void fetchServers();
-  }, [fetchServers]);
+    if (url && port) {
+      setServerLoading(true);
+      setServerError(null);
+      void fetchServer(url, parseInt(port))
+        .then(() => {
+          setServerLoading(false);
+        })
+        .catch((error) => {
+          setServerLoading(false);
+          setServerError(error instanceof Error ? error.message : "Failed to load server");
+        });
+    }
+  }, [url, port, fetchServer]);
 
   useEffect(() => {
     if (url && port && !subscribeRef.current) {
@@ -406,6 +420,60 @@ const ServerInfo: React.FC = () => {
   if (!url || !port) {
     void navigate("/servers");
     return null;
+  }
+
+  if (serverLoading) {
+    return (
+      <div className={classes.container}>
+        <PageHeader withBackButton title="Загрузка сервера..." />
+        <div className={classes.content}>
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <Loader size="lg" />
+            <Text mt="md">Загрузка информации о сервере...</Text>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (serverError) {
+    return (
+      <div className={classes.container}>
+        <PageHeader withBackButton title="Ошибка загрузки" />
+        <div className={classes.content}>
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <Text c="red" size="lg" mb="md">
+              Ошибка загрузки сервера
+            </Text>
+            <Text c="dimmed" mb="md">{serverError}</Text>
+            <Button onClick={() => window.location.reload()}>
+              Попробовать снова
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!server) {
+    return (
+      <div className={classes.container}>
+        <PageHeader withBackButton title="Сервер не найден" />
+        <div className={classes.content}>
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <Text c="red" size="lg" mb="md">
+              Сервер не найден
+            </Text>
+            <Text c="dimmed" mb="md">
+              Сервер с указанными параметрами не найден в системе
+            </Text>
+            <Button onClick={() => navigate("/servers")}>
+              Вернуться к списку серверов
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const hasUsers = serverUsers?.length && serverUsers.length > 0;

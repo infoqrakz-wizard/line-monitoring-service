@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { ServerItem } from "@/types";
 import {
   listServers,
+  getServer as apiGetServer,
   createServer as apiCreateServer,
   updateServer as apiUpdateServer,
   deleteServer as apiDeleteServer,
@@ -28,6 +29,7 @@ export type ServersState = {
     search?: string;
     filter?: "all" | "available" | "unavailable";
   }) => Promise<void>;
+  fetchServer: (url: string, port: number) => Promise<ServerItem>;
   createServer: (payload: CreateServerRequest) => Promise<ServerItem>;
   updateServer: (
     url: string,
@@ -81,6 +83,35 @@ export const useServersStore = create<ServersState>((set, get) => ({
       set({ error: message });
     } finally {
       set({ loading: false });
+    }
+  },
+
+  fetchServer: async (url: string, port: number) => {
+    try {
+      const server = await apiGetServer(url, port);
+
+      // Обновляем или добавляем сервер в локальное состояние
+      const currentServers = get().servers;
+      const existingIndex = currentServers.findIndex(
+        (s) => s.url === url && s.port === port,
+      );
+
+      if (existingIndex >= 0) {
+        // Обновляем существующий сервер
+        const updatedServers = [...currentServers];
+        updatedServers[existingIndex] = server;
+        set({ servers: updatedServers });
+      } else {
+        // Добавляем новый сервер
+        set({ servers: [...currentServers, server] });
+      }
+
+      return server;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to load server";
+      set({ error: message });
+      throw error;
     }
   },
 
