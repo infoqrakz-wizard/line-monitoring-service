@@ -30,6 +30,11 @@ export type MonitoringState = {
   error: string | null;
   socket: WebSocket | null;
   isConnected: boolean;
+  lastSubscription: {
+    serverIds?: string[];
+    url?: string;
+    port?: number;
+  } | null;
   subscribeToServers: (serverIds?: string[]) => void;
   subscribeToSpecificServer: (url: string, port: number) => void;
   unsubscribe: () => void;
@@ -64,6 +69,7 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   error: null,
   socket: null,
   isConnected: false,
+  lastSubscription: null,
 
   connect: () => {
     const socket = get().socket;
@@ -148,26 +154,67 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         isConnected: false,
       });
     };
-    ws.onclose = () => {
-      console.log("Monitoring WebSocket disconnected");
+    ws.onclose = (event) => {
+      console.log("Monitoring WebSocket disconnected", {
+        code: event.code,
+        reason: event.reason,
+      });
+
+      // Если сокет закрылся с кодом 4003, переподключаемся с новым токеном
+      if (event.code === 4003) {
+        console.log(
+          "WebSocket closed with code 4003, reconnecting with new token...",
+        );
+
+        // Обновляем токен
+        const authStore = useAuthStore.getState();
+        authStore
+          .refreshToken()
+          .then(() => {
+            // Переподключаемся после обновления токена
+            get().connect();
+
+            // Восстанавливаем подписку если она была
+            const { lastSubscription } = get();
+            if (lastSubscription) {
+              setTimeout(() => {
+                if (lastSubscription.serverIds) {
+                  get().subscribeToServers(lastSubscription.serverIds);
+                } else if (lastSubscription.url && lastSubscription.port) {
+                  get().subscribeToSpecificServer(
+                    lastSubscription.url,
+                    lastSubscription.port,
+                  );
+                }
+              }, 1000); // Небольшая задержка для стабилизации соединения
+            }
+          })
+          .catch((error) => {
+            console.error(
+              "Failed to refresh token after WebSocket close 4003:",
+              error,
+            );
+          });
+      } else {
+        // Обычное переподключение для других кодов
+        setTimeout(() => {
+          const currentSocket = get().socket;
+          const currentToken = useAuthStore.getState().token;
+          if (!currentSocket || currentSocket.readyState === WebSocket.CLOSED) {
+            if (currentToken) {
+              get().connect();
+            } else {
+              console.log("No token available, skipping reconnection");
+            }
+          }
+        }, 5000);
+      }
+
       set({
         socket: null,
         isConnected: false,
         loading: false,
       });
-
-      // Попробовать переподключиться через 5 секунд, но только если токен все еще доступен
-      setTimeout(() => {
-        const currentSocket = get().socket;
-        const currentToken = useAuthStore.getState().token;
-        if (!currentSocket || currentSocket.readyState === WebSocket.CLOSED) {
-          if (currentToken) {
-            get().connect();
-          } else {
-            console.log("No token available, skipping reconnection");
-          }
-        }
-      }, 5000);
     };
 
     ws.onerror = (error) => {
@@ -224,6 +271,9 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       return;
     }
 
+    // Сохраняем информацию о подписке для восстановления
+    set({ lastSubscription: { serverIds } });
+
     if (!socket || !isConnected) {
       get().connect();
       // Попробуем подписаться после подключения
@@ -273,6 +323,14 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       return;
     }
 
+    // Сохраняем информацию о подписке для восстановления
+    set({
+      lastSubscription: {
+        url,
+        port,
+      },
+    });
+
     if (!socket || !isConnected) {
       get().connect();
       // Попробуем подписаться после подключения
@@ -319,7 +377,10 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
 
     try {
       socket.send(JSON.stringify(unsubscribeMessage));
-      set({ servers: [] });
+      set({
+        servers: [],
+        lastSubscription: null, // Очищаем информацию о последней подписке
+      });
       console.log("Unsubscribed from servers");
     } catch (error) {
       console.error("Failed to unsubscribe:", error);
