@@ -35,6 +35,7 @@ export type MonitoringState = {
   unsubscribe: () => void;
   connect: () => void;
   disconnect: () => void;
+  sendWebSocketMessage: (type: string, data?: any) => void;
   getServerStatus: (server: ServerWithMonitoring) => ServerStatus;
   getServerByUrlPort: (
     url: string,
@@ -182,6 +183,27 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         servers: [],
         users: [],
       });
+    }
+  },
+
+  sendWebSocketMessage: (type: string, data?: any) => {
+    const { socket, isConnected } = get();
+
+    if (!socket || !isConnected) {
+      console.warn("WebSocket is not connected, cannot send message");
+      return;
+    }
+
+    try {
+      const message = data
+        ? {
+            type,
+            ...data,
+          }
+        : { type };
+      socket.send(JSON.stringify(message));
+    } catch (error) {
+      console.error("Failed to send WebSocket message:", error);
     }
   },
 

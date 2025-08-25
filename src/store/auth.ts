@@ -5,6 +5,7 @@ import { authApi } from "@/api/auth";
 import { cookies } from "@/lib/cookies";
 import { getCookieSettings } from "@/config/environment";
 import { ApiError } from "@/lib/request";
+import { useMonitoringStore } from "@/store/monitoring";
 
 export type AuthState = {
   user: User | null;
@@ -191,6 +192,19 @@ export const useAuthStore = create<AuthState>((set, get) => {
           isChecking: false,
         });
 
+        // Отправляем сообщение в WebSocket о обновлении токена
+        try {
+          const monitoringStore = useMonitoringStore.getState();
+          monitoringStore.sendWebSocketMessage("auth.refresh", {
+            token: newToken,
+          });
+        } catch (wsError) {
+          console.warn(
+            "Failed to send WebSocket auth.refresh message:",
+            wsError,
+          );
+        }
+
         return newToken;
       } catch (error) {
         if (error instanceof ApiError) {
@@ -221,6 +235,19 @@ export const useAuthStore = create<AuthState>((set, get) => {
           isAuthenticated: false,
           isChecking: false,
         });
+
+        // Отправляем сообщение в WebSocket о обновлении токена
+        try {
+          const monitoringStore = useMonitoringStore.getState();
+          monitoringStore.sendWebSocketMessage("auth.refresh", {
+            token: newToken,
+          });
+        } catch (wsError) {
+          console.warn(
+            "Failed to send WebSocket auth.refresh message:",
+            wsError,
+          );
+        }
 
         await get().checkAuth();
         return true;
