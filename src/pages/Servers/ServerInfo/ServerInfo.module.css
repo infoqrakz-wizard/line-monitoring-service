@@ -308,6 +308,16 @@
   cursor: pointer;
 }
 
+.editIconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editIcon:hover {
+  background-color: rgb(201, 201, 201);
+}
+
 /* Tablet styles */
 @media (max-width: 1024px) {
   .container {

@@ -254,11 +254,11 @@ const CreateServer: React.FC = () => {
   };
 
   const handleCancel = () => {
-    void navigate("/servers");
+    void navigate(-1);
   };
 
   const handleBack = () => {
-    void navigate("/servers");
+    void navigate(-1);
   };
 
   const handleCreateServer = async () => {

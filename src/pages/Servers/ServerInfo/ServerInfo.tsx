@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useSearchParams, useNavigate } from "react-router";
 import {
   Stack,
   Group,
@@ -8,9 +8,9 @@ import {
   Button,
   Badge,
   Image,
-  ActionIcon,
   Tooltip,
   Dialog,
+  ActionIcon,
   Loader,
 } from "@mantine/core";
 import {
@@ -18,6 +18,7 @@ import {
   IconPlus,
   IconCheck,
   IconPlayerPlay,
+  IconPencil,
 } from "@tabler/icons-react";
 import { useServerInfo } from "@/hooks/useServerInfo";
 import { downtime } from "@/api";
@@ -31,9 +32,11 @@ import classes from "./ServerInfo.module.css";
 import { useServersStore } from "@/store/servers";
 import { useDisclosure } from "@mantine/hooks";
 import LogItem from "./LogItem";
+import ActionButton from "@/components/ActionButton";
 
 const ServerInfo: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const url = searchParams.get("url");
   const port = searchParams.get("port");
 
@@ -341,6 +344,21 @@ const ServerInfo: React.FC = () => {
               >
                 {showPassword ? password : "********"}
               </span>
+            </div>
+
+            <div className={classes.editIconContainer}>
+              <Tooltip label="Редактировать">
+                <ActionButton
+                  className={classes.editIcon}
+                  onClick={() =>
+                    navigate(
+                      `/servers/edit?url=${encodeURIComponent(url || "")}&port=${encodeURIComponent(port || "")}`,
+                    )
+                  }
+                >
+                  <IconPencil size={16} />
+                </ActionButton>
+              </Tooltip>
             </div>
           </div>
         }
@@ -653,7 +671,7 @@ const ServerInfo: React.FC = () => {
 
                       {!isServerUser && !deletingUsers.has(user.name) && (
                         <ActionIcon
-                          variant="subtle"
+                          variant="transparent"
                           color="#676767"
                           onClick={() => handleDeleteUser(user.name)}
                           aria-label="Удалить пользователя"
