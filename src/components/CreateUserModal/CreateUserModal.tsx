@@ -17,6 +17,8 @@ export type UserData = {
   servers: string[];
   createOnUnavailableServers: boolean;
   createOnNewServers: boolean;
+  admin: boolean;
+  archive: boolean;
 };
 
 export type CreateUserModalProps = {
@@ -55,6 +57,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   const [createOnUnavailableServers, setCreateOnUnavailableServers] =
     useState(false);
   const [createOnNewServers, setCreateOnNewServers] = useState(false);
+  const [admin, setAdmin] = useState(false);
+  const [archive, setArchive] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const canSubmit =
@@ -76,6 +80,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
       setDescription("");
       setCreateOnUnavailableServers(false);
       setCreateOnNewServers(false);
+      setAdmin(false);
+      setArchive(false);
       setSubmitting(false);
       onClearError?.();
     }
@@ -105,6 +111,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         servers,
         createOnUnavailableServers,
         createOnNewServers,
+        admin,
+        archive,
       });
 
       onSuccess?.();
@@ -238,6 +246,25 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
               onChange={(event) =>
                 setCreateOnNewServers(event.currentTarget.checked)
               }
+              disabled={submitting || !!loading}
+            />
+          </div>
+        </div>
+        <div className={classes.formField}>
+          <div className={classes.checkboxesContainer}>
+            <div className={classes.formFieldLabel}>Права</div>
+            <Checkbox
+              id="admin"
+              label="Администратор"
+              checked={admin}
+              onChange={(event) => setAdmin(event.currentTarget.checked)}
+              disabled={submitting || !!loading}
+            />
+            <Checkbox
+              id="archive"
+              label="Доступ к архиву"
+              checked={archive}
+              onChange={(event) => setArchive(event.currentTarget.checked)}
               disabled={submitting || !!loading}
             />
           </div>

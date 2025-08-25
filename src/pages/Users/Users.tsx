@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useEffect, useState, useMemo, useCallback } from "react";
 import { Button, Stack, Tooltip, Group, Tabs } from "@mantine/core";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { useUsersStore } from "@/store/users";
@@ -17,6 +17,7 @@ import { useDisclosure } from "@mantine/hooks";
 import Toast from "@/components/Toast";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { ApiError } from "@/lib/request";
+import { deepEqual } from "@/utils/deepEqual";
 
 type LogItem = {
   id: string;
@@ -153,8 +154,12 @@ const Users: FC = () => {
     setDeleteUserError(null);
   };
 
-  useEffect(() => {
-    const mapping = users?.reduce(
+  const sortedMapping = useMemo(() => {
+    if (!users || !servers) {
+      return [];
+    }
+
+    const mapping = users.reduce(
       (acc, user) => {
         acc.push({
           ...user,
@@ -168,8 +173,15 @@ const Users: FC = () => {
         servers: ServerWithMonitoring[];
       })[],
     );
-    setUsersServersMapping(mapping);
+
+    return mapping.sort((a, b) => a.sc.localeCompare(b.sc));
   }, [users, servers]);
+
+  useEffect(() => {
+    if (!deepEqual(usersServersMapping, sortedMapping)) {
+      setUsersServersMapping(sortedMapping);
+    }
+  }, [sortedMapping, usersServersMapping]);
 
   const handleDeleteConfirmOpen = (user: User) => {
     setUserToDelete({
@@ -437,11 +449,17 @@ const Users: FC = () => {
               createOnNewServers: payload.createOnNewServers,
             };
 
+            const permissions = {
+              admin: payload.admin,
+              archive: payload.archive,
+            };
+
             const response = await createUser(
               userData,
               payload.servers,
               availableServersData,
               options,
+              permissions,
             );
 
             const getServerNames = (r: { server: string }) => {

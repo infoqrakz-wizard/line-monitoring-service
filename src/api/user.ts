@@ -97,6 +97,10 @@ export const createUser = async (
     createOnUnavailableServers: boolean;
     createOnNewServers: boolean;
   },
+  permissions: {
+    admin: boolean;
+    archive: boolean;
+  },
 ): Promise<CreateUserResponse> => {
   let serverIdentifiers;
 
@@ -119,6 +123,7 @@ export const createUser = async (
     user,
     servers: serverIdentifiers,
     options,
+    permissions,
   };
 
   return request.post<CreateUserResponse>("/api/manage/users", apiPayload);

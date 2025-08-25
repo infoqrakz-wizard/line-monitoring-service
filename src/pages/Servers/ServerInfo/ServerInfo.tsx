@@ -197,12 +197,16 @@ const ServerInfo: React.FC = () => {
     description,
     createOnUnavailableServers,
     createOnNewServers,
+    admin,
+    archive,
   }: {
     login: string;
     password: string;
     description: string;
     createOnUnavailableServers: boolean;
     createOnNewServers: boolean;
+    admin: boolean;
+    archive: boolean;
   }) => {
     try {
       setCreateLoading(true);
@@ -221,6 +225,11 @@ const ServerInfo: React.FC = () => {
         createOnNewServers,
       };
 
+      const permissions = {
+        admin,
+        archive,
+      };
+
       await createUser(
         {
           name: login,
@@ -230,6 +239,7 @@ const ServerInfo: React.FC = () => {
         [server?.name || ""],
         availableServersData,
         options,
+        permissions,
       );
       await forceUpdateWS();
 

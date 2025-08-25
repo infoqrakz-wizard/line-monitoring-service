@@ -162,7 +162,7 @@ const Servers: React.FC = () => {
           }
         });
         setServersDownMap(map);
-      } catch (e) {
+      } catch {
         // silent fail; uptime will fallback
       }
     };
