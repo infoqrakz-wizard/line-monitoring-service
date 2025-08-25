@@ -22,6 +22,8 @@ const YandexMap: React.FC<YandexMapProps> = ({
   const placemarksRef = useRef<any[]>([]);
   const clustererRef = useRef<any>(null);
 
+  const renderedRef = useRef<boolean>(false);
+
   const createPlacemark = useCallback(
     (server: ServerItem, status: ServerStatus) => {
       let color: string;
@@ -220,11 +222,7 @@ const YandexMap: React.FC<YandexMapProps> = ({
   );
 
   const initMap = useCallback(async () => {
-    if (!mapRef.current) {
-      return;
-    }
-
-    if (!mapRef.current) {
+    if (!mapRef.current || renderedRef.current) {
       return;
     }
 
@@ -247,6 +245,7 @@ const YandexMap: React.FC<YandexMapProps> = ({
 
         if (servers.length > 0) {
           addPlacemarksToMap(map, ymaps);
+          renderedRef.current = true;
         } else {
           console.log("YandexMap: No servers available during initialization");
         }
@@ -255,60 +254,6 @@ const YandexMap: React.FC<YandexMapProps> = ({
       console.error("Failed to initialize Yandex Map:", error);
     }
   }, [servers, clearPlacemarks, addPlacemarksToMap]);
-
-  const updatePlacemarks = useCallback(() => {
-    if (!mapInstanceRef.current || !placemarksRef.current.length) {
-      return;
-    }
-
-    placemarksRef.current.forEach((placemark, index) => {
-      const server = servers[index];
-      if (
-        server &&
-        server.maps &&
-        typeof server.maps.x === "number" &&
-        typeof server.maps.y === "number" &&
-        !isNaN(server.maps.x) &&
-        !isNaN(server.maps.y)
-      ) {
-        const status = serverStatuses[`${server.url}:${server.port}`] || "red";
-
-        let color: string;
-        let statusText: string;
-
-        switch (status) {
-          case "green":
-            color = "#52c41a";
-            statusText = "Доступен";
-            break;
-          case "yellow":
-            color = "#f39c12";
-            statusText = "Проблемы";
-            break;
-          case "red":
-          default:
-            color = "#ff4d4f";
-            statusText = "Недоступен";
-            break;
-        }
-
-        placemark.options.set("iconColor", color);
-
-        placemark.properties.set(
-          "balloonContent",
-          `
-          <div style="padding: 8px;">
-            <h4 style="margin: 0 0 8px 0; color: #333;">${server.name}</h4>
-            <p style="margin: 0; color: #666;">${server.url}:${server.port}</p>
-            <p style="margin: 4px 0 0 0; color: ${color}; font-weight: bold;">
-              ${statusText}
-            </p>
-          </div>
-        `,
-        );
-      }
-    });
-  }, [servers, serverStatuses]);
 
   useEffect(() => {
     void initMap();
@@ -321,6 +266,10 @@ const YandexMap: React.FC<YandexMapProps> = ({
   }, [initMap]);
 
   useEffect(() => {
+    if (renderedRef.current) {
+      return;
+    }
+
     if (mapInstanceRef.current && servers.length > 0) {
       clearPlacemarks();
       addPlacemarksToMap(mapInstanceRef.current, (window as any).ymaps);
@@ -328,11 +277,6 @@ const YandexMap: React.FC<YandexMapProps> = ({
       clearPlacemarks();
     }
   }, [servers, clearPlacemarks, addPlacemarksToMap]);
-
-  // Обновляем существующие метки при изменении статусов
-  useEffect(() => {
-    updatePlacemarks();
-  }, [updatePlacemarks]);
 
   useEffect(() => {
     return () => {

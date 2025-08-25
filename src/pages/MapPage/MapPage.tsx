@@ -7,7 +7,6 @@ import { useServersStore } from "@/store/servers";
 import { useMonitoringStore } from "@/store/monitoring";
 import type { ServerItem, ServerStatus } from "@/types";
 import classes from "./MapPage.module.css";
-import PageHeader from "@/components/PageHeader";
 
 const MapPage: React.FC = () => {
   const navigate = useNavigate();
