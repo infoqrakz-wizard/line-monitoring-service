@@ -153,6 +153,15 @@
   margin-bottom: 6px;
 }
 
+.cameraEditButton {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cameraEditButton:hover {
+  background: rgb(221, 221, 221) !important;
+}
+
 .cameraMetrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -196,6 +205,10 @@
   border: 1px solid #e9ecef;
   margin: 0 auto;
   position: relative;
+}
+
+.cameraPreview:hover .cameraEditButton {
+  opacity: 1;
 }
 
 .cameraPreview img {
@@ -316,6 +329,13 @@
 
 .editIcon:hover {
   background-color: rgb(201, 201, 201);
+}
+
+.cameraEditButtonContainer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
 }
 
 /* Tablet styles */

@@ -67,6 +67,9 @@
   background-color: #f8f9fa;
 }
 
+.selectDropdown {
+  z-index: 1500 !important;
+}
 /* Tablet styles */
 @media (max-width: 1024px) {
   .content {

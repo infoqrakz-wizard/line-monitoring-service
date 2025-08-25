@@ -172,6 +172,7 @@ const CreateAdminModal: FC<CreateAdminModalProps> = ({
           </Button>
           <Button
             type="submit"
+            variant="black"
             loading={submitting || !!loading}
             disabled={!canSubmit}
             aria-label={submitButtonText}

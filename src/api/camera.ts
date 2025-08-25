@@ -1,26 +1,65 @@
+import { request } from "@/lib/request";
+
 export interface CameraConfig {
+  id: string;
+  osd: {
+    enabled: boolean;
+  };
+  url: string;
+  flip: boolean;
   name: string;
   enabled: boolean;
+  imaging: {
+    contrast: number;
+    brightness: number;
+    saturation: number;
+  };
+  revision: number;
+  source_num: number;
+  client_data: Record<string, unknown>;
   audio_streams: {
     audio: {
+      url: string;
+      name: string;
+      camera: string;
       enabled: boolean;
+      record_mode: "permanent" | "alarm" | "none";
     };
   };
   video_streams: {
     video: {
       url: string;
+      auto: boolean;
+      codec: string;
+      enabled: boolean;
+      quality: number;
+      framerate: number;
+      transport: string;
+      resolution: [number, number];
       record_mode: "permanent" | "alarm" | "none";
     };
     video2: {
       url: string;
+      auto: boolean;
+      codec: string;
       enabled: boolean;
+      quality: number;
+      framerate: number;
+      transport: string;
       record_mode: "permanent" | "alarm" | "none";
+    };
+    video3: {
+      enabled: boolean;
     };
   };
 }
 
 export interface GetCameraConfigRequest {
   method: "get_camera_config";
+  url: string;
+  port: number;
+  login: string;
+  pass: string;
   params: {
     camera: string;
   };
@@ -28,11 +67,17 @@ export interface GetCameraConfigRequest {
 }
 
 export interface GetCameraConfigResponse {
-  config: CameraConfig;
+  result: {
+    config: CameraConfig;
+  };
 }
 
 export interface SetCameraConfigRequest {
   method: "set_camera_config";
+  url: string;
+  port: number;
+  login: string;
+  pass: string;
   params: {
     camera: string;
     config: Partial<CameraConfig>;
@@ -41,7 +86,18 @@ export interface SetCameraConfigRequest {
 }
 
 export interface SetCameraConfigResponse {
-  success: boolean;
+  upstream: {
+    status: number;
+    data: {
+      result: Record<string, unknown>;
+    };
+  };
+  accept: {
+    status: number;
+    data: {
+      result: Record<string, unknown>;
+    };
+  };
 }
 
 export const cameraApi = {
@@ -52,27 +108,25 @@ export const cameraApi = {
     password: string,
     camera: string,
   ): Promise<CameraConfig> => {
-    const url = `https://${serverUrl}:${serverPort}/rpc`;
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-      },
-      body: JSON.stringify({
+    const response = await request.post<GetCameraConfigResponse>(
+      "/api/rpc-proxy",
+      {
         method: "get_camera_config",
+        url: serverUrl,
+        port: serverPort,
+        login: username,
+        pass: password,
         params: { camera },
         version: 83,
-      }),
-    });
+      },
+    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to get camera config: ${response.statusText}`);
+    // Проверяем структуру ответа
+    if (!response.result?.config) {
+      throw new Error("Неверная структура ответа API: отсутствует config");
     }
 
-    const data = await response.json();
-    return data.config;
+    return response.result.config;
   },
 
   setConfig: async (
@@ -83,28 +137,29 @@ export const cameraApi = {
     camera: string,
     config: Partial<CameraConfig>,
   ): Promise<SetCameraConfigResponse> => {
-    const url = `https://${username}:${password}@${serverUrl}:${serverPort}/rpc`;
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const response = await request.post<SetCameraConfigResponse>(
+      "/api/rpc-proxy",
+      {
         method: "set_camera_config",
+        url: serverUrl,
+        port: serverPort,
+        login: username,
+        pass: password,
         params: {
           camera,
           config,
         },
-        version: 81,
-      }),
-    });
+        version: 83,
+      },
+    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to set camera config: ${response.statusText}`);
+    // Проверяем успешность операции
+    if (response.upstream?.status !== 200 || response.accept?.status !== 200) {
+      throw new Error(
+        `Ошибка сохранения конфигурации: upstream=${response.upstream?.status}, accept=${response.accept?.status}`,
+      );
     }
 
-    const data = await response.json();
-    return data;
+    return response;
   },
 };

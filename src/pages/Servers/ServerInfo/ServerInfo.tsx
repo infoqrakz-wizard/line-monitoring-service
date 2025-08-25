@@ -19,14 +19,18 @@ import {
   IconCheck,
   IconPlayerPlay,
   IconPencil,
+  IconEdit,
 } from "@tabler/icons-react";
 import { useServerInfo } from "@/hooks/useServerInfo";
 import { downtime } from "@/api";
+import { cameraApi, type CameraConfig } from "@/api/camera";
 import type { DowntimeEvent } from "@/types";
 import { CreateUserModal } from "@/components/CreateUserModal";
 import { useUsersStore } from "@/store/users";
+import { useAuthStore } from "@/store/auth";
 import PageHeader from "@/components/PageHeader";
 import VideoPlayerModal from "@/components/VideoPlayerModal";
+import CameraConfigModal from "@/components/CameraConfigModal";
 
 import classes from "./ServerInfo.module.css";
 import { useServersStore } from "@/store/servers";
@@ -56,6 +60,10 @@ const ServerInfo: React.FC = () => {
     { toggle: toggleNotification, close: closeNotification },
   ] = useDisclosure(false);
 
+  const [isCameraConfigOpen, setIsCameraConfigOpen] = useState(false);
+  const [selectedCameraForConfig, setSelectedCameraForConfig] =
+    useState<string>("");
+
   const {
     cameras,
     users,
@@ -70,6 +78,10 @@ const ServerInfo: React.FC = () => {
   const [deletingUsers, setDeletingUsers] = useState<Set<string>>(new Set());
 
   const { fetchServers, findByUrlPort, forceUpdateWS } = useServersStore();
+
+  const { role } = useAuthStore((s) => ({
+    role: s.role,
+  }));
 
   useEffect(() => {
     void fetchServers();
@@ -296,6 +308,38 @@ const ServerInfo: React.FC = () => {
 
   const handleCloseVideoPlayer = () => {
     setIsVideoPlayerOpen(false);
+  };
+
+  const handleOpenCameraConfig = (cameraId: string) => {
+    setSelectedCameraForConfig(cameraId);
+    setIsCameraConfigOpen(true);
+  };
+
+  const handleCloseCameraConfig = () => {
+    setIsCameraConfigOpen(false);
+    setSelectedCameraForConfig("");
+  };
+
+  const handleSaveCameraConfig = async (config: CameraConfig) => {
+    if (!url || !port || !username || !password || !selectedCameraForConfig) {
+      return;
+    }
+
+    try {
+      await cameraApi.setConfig(
+        url,
+        parseInt(port),
+        username,
+        password,
+        selectedCameraForConfig,
+        config,
+      );
+      await forceUpdateWS();
+      handleCloseCameraConfig();
+    } catch (err) {
+      console.error("Error saving camera config:", err);
+      // Здесь можно добавить уведомление об ошибке если нужно
+    }
   };
 
   const getCameraPreviewUrl = (cameraId: string) => {
@@ -581,6 +625,21 @@ const ServerInfo: React.FC = () => {
                         alt={`Preview camera ${camera.id}`}
                         fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDY0MCA0ODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyMCIgeT0iMjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Q0EzQUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qn9GA0LXQtNC/0YDQvtGB0LzQvtGC0YAg0L3QtdC00L7RgdGC0YPQv9C10L08L3RleHQ+Cjwvc3ZnPgo="
                       />
+                      {role === "admin" && (
+                        <div className={classes.cameraEditButtonContainer}>
+                          <Tooltip label="Редактировать настройки камеры">
+                            <ActionButton
+                              size="sm"
+                              className={classes.cameraEditButton}
+                              onClick={() => handleOpenCameraConfig(camera.id)}
+                              aria-label="Редактировать настройки камеры"
+                            >
+                              <IconEdit size={16} />
+                            </ActionButton>
+                          </Tooltip>
+                        </div>
+                      )}
+
                       {isHaveVideo && (
                         <div className={classes.cameraPreviewOverlay}>
                           <Tooltip label="Открыть видео-плеер">
@@ -746,6 +805,18 @@ const ServerInfo: React.FC = () => {
         camera={selectedCamera}
         login={username}
         password={password}
+        serverName={server?.name || ""}
+      />
+
+      <CameraConfigModal
+        opened={isCameraConfigOpen}
+        onClose={handleCloseCameraConfig}
+        onSave={handleSaveCameraConfig}
+        serverUrl={url || ""}
+        serverPort={parseInt(port || "0")}
+        username={username}
+        password={password}
+        camera={selectedCameraForConfig}
         serverName={server?.name || ""}
       />
     </div>

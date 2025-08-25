@@ -5,20 +5,21 @@ import {
   Button,
   Group,
   Text,
-  Switch,
   TextInput,
   Select,
   Stack,
   Divider,
   LoadingOverlay,
 } from "@mantine/core";
-import { IconX, IconDeviceFloppy } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
 import { cameraApi, type CameraConfig } from "@/api/camera";
 import classes from "./CameraConfigModal.module.css";
+import Checkbox from "../Checkbox";
 
 export type CameraConfigModalProps = {
   opened: boolean;
   onClose: () => void;
+  onSave: (config: CameraConfig) => Promise<void>;
   serverUrl: string;
   serverPort: number;
   username: string;
@@ -45,6 +46,7 @@ const recordModeOptions = [
 const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
   opened,
   onClose,
+  onSave,
   serverUrl,
   serverPort,
   username,
@@ -89,6 +91,13 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
     void loadConfig();
   }, [opened, serverUrl, serverPort, username, password, camera]);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [config]);
+
   const handleSave = async () => {
     if (!config) {
       return;
@@ -98,15 +107,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
     setError(null);
 
     try {
-      await cameraApi.setConfig(
-        serverUrl,
-        serverPort,
-        username,
-        password,
-        camera,
-        config,
-      );
-      onClose();
+      await onSave(config);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ошибка сохранения конфигурации",
@@ -203,7 +204,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   Общие настройки
                 </Title>
 
-                <Switch
+                <Checkbox
                   label="Камера активна"
                   checked={config.enabled}
                   onChange={(event) =>
@@ -233,7 +234,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                 </Title>
 
                 <TextInput
-                  label="URL потока"
+                  label="Main RTSP URL"
                   value={config.video_streams.video.url}
                   onChange={(event) =>
                     updateVideoStream("video", {
@@ -241,11 +242,13 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                     })
                   }
                   disabled={!config.enabled || loading}
-                  readOnly
                   autoComplete="off"
                 />
 
                 <Select
+                  classNames={{
+                    dropdown: classes.selectDropdown,
+                  }}
                   label="Тип записи"
                   value={config.video_streams.video.record_mode}
                   onChange={(value) =>
@@ -256,7 +259,6 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   data={recordModeOptions}
                   disabled={!config.enabled || loading}
                   mt="md"
-                  autoComplete="off"
                 />
               </div>
 
@@ -268,8 +270,8 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   Дополнительный RTSP поток
                 </Title>
 
-                <Switch
-                  label="Поток активен"
+                <Checkbox
+                  label="Video2 активно"
                   checked={config.video_streams.video2.enabled}
                   onChange={(event) =>
                     updateVideoStream("video2", {
@@ -280,7 +282,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                 />
 
                 <TextInput
-                  label="URL потока"
+                  label="Sub RTSP URL"
                   value={config.video_streams.video2.url}
                   onChange={(event) =>
                     updateVideoStream("video2", {
@@ -292,11 +294,14 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                     !config.video_streams.video2.enabled ||
                     loading
                   }
-                  readOnly
                   mt="md"
+                  autoComplete="off"
                 />
 
                 <Select
+                  classNames={{
+                    dropdown: classes.selectDropdown,
+                  }}
                   label="Тип записи"
                   value={config.video_streams.video2.record_mode}
                   onChange={(value) =>
@@ -322,7 +327,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                   Аудио поток
                 </Title>
 
-                <Switch
+                <Checkbox
                   label="Аудио активно"
                   checked={config.audio_streams.audio.enabled}
                   onChange={(event) =>
@@ -342,14 +347,15 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
             </Text>
             <Group>
               <Button
-                variant="outline"
+                variant="default"
                 onClick={handleCancel}
                 disabled={saving}
               >
                 Отмена
               </Button>
               <Button
-                leftSection={<IconDeviceFloppy size={16} />}
+                type="submit"
+                variant="black"
                 onClick={handleSave}
                 loading={saving}
                 disabled={!config || loading}

@@ -21,3 +21,11 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.button.sm {
+  min-width: 30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  margin-right: 0px;
+}
