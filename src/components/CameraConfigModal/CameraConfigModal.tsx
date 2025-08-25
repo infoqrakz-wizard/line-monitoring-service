@@ -92,11 +92,11 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
   }, [opened, serverUrl, serverPort, username, password, camera]);
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = opened ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [config]);
+  }, [opened]);
 
   const handleSave = async () => {
     if (!config) {
