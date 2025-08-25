@@ -23,10 +23,7 @@ export type CreateServerFormData = {
   password: string;
   ipAddress: string;
   port: number | "";
-  maps?: {
-    x: number;
-    y: number;
-  };
+  coordinates?: string;
 };
 
 export type FormErrors = {
@@ -35,8 +32,7 @@ export type FormErrors = {
   password?: string;
   ipAddress?: string;
   port?: string;
-  mapsX?: string;
-  mapsY?: string;
+  coordinates?: string;
 };
 
 const CreateServer: React.FC = () => {
@@ -54,18 +50,14 @@ const CreateServer: React.FC = () => {
     password: "",
     ipAddress: "",
     port: "",
-    maps: {
-      x: 0,
-      y: 0,
-    },
+    coordinates: "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [error, setError] = useState<string | null>(null);
-  // simple loading flag to guard fetch; currently unused in UI
+
   const [isLoadingDetails, setIsLoadingDetails] = useState<boolean>(false);
 
-  // Validation functions
   const validateServerName = (value: string): string | undefined => {
     if (!value.trim()) {
       return "Имя сервера обязательно для заполнения";
@@ -107,57 +99,32 @@ const CreateServer: React.FC = () => {
     return undefined;
   };
 
-  const validateMapsCoordinate = (
-    value: number | "",
-    field: "x" | "y",
-  ): string | undefined => {
-    if (value === 0 || value === "") {
-      return `Координата ${field.toUpperCase()} обязательна для заполнения`;
+  const validateCoordinates = (value: string): string | undefined => {
+    if (!value.trim()) {
+      return "Координаты обязательны для заполнения";
     }
+
+    const coordinates = value.split(",").map((coord) => coord.trim());
+
+    if (coordinates.length !== 2) {
+      return "Координаты должны быть в формате: число, число";
+    }
+
+    const [x, y] = coordinates;
+    const xNum = parseFloat(x);
+    const yNum = parseFloat(y);
+
+    if (isNaN(xNum) || isNaN(yNum)) {
+      return "Координаты должны быть числами";
+    }
+
+    if (xNum === 0 && yNum === 0) {
+      return "Координаты не могут быть равны нулю";
+    }
+
     return undefined;
   };
 
-  // Handle field blur validation
-  const handleFieldBlur = (
-    field: keyof CreateServerFormData,
-    value: string | number,
-  ) => {
-    let fieldError: string | undefined;
-
-    switch (field) {
-      case "serverName":
-        fieldError = validateServerName(value as string);
-        break;
-      case "ipAddress":
-        fieldError = validateIpAddress(value as string);
-        break;
-      case "port":
-        fieldError = validatePort(value as number | "");
-        break;
-      case "login":
-        fieldError = validateLogin(value as string);
-        break;
-      case "password":
-        fieldError = validatePassword(value as string);
-        break;
-    }
-
-    setErrors((prev) => ({
-      ...prev,
-      [field]: fieldError,
-    }));
-  };
-
-  // Handle maps coordinate blur validation
-  const handleMapsBlur = (field: "x" | "y", value: number | "") => {
-    const fieldError = validateMapsCoordinate(value, field);
-    setErrors((prev) => ({
-      ...prev,
-      [`maps${field.toUpperCase()}`]: fieldError,
-    }));
-  };
-
-  // Prefill on edit mode
   useEffect(() => {
     if (!isEditMode) {
       return;
@@ -177,7 +144,9 @@ const CreateServer: React.FC = () => {
         password: "",
         ipAddress: fromStore.url,
         port: fromStore.port,
-        maps: fromStore.maps,
+        coordinates: fromStore.maps
+          ? `${fromStore.maps.x}, ${fromStore.maps.y}`
+          : "",
       });
       return;
     }
@@ -197,7 +166,7 @@ const CreateServer: React.FC = () => {
           password: "",
           ipAddress: server.url,
           port: server.port,
-          maps: server.maps,
+          coordinates: server.maps ? `${server.maps.x}, ${server.maps.y}` : "",
         });
       })
       .catch(() => {
@@ -215,8 +184,6 @@ const CreateServer: React.FC = () => {
       [field]: value,
     }));
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     if (errors[field]) {
       setErrors((prev) => ({
         ...prev,
@@ -228,7 +195,6 @@ const CreateServer: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate all fields before submit
     const newErrors: FormErrors = {};
 
     newErrors.serverName = validateServerName(formData.serverName);
@@ -236,12 +202,10 @@ const CreateServer: React.FC = () => {
     newErrors.port = validatePort(formData.port);
     newErrors.login = validateLogin(formData.login);
     newErrors.password = validatePassword(formData.password);
-    newErrors.mapsX = validateMapsCoordinate(formData.maps?.x || 0, "x");
-    newErrors.mapsY = validateMapsCoordinate(formData.maps?.y || 0, "y");
+    newErrors.coordinates = validateCoordinates(formData.coordinates || "");
 
     setErrors(newErrors);
 
-    // Check if there are any errors
     if (Object.values(newErrors).some((error) => error !== undefined)) {
       return;
     }
@@ -263,6 +227,10 @@ const CreateServer: React.FC = () => {
 
   const handleCreateServer = async () => {
     try {
+      const coordinates = (formData.coordinates || "")
+        .split(",")
+        .map((coord) => parseFloat(coord.trim()));
+
       await createServer({
         name: formData.serverName,
         url: formData.ipAddress,
@@ -270,7 +238,10 @@ const CreateServer: React.FC = () => {
         username: formData.login,
         password: formData.password,
         enabled: true,
-        maps: formData.maps,
+        maps: {
+          x: coordinates[0],
+          y: coordinates[1],
+        },
       });
       void navigate("/servers");
     } catch (error) {
@@ -290,33 +261,6 @@ const CreateServer: React.FC = () => {
         return;
       }
       setError("Не удалось создать сервер");
-    }
-  };
-
-  const handleMapsChange = (field: "x" | "y", value: string | number) => {
-    setFormData((prev) => {
-      const updatedMaps = prev.maps
-        ? { ...prev.maps }
-        : {
-            x: 0,
-            y: 0,
-          };
-      return {
-        ...prev,
-        maps: {
-          ...updatedMaps,
-          [field]: value,
-        },
-      };
-    });
-
-    // Clear error when user starts typing
-    const errorKey = `maps${field.toUpperCase()}` as keyof FormErrors;
-    if (errors[errorKey]) {
-      setErrors((prev) => ({
-        ...prev,
-        [errorKey]: undefined,
-      }));
     }
   };
 
@@ -342,11 +286,19 @@ const CreateServer: React.FC = () => {
         patch.password = formData.password;
       }
 
+      const coordinates = (formData.coordinates || "")
+        .split(",")
+        .map((coord) => parseFloat(coord.trim()));
+      const newMaps = {
+        x: coordinates[0],
+        y: coordinates[1],
+      };
+
       if (
-        formData.maps?.x !== originalServer.maps?.x ||
-        formData.maps?.y !== originalServer.maps?.y
+        newMaps.x !== originalServer.maps?.x ||
+        newMaps.y !== originalServer.maps?.y
       ) {
-        patch.maps = formData.maps;
+        patch.maps = newMaps;
       }
 
       if (Object.keys(patch).length === 0) {
@@ -383,10 +335,8 @@ const CreateServer: React.FC = () => {
           formData.login.trim() &&
           formData.ipAddress.trim() &&
           formData.port !== "" &&
-          formData.maps?.x &&
-          formData.maps?.y &&
-          formData.maps?.x !== 0 &&
-          formData.maps?.y !== 0,
+          formData.coordinates?.trim() &&
+          validateCoordinates(formData.coordinates) === undefined,
       )
     : Boolean(
         formData.serverName.trim() &&
@@ -395,10 +345,8 @@ const CreateServer: React.FC = () => {
           formData.password.trim() &&
           formData.ipAddress.trim() &&
           formData.port !== "" &&
-          formData.maps?.x &&
-          formData.maps?.y &&
-          formData.maps?.x !== 0 &&
-          formData.maps?.y !== 0,
+          formData.coordinates?.trim() &&
+          validateCoordinates(formData.coordinates) === undefined,
       );
 
   return (
@@ -438,7 +386,6 @@ const CreateServer: React.FC = () => {
                 onChange={(e) =>
                   handleInputChange("serverName", e.target.value)
                 }
-                onBlur={(e) => handleFieldBlur("serverName", e.target.value)}
               />
               <div className={classes.errorMessage}>
                 {errors.serverName || ""}
@@ -454,7 +401,6 @@ const CreateServer: React.FC = () => {
               <TextInput
                 value={formData.ipAddress}
                 onChange={(e) => handleInputChange("ipAddress", e.target.value)}
-                onBlur={(e) => handleFieldBlur("ipAddress", e.target.value)}
                 required
                 size="md"
                 autoComplete="off"
@@ -476,7 +422,6 @@ const CreateServer: React.FC = () => {
               <NumberInput
                 value={formData.port}
                 onChange={(value) => handleInputChange("port", value || "")}
-                onBlur={() => handleFieldBlur("port", formData.port)}
                 required
                 hideControls
                 size="md"
@@ -499,7 +444,6 @@ const CreateServer: React.FC = () => {
               <TextInput
                 value={formData.login}
                 onChange={(e) => handleInputChange("login", e.target.value)}
-                onBlur={(e) => handleFieldBlur("login", e.target.value)}
                 required
                 size="md"
                 autoComplete="off"
@@ -522,7 +466,6 @@ const CreateServer: React.FC = () => {
                 }
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
-                onBlur={(e) => handleFieldBlur("password", e.target.value)}
                 required={!isEditMode}
                 size="md"
                 autoComplete="off"
@@ -537,46 +480,26 @@ const CreateServer: React.FC = () => {
           </div>
 
           <div className={classes.formField}>
-            <label htmlFor="mapsX" className={classes.formFieldLabel}>
-              Координаты (x)
+            <label htmlFor="coordinates" className={classes.formFieldLabel}>
+              Координаты (x, y)
             </label>
             <div className={classes.formFieldInput}>
-              <NumberInput
-                value={formData.maps?.x}
-                onChange={(value) => handleMapsChange("x", value || "")}
-                onBlur={() => handleMapsBlur("x", formData.maps?.x || 0)}
+              <TextInput
+                placeholder="Например: 45.036091, 38.974966"
+                value={formData.coordinates}
+                onChange={(e) =>
+                  handleInputChange("coordinates", e.target.value)
+                }
                 required
-                hideControls
                 size="md"
-                min={1}
                 autoComplete="off"
                 classNames={{
-                  input: errors.mapsX ? classes.inputError : "",
+                  input: errors.coordinates ? classes.inputError : "",
                 }}
               />
-              <div className={classes.errorMessage}>{errors.mapsX || ""}</div>
-            </div>
-          </div>
-
-          <div className={classes.formField}>
-            <label htmlFor="mapsY" className={classes.formFieldLabel}>
-              Координаты (y)
-            </label>
-            <div className={classes.formFieldInput} id="mapsY">
-              <NumberInput
-                value={formData.maps?.y}
-                onChange={(value) => handleMapsChange("y", value || "")}
-                onBlur={() => handleMapsBlur("y", formData.maps?.y || 0)}
-                required
-                hideControls
-                size="md"
-                min={1}
-                autoComplete="off"
-                classNames={{
-                  input: errors.mapsY ? classes.inputError : "",
-                }}
-              />
-              <div className={classes.errorMessage}>{errors.mapsY || ""}</div>
+              <div className={classes.errorMessage}>
+                {errors.coordinates || ""}
+              </div>
             </div>
           </div>
 
