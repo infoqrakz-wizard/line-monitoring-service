@@ -109,16 +109,20 @@
   grid-column: 3;
 }
 
-.fNode {
+.fServerName {
   grid-column: 4;
 }
 
-.fDuration {
+.fNode {
   grid-column: 5;
 }
 
-.fActions {
+.fDuration {
   grid-column: 6;
+}
+
+.fActions {
+  grid-column: 7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,11 +151,13 @@
 /* Tablet styles */
 @media (max-width: 1024px) {
   .header {
+    grid-template-columns: repeat(7, minmax(100px, 1fr));
     padding: 14px 16px;
     gap: 12px;
   }
   
   .card {
+    grid-template-columns: repeat(7, minmax(100px, 1fr));
     padding: 14px 16px;
     gap: 12px;
   }
@@ -170,12 +176,14 @@
   }
   
   .header {
+    grid-template-columns: repeat(7, minmax(80px, 1fr));
     padding: 12px 16px;
     gap: 8px;
     font-size: 12px;
   }
   
   .card {
+    grid-template-columns: repeat(7, minmax(80px, 1fr));
     padding: 12px 16px;
     gap: 8px;
   }

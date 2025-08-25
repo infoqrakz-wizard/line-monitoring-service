@@ -5,6 +5,7 @@ export type ProblemRow = {
   id: number;
   time: string;
   server: string;
+  serverName: string;
   node: string;
   duration: string;
   endTime?: string; // for postponed
@@ -68,6 +69,9 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                 Сервер
               </div>
               <div className={classes.headerCell} role="columnheader">
+                Имя сервера
+              </div>
+              <div className={classes.headerCell} role="columnheader">
                 Узел
               </div>
               <div className={classes.headerCell} role="columnheader">
@@ -86,6 +90,9 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
               </div>
               <div className={classes.headerCell} role="columnheader">
                 Сервер
+              </div>
+              <div className={classes.headerCell} role="columnheader">
+                Имя сервера
               </div>
               <div className={classes.headerCell} role="columnheader">
                 Узел
@@ -130,6 +137,12 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                     <span className={classes.value}>{r.server}</span>
                   </div>
                   <div
+                    className={`${classes.field} ${classes.fServerName}`}
+                    role="cell"
+                  >
+                    <span className={classes.value}>{r.serverName}</span>
+                  </div>
+                  <div
                     className={`${classes.field} ${classes.fNode}`}
                     role="cell"
                   >
@@ -166,6 +179,12 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                     role="cell"
                   >
                     <span className={classes.value}>{r.server}</span>
+                  </div>
+                  <div
+                    className={`${classes.field} ${classes.fServerName}`}
+                    role="cell"
+                  >
+                    <span className={classes.value}>{r.serverName}</span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fNode}`}

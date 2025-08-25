@@ -171,8 +171,13 @@ const Monitoring: React.FC = () => {
       }
 
       const cameraNumber = event.type ? parseInt(event.type, 10) : null;
-
       const isCamera = Number.isInteger(cameraNumber);
+
+      // Get server name from servers store
+      const serverInfo = useServersStore
+        .getState()
+        .findByUrlPort(event.url, event.port);
+      const serverName = serverInfo?.name || "Неизвестный сервер";
 
       return {
         id: event.id,
@@ -185,6 +190,7 @@ const Monitoring: React.FC = () => {
           second: "2-digit",
         }),
         server: event.url,
+        serverName,
         node: isCamera ? `Камера ${cameraNumber}` : "Сервер",
         duration,
         endTime: upDate
@@ -194,7 +200,7 @@ const Monitoring: React.FC = () => {
               second: "2-digit",
             })
           : undefined,
-        url: event.url,
+        url: `${event.url}:${event.port}`,
         port: event.port,
       };
     });
@@ -204,7 +210,7 @@ const Monitoring: React.FC = () => {
 
   // Filter rows based on search query
   const filteredRows = tableRows.filter((row) =>
-    [row.time, row.server, row.node, row.duration, row.endTime]
+    [row.time, row.server, row.serverName, row.node, row.duration, row.endTime]
       .filter(Boolean)
       .join(" ")
       .toLowerCase()
@@ -221,7 +227,7 @@ const Monitoring: React.FC = () => {
 
   const getDeleteMessage = () => {
     if (deleteTarget?.type === "single") {
-      return `Удалить проблему с сервером ${deleteTarget.data?.server}?`;
+      return `Удалить проблему с сервером ${deleteTarget.data?.serverName || deleteTarget.data?.server}?`;
     }
 
     // Show specific message based on current filter
