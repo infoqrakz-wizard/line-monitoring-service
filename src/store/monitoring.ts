@@ -344,13 +344,31 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         loading: true,
         error: null,
       });
-      const events = await downtime.query({ filter });
+
+      let events: DowntimeEvent[] = [];
+
+      if (filter === "servers_down") {
+        // Загружаем события с серверов и камер для актуальных проблем
+        const [serverEvents, cameraEvents] = await Promise.all([
+          downtime.query({ filter: "servers_down" }),
+          downtime.query({ filter: "cameras_down" }),
+        ]);
+        events = [...serverEvents.data, ...cameraEvents.data];
+      } else if (filter === "completed") {
+        // Загружаем завершенные события с серверов и камер
+        events = (await downtime.query({ filter: "completed" })).data;
+      } else {
+        // Для других фильтров загружаем как обычно
+        const response = await downtime.query({ filter });
+        events = response.data;
+      }
+
       set({
-        downtimeEvents: events.data,
-        page: events.meta.page,
-        pageSize: events.meta.pageSize,
-        pages: events.meta.pages,
-        total: events.meta.total,
+        downtimeEvents: events,
+        page: 1,
+        pageSize: 50,
+        pages: 1,
+        total: events.length,
         loading: false,
       });
     } catch (error) {
@@ -369,12 +387,17 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         error: null,
       });
 
-      const [currentEvents, completedEvents] = await Promise.all([
+      const [currentEvents, completedEvents, cameraEvents] = await Promise.all([
         downtime.query({ filter: "servers_down" }),
         downtime.query({ filter: "completed" }),
+        downtime.query({ filter: "cameras_down" }),
       ]);
 
-      const allEvents = [...currentEvents.data, ...completedEvents.data];
+      const allEvents = [
+        ...currentEvents.data,
+        ...completedEvents.data,
+        ...cameraEvents.data,
+      ];
 
       set({
         allDowntimeEvents: allEvents,
@@ -392,12 +415,17 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   // Refresh all events after deletions
   refreshAllDowntimeEvents: async () => {
     try {
-      const [currentEvents, completedEvents] = await Promise.all([
+      const [currentEvents, completedEvents, cameraEvents] = await Promise.all([
         downtime.query({ filter: "servers_down" }),
         downtime.query({ filter: "completed" }),
+        downtime.query({ filter: "cameras_down" }),
       ]);
 
-      const allEvents = [...currentEvents.data, ...completedEvents.data];
+      const allEvents = [
+        ...currentEvents.data,
+        ...completedEvents.data,
+        ...cameraEvents.data,
+      ];
       set({ allDowntimeEvents: allEvents });
     } catch (error) {
       console.error("Failed to refresh all downtime events:", error);
