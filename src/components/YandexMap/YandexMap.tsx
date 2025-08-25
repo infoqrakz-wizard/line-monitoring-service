@@ -24,7 +24,24 @@ const YandexMap: React.FC<YandexMapProps> = ({
 
   const createPlacemark = useCallback(
     (server: ServerItem, status: ServerStatus) => {
-      const color = status === "green" ? "#52c41a" : "#ff4d4f";
+      let color: string;
+      let statusText: string;
+
+      switch (status) {
+        case "green":
+          color = "#52c41a";
+          statusText = "Доступен";
+          break;
+        case "yellow":
+          color = "#f39c12";
+          statusText = "Проблемы";
+          break;
+        case "red":
+        default:
+          color = "#ff4d4f";
+          statusText = "Недоступен";
+          break;
+      }
 
       // В Яндекс картах координаты должны быть в формате [широта, долгота]
       // maps.y - широта, maps.x - долгота
@@ -38,7 +55,7 @@ const YandexMap: React.FC<YandexMapProps> = ({
             <h4 style="margin: 0 0 8px 0; color: #333;">${server.name}</h4>
             <p style="margin: 0; color: #666;">${server.url}:${server.port}</p>
             <p style="margin: 4px 0 0 0; color: ${color}; font-weight: bold;">
-              ${status === "green" ? "Доступен" : "Недоступен"}
+              ${statusText}
             </p>
           </div>
         `,
@@ -120,12 +137,19 @@ const YandexMap: React.FC<YandexMapProps> = ({
             const hasGreen = placemarks.some(
               (pm: any) => pm.options.get("iconColor") === "#52c41a",
             );
+            const hasYellow = placemarks.some(
+              (pm: any) => pm.options.get("iconColor") === "#f39c12",
+            );
             const hasRed = placemarks.some(
               (pm: any) => pm.options.get("iconColor") === "#ff4d4f",
             );
 
+            // Приоритет цветов: зеленый > желтый > красный > серый
             if (hasGreen) {
               return "#52c41a";
+            }
+            if (hasYellow) {
+              return "#f39c12";
             }
             if (hasRed) {
               return "#ff4d4f";
@@ -248,7 +272,25 @@ const YandexMap: React.FC<YandexMapProps> = ({
         !isNaN(server.maps.y)
       ) {
         const status = serverStatuses[`${server.url}:${server.port}`] || "red";
-        const color = status === "green" ? "#52c41a" : "#ff4d4f";
+
+        let color: string;
+        let statusText: string;
+
+        switch (status) {
+          case "green":
+            color = "#52c41a";
+            statusText = "Доступен";
+            break;
+          case "yellow":
+            color = "#f39c12";
+            statusText = "Проблемы";
+            break;
+          case "red":
+          default:
+            color = "#ff4d4f";
+            statusText = "Недоступен";
+            break;
+        }
 
         placemark.options.set("iconColor", color);
 
@@ -259,7 +301,7 @@ const YandexMap: React.FC<YandexMapProps> = ({
             <h4 style="margin: 0 0 8px 0; color: #333;">${server.name}</h4>
             <p style="margin: 0; color: #666;">${server.url}:${server.port}</p>
             <p style="margin: 4px 0 0 0; color: ${color}; font-weight: bold;">
-              ${status === "green" ? "Доступен" : "Недоступен"}
+              ${statusText}
             </p>
           </div>
         `,
