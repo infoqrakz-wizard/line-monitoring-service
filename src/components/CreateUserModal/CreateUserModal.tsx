@@ -3,7 +3,6 @@ import {
   Button,
   TextInput,
   PasswordInput,
-  Textarea,
   TagsInput,
 } from "@mantine/core";
 import { Modal } from "@/components/Modal";
@@ -191,13 +190,12 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
             Описание
           </label>
           <div className={classes.formFieldInput}>
-            <Textarea
+            <TextInput
               id="description"
               placeholder="Введите описание пользователя (необязательно)"
               value={description}
               onChange={(e) => setDescription(e.currentTarget.value)}
               size="md"
-              rows={3}
               aria-label="Описание пользователя"
               autoComplete="off"
             />
