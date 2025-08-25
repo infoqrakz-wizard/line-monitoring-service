@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Outlet, NavLink, useNavigate } from "react-router";
+import { Outlet, NavLink, useNavigate, useLocation } from "react-router";
 import { Flex } from "@mantine/core";
 import classes from "./AppLayout.module.css";
 import { useAuthStore } from "@/store/auth";
@@ -16,6 +16,7 @@ import burgerIconUrl from "../../assets/icons/burger.svg";
 const AppLayout: React.FC = () => {
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -327,7 +328,9 @@ const AppLayout: React.FC = () => {
         </Flex>
       </header>
 
-      <main className={classes.content}>
+      <main
+        className={`${location.pathname === "/map" ? "" : classes.content}`}
+      >
         <Outlet />
       </main>
     </div>

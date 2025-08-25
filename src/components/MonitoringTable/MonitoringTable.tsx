@@ -134,7 +134,9 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                     className={`${classes.field} ${classes.fServer}`}
                     role="cell"
                   >
-                    <span className={classes.value}>{r.server}</span>
+                    <span className={classes.value}>
+                      {r.server}:{r.port}
+                    </span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fServerName}`}
@@ -178,7 +180,9 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                     className={`${classes.field} ${classes.fServer}`}
                     role="cell"
                   >
-                    <span className={classes.value}>{r.server}</span>
+                    <span className={classes.value}>
+                      {r.server}:{r.port}
+                    </span>
                   </div>
                   <div
                     className={`${classes.field} ${classes.fServerName}`}

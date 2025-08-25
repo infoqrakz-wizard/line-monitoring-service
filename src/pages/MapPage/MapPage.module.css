@@ -1,9 +1,3 @@
-/* Desktop styles (default) */
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
 .mapWrapper {
   position: relative;
   border-radius: 12px;

@@ -1,8 +1,7 @@
 /* Desktop styles (default) */
 .mapContainer {
   width: 100%;
-  height: 600px;
-  border-radius: 12px;
+  height: 100vh;
   overflow: hidden;
   position: relative;
 }

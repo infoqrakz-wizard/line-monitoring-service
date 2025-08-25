@@ -99,11 +99,9 @@ const MapPage: React.FC = () => {
   }
 
   return (
-    <div className={classes.container}>
-      <PageHeader title="Карта" />
-
-      <div className={classes.mapWrapper}>
-        {isLoading ? (
+    <div>
+      {isLoading ? (
+        <div className={classes.mapWrapper}>
           <div
             style={{
               padding: "40px",
@@ -116,26 +114,26 @@ const MapPage: React.FC = () => {
             <LoadingOverlay visible={true} />
             Загрузка карты...
           </div>
-        ) : serversWithCoordinates.length > 0 ? (
-          <YandexMap
-            servers={serversWithCoordinates}
-            serverStatuses={serverStatuses}
-            onServerClick={handleServerClick}
-          />
-        ) : (
-          <div
-            style={{
-              padding: "40px",
-              textAlign: "center",
-              color: "#666",
-              backgroundColor: "#f8f9fa",
-              borderRadius: "8px",
-            }}
-          >
-            Нет серверов с координатами для отображения на карте
-          </div>
-        )}
-      </div>
+        </div>
+      ) : serversWithCoordinates.length > 0 ? (
+        <YandexMap
+          servers={serversWithCoordinates}
+          serverStatuses={serverStatuses}
+          onServerClick={handleServerClick}
+        />
+      ) : (
+        <div
+          style={{
+            padding: "40px",
+            textAlign: "center",
+            color: "#666",
+            backgroundColor: "#f8f9fa",
+            borderRadius: "8px",
+          }}
+        >
+          Нет серверов с координатами для отображения на карте
+        </div>
+      )}
     </div>
   );
 };
