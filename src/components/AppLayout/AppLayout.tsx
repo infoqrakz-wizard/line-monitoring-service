@@ -7,7 +7,7 @@ import monitoringIconUrl from "../../assets/icons/monitoring.svg";
 import serversIconUrl from "../../assets/icons/servers.svg";
 import usersIconUrl from "../../assets/icons/users.svg";
 import mapIconUrl from "../../assets/icons/map.svg";
-import groupsIconUrl from "../../assets/icons/groups.svg";
+// import groupsIconUrl from "../../assets/icons/groups.svg";
 import notificationsIconUrl from "../../assets/icons/notifications.svg";
 import settingsIconUrl from "../../assets/icons/settings.svg";
 import logoutIconUrl from "../../assets/icons/logout.svg";
