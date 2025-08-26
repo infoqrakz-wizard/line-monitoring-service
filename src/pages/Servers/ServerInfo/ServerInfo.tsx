@@ -962,7 +962,7 @@ const ServerInfo: React.FC = () => {
             className={`${classes.sectionHeader} ${classes.sectionHeaderUsers}`}
           >
             <div className={classes.sectionHeaderTitle}>Пользователи</div>
-            {!!hasUsers && serverResponded && (
+            {!!hasUsers && serverResponded && role === "admin" && (
               <Button
                 variant="black"
                 leftSection={<IconPlus size={20} />}
