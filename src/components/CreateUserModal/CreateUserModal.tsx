@@ -224,48 +224,53 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           </div>
         )}
 
-        {availableServers && !currentServer && (
-          <div className={classes.formField}>
-            <div className={classes.checkboxesContainer}>
-              <Checkbox
-                id="createOnUnavailableServers"
-                label="Создать на недоступных серверах"
-                checked={createOnUnavailableServers}
-                onChange={(event) =>
-                  setCreateOnUnavailableServers(event.currentTarget.checked)
-                }
-                disabled={submitting || !!loading}
-              />
-              <Checkbox
-                id="createOnNewServers"
-                label="Создание на новых серверах"
-                checked={createOnNewServers}
-                onChange={(event) =>
-                  setCreateOnNewServers(event.currentTarget.checked)
-                }
-                disabled={submitting || !!loading}
-              />
-            </div>
-          </div>
-        )}
-
         <div className={classes.formField}>
-          <div className={classes.checkboxesContainer}>
-            <div className={classes.formFieldLabel}>Права</div>
-            <Checkbox
-              id="admin"
-              label="Администратор"
-              checked={admin}
-              onChange={(event) => setAdmin(event.currentTarget.checked)}
-              disabled={submitting || !!loading}
-            />
-            <Checkbox
-              id="archive"
-              label="Доступ к архиву"
-              checked={archive}
-              onChange={(event) => setArchive(event.currentTarget.checked)}
-              disabled={submitting || !!loading}
-            />
+          <div className={classes.checkboxesGrid}>
+            <div className={classes.checkboxColumn}>
+              <div className={classes.columnTitle}>Права</div>
+              <div className={classes.columnCheckboxes}>
+                <Checkbox
+                  id="admin"
+                  label="Администратор"
+                  checked={admin}
+                  onChange={(event) => setAdmin(event.currentTarget.checked)}
+                  disabled={submitting || !!loading}
+                />
+                <Checkbox
+                  id="archive"
+                  label="Доступ к архиву"
+                  checked={archive}
+                  onChange={(event) => setArchive(event.currentTarget.checked)}
+                  disabled={submitting || !!loading}
+                />
+              </div>
+            </div>
+            
+            {availableServers && !currentServer && (
+              <div className={classes.checkboxColumn}>
+                <div className={classes.columnTitle}>Отложенные действия</div>
+                <div className={classes.columnCheckboxes}>
+                  <Checkbox
+                    id="createOnUnavailableServers"
+                    label="Создать на недоступных серверах"
+                    checked={createOnUnavailableServers}
+                    onChange={(event) =>
+                      setCreateOnUnavailableServers(event.currentTarget.checked)
+                    }
+                    disabled={submitting || !!loading}
+                  />
+                  <Checkbox
+                    id="createOnNewServers"
+                    label="Создание на новых серверах"
+                    checked={createOnNewServers}
+                    onChange={(event) =>
+                      setCreateOnNewServers(event.currentTarget.checked)
+                    }
+                    disabled={submitting || !!loading}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
