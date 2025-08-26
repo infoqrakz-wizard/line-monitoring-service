@@ -38,6 +38,7 @@ export const useServerInfo = (url: string | null, port: string | null) => {
   const [main, setMain] = useState<ServerMonitoringData | null>(null);
   const [loading, setLoading] = useState(true);
   const [serverResponded, setServerResponded] = useState(false);
+  const [updateTrigger, setUpdateTrigger] = useState(0);
 
   const {
     subscribeToSpecificServer,
@@ -53,13 +54,18 @@ export const useServerInfo = (url: string | null, port: string | null) => {
     [subscribeToSpecificServer],
   );
 
+  // Функция для принудительного обновления данных
+  const forceUpdate = useCallback(() => {
+    setUpdateTrigger(prev => prev + 1);
+  }, []);
+
   useEffect(() => {
     if (url && port) {
       setServerResponded(false);
       setLoading(true);
       subscribeToSpecificServer(url, parseInt(port));
     }
-  }, [url, port]);
+  }, [url, port, updateTrigger]);
 
   useEffect(() => {
     if (loadingMonitoring) {
@@ -158,6 +164,7 @@ export const useServerInfo = (url: string | null, port: string | null) => {
     getServerByUrlPort,
     loadingMonitoring,
     serverResponded,
+    updateTrigger,
   ]);
 
   return {
@@ -168,5 +175,6 @@ export const useServerInfo = (url: string | null, port: string | null) => {
     loading,
     serverResponded,
     resubscribe,
+    forceUpdate,
   };
 };

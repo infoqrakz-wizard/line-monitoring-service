@@ -26,6 +26,7 @@ export type CameraConfigModalProps = {
   password: string;
   camera: string;
   serverName: string;
+  updatingServerData?: boolean;
 };
 
 const recordModeOptions = [
@@ -53,6 +54,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
   password,
   camera,
   serverName,
+  updatingServerData = false,
 }) => {
   const [config, setConfig] = useState<CameraConfig | null>(null);
   const [loading, setLoading] = useState(false);
@@ -352,7 +354,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
               <Button
                 variant="default"
                 onClick={handleCancel}
-                disabled={saving}
+                disabled={saving || updatingServerData}
               >
                 Отмена
               </Button>
@@ -361,7 +363,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                 variant="black"
                 onClick={handleSave}
                 loading={saving}
-                disabled={!config || loading}
+                disabled={!config || loading || updatingServerData}
               >
                 Сохранить
               </Button>

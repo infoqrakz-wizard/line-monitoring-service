@@ -152,8 +152,7 @@ const CreateServer: React.FC = () => {
     }
     setIsLoadingDetails(true);
     apiGetServer(urlParam, portNum)
-      .then((data) => {
-        const server = data.servers[0];
+      .then((server) => {
         if (!server) {
           setError("Сервер не найден");
           return;

@@ -69,6 +69,7 @@ const ServerInfo: React.FC = () => {
 
   const [serverLoading, setServerLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [updatingServerData, setUpdatingServerData] = useState(false);
 
   const {
     cameras,
@@ -79,6 +80,7 @@ const ServerInfo: React.FC = () => {
     loading: loadingServerInfo,
     serverResponded,
     resubscribe,
+    forceUpdate,
   } = useServerInfo(url, port);
 
   const [createLoading, setCreateLoading] = useState(false);
@@ -123,7 +125,9 @@ const ServerInfo: React.FC = () => {
         })
         .catch((error) => {
           setServerLoading(false);
-          setServerError(error instanceof Error ? error.message : "Failed to load server");
+          setServerError(
+            error instanceof Error ? error.message : "Failed to load server",
+          );
         });
     }
   }, [url, port, fetchServer]);
@@ -371,6 +375,7 @@ const ServerInfo: React.FC = () => {
     }
 
     try {
+      setUpdatingServerData(true);
       await cameraApi.setConfig(
         url,
         parseInt(port),
@@ -380,10 +385,15 @@ const ServerInfo: React.FC = () => {
         config,
       );
       await forceUpdateWS();
+      // Даем серверу время на обработку изменений, затем обновляем данные
+      setTimeout(() => {
+        forceUpdate();
+        setUpdatingServerData(false);
+      }, 1000);
       handleCloseCameraConfig();
     } catch (err) {
       console.error("Error saving camera config:", err);
-      // Здесь можно добавить уведомление об ошибке если нужно
+      setUpdatingServerData(false);
     }
   };
 
@@ -393,6 +403,7 @@ const ServerInfo: React.FC = () => {
     }
 
     try {
+      setUpdatingServerData(true);
       await cameraApi.setConfig(
         url,
         parseInt(port),
@@ -402,9 +413,14 @@ const ServerInfo: React.FC = () => {
         { enabled: true },
       );
       await forceUpdateWS();
+      // Даем серверу время на обработку изменений, затем обновляем данные
+      setTimeout(() => {
+        forceUpdate();
+        setUpdatingServerData(false);
+      }, 1000);
     } catch (err) {
       console.error("Error enabling camera:", err);
-      // Здесь можно добавить уведомление об ошибке если нужно
+      setUpdatingServerData(false);
     }
   };
 
@@ -427,7 +443,12 @@ const ServerInfo: React.FC = () => {
       <div className={classes.container}>
         <PageHeader withBackButton title="Загрузка сервера..." />
         <div className={classes.content}>
-          <div style={{ textAlign: "center", padding: "2rem" }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "2rem",
+            }}
+          >
             <Loader size="lg" />
             <Text mt="md">Загрузка информации о сервере...</Text>
           </div>
@@ -441,12 +462,22 @@ const ServerInfo: React.FC = () => {
       <div className={classes.container}>
         <PageHeader withBackButton title="Ошибка загрузки" />
         <div className={classes.content}>
-          <div style={{ textAlign: "center", padding: "2rem" }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "2rem",
+            }}
+          >
             <Text c="red" size="lg" mb="md">
               Ошибка загрузки сервера
             </Text>
-            <Text c="dimmed" mb="md">{serverError}</Text>
-            <Button onClick={() => window.location.reload()}>
+            <Text c="dimmed" mb="md">
+              {serverError}
+            </Text>
+            <Button
+              onClick={() => window.location.reload()}
+              disabled={updatingServerData}
+            >
               Попробовать снова
             </Button>
           </div>
@@ -460,14 +491,22 @@ const ServerInfo: React.FC = () => {
       <div className={classes.container}>
         <PageHeader withBackButton title="Сервер не найден" />
         <div className={classes.content}>
-          <div style={{ textAlign: "center", padding: "2rem" }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "2rem",
+            }}
+          >
             <Text c="red" size="lg" mb="md">
               Сервер не найден
             </Text>
             <Text c="dimmed" mb="md">
               Сервер с указанными параметрами не найден в системе
             </Text>
-            <Button onClick={() => navigate("/servers")}>
+            <Button
+              onClick={() => navigate("/servers")}
+              disabled={updatingServerData}
+            >
               Вернуться к списку серверов
             </Button>
           </div>
@@ -488,6 +527,9 @@ const ServerInfo: React.FC = () => {
               className={`${classes.serverStatusBadge} ${classes[serverStatus]}`}
             />
             <PageTitle>{server?.name || ""}</PageTitle>
+            {updatingServerData && (
+              <Loader size="sm" className={classes.updatingIndicator} />
+            )}
           </div>
         }
         rightSide={
@@ -524,6 +566,7 @@ const ServerInfo: React.FC = () => {
                       `/servers/edit?url=${encodeURIComponent(url || "")}&port=${encodeURIComponent(port || "")}`,
                     )
                   }
+                  disabled={updatingServerData}
                 >
                   <IconPencil size={16} />
                 </ActionButton>
@@ -545,6 +588,7 @@ const ServerInfo: React.FC = () => {
                 onClick={handleClearAllEvents}
                 aria-label="Очистить все записи"
                 color="#676767"
+                disabled={updatingServerData}
               >
                 <IconTrash size={20} />
               </ActionIcon>
@@ -565,6 +609,7 @@ const ServerInfo: React.FC = () => {
                       variant="subtle"
                       onClick={() => handleClearActiveEvents()}
                       aria-label="Удалить все активные проблемы"
+                      disabled={updatingServerData}
                     >
                       <IconTrash size={16} />
                     </ActionIcon>
@@ -596,6 +641,7 @@ const ServerInfo: React.FC = () => {
                       variant="subtle"
                       onClick={() => handleClearCompletedEvents()}
                       aria-label="Удалить все завершенные проблемы"
+                      disabled={updatingServerData}
                     >
                       <IconTrash size={16} />
                     </ActionIcon>
@@ -738,6 +784,8 @@ const ServerInfo: React.FC = () => {
                   };
 
                   const isHaveVideo = mainBitrate !== "-";
+                  const shouldShowFallback =
+                    cameraStatus === "offline" || cameraStatus === "error";
 
                   return (
                     <div key={camera.id} className={classes.cameraCard}>
@@ -795,11 +843,15 @@ const ServerInfo: React.FC = () => {
                       <div className={classes.cameraPreview}>
                         <div className={classes.cameraPreviewContainer}>
                           <Image
-                            src={getCameraPreviewUrl(camera.id)}
+                            src={
+                              shouldShowFallback
+                                ? ""
+                                : getCameraPreviewUrl(camera.id)
+                            }
                             alt={`Preview camera ${camera.id}`}
                             fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDY0MCA0ODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyMCIgeT0iMjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Q0EzQUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qn9GA0LXQtNC/0YDQvtGB0LzQvtGC0YAg0L3QtdC00L7RgdGC0YPQv9C10L08L3RleHQ+Cjwvc3ZnPgo="
                           />
-                          {role === "admin" && cameraStatus !== "error" && (
+                          {role === "admin" && (
                             <div className={classes.cameraEditButtonContainer}>
                               <Tooltip label="Редактировать настройки камеры">
                                 <ActionButton
@@ -809,6 +861,7 @@ const ServerInfo: React.FC = () => {
                                     handleOpenCameraConfig(camera.id)
                                   }
                                   aria-label="Редактировать настройки камеры"
+                                  disabled={updatingServerData}
                                 >
                                   <IconEdit size={16} />
                                 </ActionButton>
@@ -828,6 +881,7 @@ const ServerInfo: React.FC = () => {
                                   }
                                   className={classes.playButton}
                                   aria-label="Открыть видео-плеер"
+                                  disabled={updatingServerData}
                                 >
                                   <IconPlayerPlay size={16} />
                                 </Button>
@@ -835,18 +889,39 @@ const ServerInfo: React.FC = () => {
                             </div>
                           )}
 
-                          {!isHaveVideo && cameraStatus === "offline" && (
+                          {shouldShowFallback && (
                             <div className={classes.cameraPreviewOverlay}>
-                              <Tooltip label="Включить камеру">
+                              <Tooltip
+                                label={
+                                  cameraStatus === "offline"
+                                    ? "Включить камеру"
+                                    : "Камера недоступна"
+                                }
+                              >
                                 <Button
                                   variant="white"
                                   size="sm"
                                   radius="xl"
-                                  onClick={() => handleEnableCamera(camera.id)}
+                                  onClick={() =>
+                                    cameraStatus === "offline"
+                                      ? handleEnableCamera(camera.id)
+                                      : undefined
+                                  }
                                   className={classes.playButton}
-                                  aria-label="Включить камеру"
+                                  aria-label={
+                                    cameraStatus === "offline"
+                                      ? "Включить камеру"
+                                      : "Камера недоступна"
+                                  }
+                                  loading={updatingServerData}
+                                  disabled={
+                                    updatingServerData ||
+                                    cameraStatus === "error"
+                                  }
                                 >
-                                  Включить
+                                  {cameraStatus === "offline"
+                                    ? "Включить"
+                                    : "Недоступна"}
                                 </Button>
                               </Tooltip>
                             </div>
@@ -892,6 +967,7 @@ const ServerInfo: React.FC = () => {
                 variant="black"
                 leftSection={<IconPlus size={20} />}
                 onClick={() => setShowAddUserModal(true)}
+                disabled={updatingServerData}
               >
                 Добавить
               </Button>
@@ -949,7 +1025,9 @@ const ServerInfo: React.FC = () => {
                           color="#676767"
                           onClick={() => handleDeleteUser(user.name)}
                           aria-label="Удалить пользователя"
-                          disabled={deletingUsers.has(user.name)}
+                          disabled={
+                            deletingUsers.has(user.name) || updatingServerData
+                          }
                         >
                           <IconTrash size={32} />
                         </ActionIcon>
@@ -1033,6 +1111,7 @@ const ServerInfo: React.FC = () => {
         password={password}
         camera={selectedCameraForConfig}
         serverName={server?.name || ""}
+        updatingServerData={updatingServerData}
       />
     </div>
   );
