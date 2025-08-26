@@ -241,3 +241,33 @@ export type MediaState = {
   };
   status: "working" | "error" | "offline";
 };
+
+// Queue types for postponed actions
+export type QueueItem = {
+  id: string;
+  login: string;
+  password: string;
+  url: string | null;
+  port: number | null;
+};
+
+export type QueueFilters = {
+  url?: string | null;
+  login?: string | null;
+  q?: string | null;
+};
+
+export type GetQueueParams = {
+  limit?: number;
+  offset?: number;
+  filters?: QueueFilters;
+};
+
+export type GetQueueResponse = {
+  table: string;
+  total: number;
+  limit: number;
+  offset: number;
+  filters: QueueFilters;
+  rows: QueueItem[];
+};

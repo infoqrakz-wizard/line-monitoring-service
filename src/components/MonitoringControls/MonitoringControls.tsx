@@ -30,11 +30,12 @@ const MonitoringControls: React.FC<MonitoringControlsProps> = ({
           Актуальные <span className={classes.onlyDesk}>проблемы</span>
         </Button>
         <Button
+          size="md"
           variant={view === "postponed" ? "filled" : "default"}
           className={`${classes.btn} ${view === "postponed" ? classes.active : ""}`}
           onClick={() => onChangeView("postponed")}
         >
-          Отложенные <span className={classes.onlyDesk}>проблемы</span>
+          <span className={classes.onlyDesk}>История</span>
         </Button>
       </Group>
       <TextInput

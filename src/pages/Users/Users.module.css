@@ -252,6 +252,46 @@
   background: #868e96;
 }
 
+/* Queue actions */
+.logActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deleteQueueButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #676767;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteQueueButton:hover {
+  background: #e03131;
+  color: white;
+}
+
+.deleteQueueButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Empty and loading states */
+.loadingMessage,
+.emptyMessage {
+  text-align: center;
+  color: #676767;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
 .tab {
   flex: 1 1 0;
   min-width: 0;

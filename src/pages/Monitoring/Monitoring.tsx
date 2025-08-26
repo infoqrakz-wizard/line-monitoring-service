@@ -234,7 +234,7 @@ const Monitoring: React.FC = () => {
     if (view === "current") {
       return "Удалить все актуальные проблемы?";
     } else if (view === "postponed") {
-      return "Удалить все отложенные проблемы?";
+      return "Очистить историю?";
     }
 
     return "Удалить все проблемы?";

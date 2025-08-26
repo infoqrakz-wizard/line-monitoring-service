@@ -249,10 +249,11 @@ export const parseApiError = (error: unknown): ApiError | null => {
 };
 
 export const request = {
-  get: <T = unknown>(path: string, init?: RequestInit) =>
+  get: <T = unknown>(path: string, init?: RequestInit, body?: unknown) =>
     apiFetch<T>(path, {
       ...init,
       method: "GET",
+      body: body ? JSON.stringify(body) : undefined,
     }),
   post: <T = unknown>(path: string, body?: unknown, init?: RequestInit) =>
     apiFetch<T>(path, {

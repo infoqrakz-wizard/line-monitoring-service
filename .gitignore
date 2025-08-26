@@ -90,6 +90,7 @@ prisma/dev.db
 # Build outputs
 dist/
 build/
+public/
 
 # Cache
 .cache/

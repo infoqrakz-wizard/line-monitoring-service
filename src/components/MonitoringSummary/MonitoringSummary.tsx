@@ -25,7 +25,7 @@ const MonitoringSummary: React.FC<MonitoringSummaryProps> = ({
         <p className={classes.itemValue}>{cameras}</p>
       </div>
       <div className={`${classes.item} ${classes.itemPostponed}`}>
-        <p className={classes.itemName}>Отложенные проблемы</p>
+        <p className={classes.itemName}>История</p>
         <p className={classes.itemValue}>{postponed}</p>
       </div>
       <div className={`${classes.item} ${classes.itemCurrent}`}>

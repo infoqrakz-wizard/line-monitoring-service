@@ -37,16 +37,16 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
             onClick={onDeleteAll}
             title={
               isPostponed
-                ? "Удалить все отложенные проблемы"
+                ? "Очистить историю"
                 : "Удалить все актуальные проблемы"
             }
             aria-label={
               isPostponed
-                ? "Удалить все отложенные проблемы"
+                ? "Очистить историю"
                 : "Удалить все актуальные проблемы"
             }
           >
-            {isPostponed ? "Удалить все отложенные" : "Удалить все актуальные"}
+            {isPostponed ? "Очистить историю" : "Удалить все актуальные"}
           </button>
         </div>
       )}
@@ -54,7 +54,7 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
       <div
         className={classes.list}
         role="table"
-        aria-label={isPostponed ? "Отложенные проблемы" : "Актуальные проблемы"}
+        aria-label={isPostponed ? "История" : "Актуальные проблемы"}
       >
         <div className={classes.header} role="row">
           {isPostponed ? (

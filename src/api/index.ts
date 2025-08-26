@@ -2,6 +2,7 @@ import * as servers from "./servers";
 import * as users from "./user";
 import * as notifications from "./notifications";
 import { downtime } from "./downtime";
+import * as queue from "./queue";
 
 export { servers };
 export type {
@@ -31,4 +32,11 @@ export type {
   DowntimeFilter,
   DowntimeQueryRequest,
   DowntimeDeleteRequest,
+} from "@/types";
+export { queue };
+export type {
+  QueueItem,
+  QueueFilters,
+  GetQueueParams,
+  GetQueueResponse,
 } from "@/types";

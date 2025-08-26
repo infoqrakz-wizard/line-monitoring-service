@@ -11,90 +11,14 @@ import PlusIcon from "../../assets/icons/plus.svg?react";
 import ActionButton from "@/components/ActionButton/ActionButton";
 import classes from "./Users.module.css";
 import { useMonitoringStore } from "@/store/monitoring";
-import { User, ServerWithMonitoring } from "@/types";
+import { useQueueStore } from "@/store/queue";
+import { User, ServerWithMonitoring, QueueItem } from "@/types";
 import { forceUpdateWS } from "@/api/servers";
 import { useDisclosure } from "@mantine/hooks";
 import Toast from "@/components/Toast";
-import { IconCheck, IconX } from "@tabler/icons-react";
+import { IconCheck, IconX, IconTrash } from "@tabler/icons-react";
 import { ApiError } from "@/lib/request";
 import { deepEqual } from "@/utils/deepEqual";
-
-type LogItem = {
-  id: string;
-  kind: "success" | "error" | "warning" | "pending";
-  text: string;
-  time: string;
-  date: string;
-};
-
-const logItems: LogItem[] = [
-  {
-    id: "l1",
-    kind: "success",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l2",
-    kind: "error",
-    text: "Не удалось добавить «user456» на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l3",
-    kind: "warning",
-    text: "Пользователь «user456» не найден на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l4",
-    kind: "success",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l5",
-    kind: "error",
-    text: "Не удалось добавить «user456» на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "l6",
-    kind: "warning",
-    text: "Пользователь «user456» не найден на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-];
-
-const pendingItems: LogItem[] = [
-  {
-    id: "p1",
-    kind: "pending",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "p2",
-    kind: "pending",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-  {
-    id: "p3",
-    kind: "pending",
-    text: "Пользователь «user456» удален на Чкалова, 270",
-    time: "14:13:45",
-    date: "20.05.2025",
-  },
-];
 
 const Users: FC = () => {
   const [q, setQ] = useState("");
@@ -141,6 +65,19 @@ const Users: FC = () => {
     useDisclosure(false);
 
   const { subscribeToServers, users, servers } = useMonitoringStore();
+
+  // Queue store
+  const {
+    items: queueItems,
+    loading: queueLoading,
+    loadQueue,
+    deleteItem: deleteQueueItem,
+  } = useQueueStore();
+
+  // Состояние для удаления отложенного действия
+  const [deletingQueueItemId, setDeletingQueueItemId] = useState<string | null>(
+    null,
+  );
 
   const handleCreateUserOpen = () => setCreateUserModalOpened(true);
   const handleCreateUserClose = () => {
@@ -207,7 +144,43 @@ const Users: FC = () => {
 
   useEffect(() => {
     subscribeToServers();
-  }, []);
+    void loadQueue();
+  }, [subscribeToServers, loadQueue]);
+
+  // Функция для получения текста отложенного действия
+  const getQueueItemText = useCallback(
+    (item: QueueItem): string => {
+      if (item.url && item.port) {
+        // Найти название сервера по URL и порту
+        const server = servers.find(
+          (s) =>
+            s.sections.main.url === item.url &&
+            s.sections.main.port === item.port,
+        );
+        const serverName =
+          server?.sections.main.name || `${item.url}:${item.port}`;
+        return `Создание «${item.login}» на ${serverName}`;
+      } else {
+        return `Создание «${item.login}» на новых серверах`;
+      }
+    },
+    [servers],
+  );
+
+  // Функция для удаления отложенного действия
+  const handleDeleteQueueItem = useCallback(
+    async (id: string) => {
+      try {
+        setDeletingQueueItemId(id);
+        await deleteQueueItem(id);
+      } catch (error) {
+        console.error("Failed to delete queue item:", error);
+      } finally {
+        setDeletingQueueItemId(null);
+      }
+    },
+    [deleteQueueItem],
+  );
 
   const handleDeleteUser = async (userName: string) => {
     try {
@@ -282,11 +255,12 @@ const Users: FC = () => {
               ({usersServersMapping.filter((u) => u.name.includes(q)).length})
             </span>
           </Tabs.Tab>
-          <Tabs.Tab className={classes.tab} value="logs">
+          {/* <Tabs.Tab className={classes.tab} value="logs">
             Логи событий
-          </Tabs.Tab>
+          </Tabs.Tab> */}
           <Tabs.Tab className={classes.tab} value="postponed">
-            Отложенные действия
+            Отложенные действия{" "}
+            <span className={classes.count}>({queueItems.length})</span>
           </Tabs.Tab>
         </Tabs.List>
 
@@ -375,41 +349,39 @@ const Users: FC = () => {
           </div>
         </Tabs.Panel>
 
-        <Tabs.Panel value="logs">
-          <div className={classes.logsList}>
-            {logItems.map((l) => (
-              <div
-                key={l.id}
-                className={`${classes.logItem} ${classes[l.kind]}`}
-              >
-                <div className={classes.logIcon} aria-hidden="true" />
-                <div className={classes.logText}>{l.text}</div>
-                <div className={classes.logTime}>
-                  <span className={classes.logTimePeriod}>{l.time}</span>
-                  <span className={classes.separator}>•</span>
-                  <span className={classes.logTimeDate}>{l.date}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Tabs.Panel>
-
         <Tabs.Panel value="postponed">
           <div className={classes.logsList}>
-            {pendingItems.map((l) => (
-              <div
-                key={l.id}
-                className={`${classes.logItem} ${classes[l.kind]}`}
-              >
-                <div className={classes.logIcon} aria-hidden="true" />
-                <div className={classes.logText}>{l.text}</div>
-                <div className={classes.logTime}>
-                  <span className={classes.logTimePeriod}>{l.time}</span>
-                  <span className={classes.separator}>•</span>
-                  <span className={classes.logTimeDate}>{l.date}</span>
-                </div>
+            {queueLoading ? (
+              <div className={classes.loadingMessage}>Загрузка...</div>
+            ) : queueItems.length === 0 ? (
+              <div className={classes.emptyMessage}>
+                Нет отложенных действий
               </div>
-            ))}
+            ) : (
+              queueItems.map((item) => (
+                <div
+                  key={item.id}
+                  className={`${classes.logItem} ${classes.pending}`}
+                >
+                  <div className={classes.logIcon} aria-hidden="true" />
+                  <div className={classes.logText}>
+                    {getQueueItemText(item)}
+                  </div>
+                  <div className={classes.logActions}>
+                    <Tooltip label="Удалить">
+                      <button
+                        className={classes.deleteQueueButton}
+                        onClick={() => handleDeleteQueueItem(item.id)}
+                        disabled={deletingQueueItemId === item.id}
+                        aria-label={`Удалить отложенное действие для ${item.login}`}
+                      >
+                        <IconTrash size={16} />
+                      </button>
+                    </Tooltip>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </Tabs.Panel>
       </Tabs>
