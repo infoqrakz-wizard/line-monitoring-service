@@ -23,10 +23,7 @@ import { deepEqual } from "@/utils/deepEqual";
 const Users: FC = () => {
   const [q, setQ] = useState("");
 
-  const { deleteUser, createUser } = useUsersStore((s) => ({
-    deleteUser: s.deleteUser,
-    createUser: s.createUser,
-  }));
+  const { deleteUser, createUser } = useUsersStore();
 
   // Состояния для модальных окон
   const [createUserModalOpened, setCreateUserModalOpened] = useState(false);
@@ -393,12 +390,16 @@ const Users: FC = () => {
         loading={createUserLoading}
         error={createUserError}
         onClearError={handleClearCreateUserError}
-        availableServers={servers.map((server) => ({
-          id: server.id,
-          name: server.sections.main.name,
-          url: server.sections.main.url,
-          port: server.sections.main.port,
-        }))}
+        availableServers={servers
+          .filter(
+            (server) => server.sections.main.url && server.sections.main.port,
+          )
+          .map((server) => ({
+            id: server.id,
+            name: server.sections.main.name,
+            url: server.sections.main.url,
+            port: server.sections.main.port,
+          }))}
         onSubmit={async (payload: UserData) => {
           try {
             setCreateUserLoading(true);

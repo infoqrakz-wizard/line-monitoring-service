@@ -125,10 +125,12 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   };
 
   // serverOptions now uses server names as values
-  const serverOptions = availableServers?.map((server) => ({
-    value: server.name || server.id,
-    label: server.name || server.id,
-  }));
+  const serverOptions = availableServers
+    ?.filter((server) => server.url && server.port)
+    .map((server) => ({
+      value: server.name || server.id,
+      label: server.name || server.id,
+    }));
 
   const getServerDisplayText = (serverName: string) => {
     return serverName;
@@ -245,7 +247,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 />
               </div>
             </div>
-            
+
             {availableServers && !currentServer && (
               <div className={classes.checkboxColumn}>
                 <div className={classes.columnTitle}>Отложенные действия</div>

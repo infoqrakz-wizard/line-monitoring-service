@@ -105,9 +105,11 @@ export const createUser = async (
   let serverIdentifiers;
 
   if (serverNames.length === 0) {
-    serverIdentifiers = availableServers.map((server) => {
-      return `${server.url}:${server.port}`;
-    });
+    serverIdentifiers = availableServers
+      .filter((server) => server.url && server.port)
+      .map((server) => {
+        return `${server.url}:${server.port}`;
+      });
   } else {
     serverIdentifiers = serverNames.map((serverName) => {
       const server = availableServers.find((s) => s.name === serverName);
