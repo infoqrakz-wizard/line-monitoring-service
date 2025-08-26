@@ -77,20 +77,20 @@ const AppLayout: React.FC = () => {
         />
       ),
     },
-    {
-      to: "/groups",
-      label: "Группы",
-      icon: (
-        <img
-          src={groupsIconUrl}
-          className={classes.menuIcon}
-          width={24}
-          height={24}
-          alt=""
-          aria-hidden="true"
-        />
-      ),
-    },
+    // {
+    //   to: "/groups",
+    //   label: "Группы",
+    //   icon: (
+    //     <img
+    //       src={groupsIconUrl}
+    //       className={classes.menuIcon}
+    //       width={24}
+    //       height={24}
+    //       alt=""
+    //       aria-hidden="true"
+    //     />
+    //   ),
+    // },
   ];
 
   const bottomItems = [

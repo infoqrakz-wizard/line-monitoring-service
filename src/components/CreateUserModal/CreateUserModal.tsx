@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  TextInput,
-  PasswordInput,
-  TagsInput,
-} from "@mantine/core";
+import { Button, TextInput, PasswordInput, TagsInput } from "@mantine/core";
 import { Modal } from "@/components/Modal";
 import classes from "./CreateUserModal.module.css";
 import Checkbox from "../Checkbox";
@@ -229,28 +224,31 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           </div>
         )}
 
-        <div className={classes.formField}>
-          <div className={classes.checkboxesContainer}>
-            <Checkbox
-              id="createOnUnavailableServers"
-              label="Создать на недоступных серверах"
-              checked={createOnUnavailableServers}
-              onChange={(event) =>
-                setCreateOnUnavailableServers(event.currentTarget.checked)
-              }
-              disabled={submitting || !!loading}
-            />
-            <Checkbox
-              id="createOnNewServers"
-              label="Создание на новых серверах"
-              checked={createOnNewServers}
-              onChange={(event) =>
-                setCreateOnNewServers(event.currentTarget.checked)
-              }
-              disabled={submitting || !!loading}
-            />
+        {availableServers && !currentServer && (
+          <div className={classes.formField}>
+            <div className={classes.checkboxesContainer}>
+              <Checkbox
+                id="createOnUnavailableServers"
+                label="Создать на недоступных серверах"
+                checked={createOnUnavailableServers}
+                onChange={(event) =>
+                  setCreateOnUnavailableServers(event.currentTarget.checked)
+                }
+                disabled={submitting || !!loading}
+              />
+              <Checkbox
+                id="createOnNewServers"
+                label="Создание на новых серверах"
+                checked={createOnNewServers}
+                onChange={(event) =>
+                  setCreateOnNewServers(event.currentTarget.checked)
+                }
+                disabled={submitting || !!loading}
+              />
+            </div>
           </div>
-        </div>
+        )}
+
         <div className={classes.formField}>
           <div className={classes.checkboxesContainer}>
             <div className={classes.formFieldLabel}>Права</div>
