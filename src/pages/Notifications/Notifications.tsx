@@ -14,6 +14,7 @@ import {
   type TelegramSubscriber,
 } from "@/api";
 import { ApiError } from "@/lib/request";
+import { useAuthStore } from "@/store/auth";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -23,6 +24,9 @@ const Notifications: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  
+  const { role } = useAuthStore();
+  const isAdmin = role === "admin";
 
   // Состояния для модальных окон
   const [createModalOpened, setCreateModalOpened] = useState(false);
@@ -187,16 +191,18 @@ const Notifications: React.FC = () => {
         title="Настройки уведомлений"
         rightSide={
           <div className={classes.actionsDesktop}>
-            <Button
-              className={classes.addButton}
-              variant="black"
-              leftSection={<PlusIcon />}
-              aria-label="Создать уведомления"
-              disabled={createLoading}
-              onClick={handleCreateOpen}
-            >
-              Создать
-            </Button>
+            {isAdmin && (
+              <Button
+                className={classes.addButton}
+                variant="black"
+                leftSection={<PlusIcon />}
+                aria-label="Создать уведомления"
+                disabled={createLoading}
+                onClick={handleCreateOpen}
+              >
+                Создать
+              </Button>
+            )}
             <SearchInput
               rootClassName={classes.searchInputRoot}
               inputClassName={classes.searchInput}
@@ -276,20 +282,22 @@ const Notifications: React.FC = () => {
 
             <div className={`${classes.col} ${classes.actionsCol}`} role="cell">
               <div className={classes.actionButtons}>
-                <Group gap="xs">
-                  <Tooltip label="Редактировать">
-                    <ActionButton
-                      className={classes.editIcon}
-                      onClick={() => handleEditOpen(subscriber)}
-                    />
-                  </Tooltip>
-                  <Tooltip label="Удалить">
-                    <ActionButton
-                      className={classes.deleteIcon}
-                      onClick={() => handleDeleteConfirmOpen(subscriber)}
-                    />
-                  </Tooltip>
-                </Group>
+                {isAdmin && (
+                  <Group gap="xs">
+                    <Tooltip label="Редактировать">
+                      <ActionButton
+                        className={classes.editIcon}
+                        onClick={() => handleEditOpen(subscriber)}
+                      />
+                    </Tooltip>
+                    <Tooltip label="Удалить">
+                      <ActionButton
+                        className={classes.deleteIcon}
+                        onClick={() => handleDeleteConfirmOpen(subscriber)}
+                      />
+                    </Tooltip>
+                  </Group>
+                )}
               </div>
             </div>
           </div>

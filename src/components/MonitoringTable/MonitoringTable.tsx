@@ -160,12 +160,14 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                     className={`${classes.field} ${classes.fActions}`}
                     role="cell"
                   >
-                    <button
-                      className={classes.deleteBtn}
-                      title="Удалить"
-                      aria-label="Удалить проблему"
-                      onClick={() => onDelete?.(r)}
-                    />
+                    {onDelete && (
+                      <button
+                        className={classes.deleteBtn}
+                        title="Удалить"
+                        aria-label="Удалить проблему"
+                        onClick={() => onDelete(r)}
+                      />
+                    )}
                   </div>
                 </>
               ) : (
@@ -206,12 +208,14 @@ const MonitoringTable: React.FC<MonitoringTableProps> = ({
                     className={`${classes.field} ${classes.fActions}`}
                     role="cell"
                   >
-                    <button
-                      className={classes.deleteBtn}
-                      title="Удалить"
-                      aria-label="Удалить проблему"
-                      onClick={() => onDelete?.(r)}
-                    />
+                    {onDelete && (
+                      <button
+                        className={classes.deleteBtn}
+                        title="Удалить"
+                        aria-label="Удалить проблему"
+                        onClick={() => onDelete(r)}
+                      />
+                    )}
                   </div>
                 </>
               )}

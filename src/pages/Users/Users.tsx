@@ -19,11 +19,15 @@ import Toast from "@/components/Toast";
 import { IconCheck, IconX, IconTrash } from "@tabler/icons-react";
 import { ApiError } from "@/lib/request";
 import { deepEqual } from "@/utils/deepEqual";
+import { useAuthStore } from "@/store/auth";
 
 const Users: FC = () => {
   const [q, setQ] = useState("");
 
   const { deleteUser, createUser } = useUsersStore();
+  const { role } = useAuthStore();
+
+  const isAdmin = role === "admin";
 
   // Состояния для модальных окон
   const [createUserModalOpened, setCreateUserModalOpened] = useState(false);
@@ -215,16 +219,18 @@ const Users: FC = () => {
         title="Пользователи"
         rightSide={
           <div className={classes.actionsDesktop}>
-            <Button
-              className={classes.addButton}
-              variant="black"
-              leftSection={<PlusIcon />}
-              aria-label="Добавить пользователя"
-              disabled={createUserLoading}
-              onClick={handleCreateUserOpen}
-            >
-              Добавить пользователя
-            </Button>
+            {isAdmin && (
+              <Button
+                className={classes.addButton}
+                variant="black"
+                leftSection={<PlusIcon />}
+                aria-label="Добавить пользователя"
+                disabled={createUserLoading}
+                onClick={handleCreateUserOpen}
+              >
+                Добавить пользователя
+              </Button>
+            )}
             <SearchInput
               // className={classes.searchInput}
               rootClassName={classes.searchInputRoot}
@@ -330,14 +336,16 @@ const Users: FC = () => {
                       role="cell"
                     >
                       <div className={classes.actionButtons}>
-                        <Group gap="xs">
-                          <Tooltip label="Удалить">
-                            <ActionButton
-                              className={classes.deleteIcon}
-                              onClick={() => handleDeleteConfirmOpen(u)}
-                            />
-                          </Tooltip>
-                        </Group>
+                        {isAdmin && (
+                          <Group gap="xs">
+                            <Tooltip label="Удалить">
+                              <ActionButton
+                                className={classes.deleteIcon}
+                                onClick={() => handleDeleteConfirmOpen(u)}
+                              />
+                            </Tooltip>
+                          </Group>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -365,16 +373,18 @@ const Users: FC = () => {
                     {getQueueItemText(item)}
                   </div>
                   <div className={classes.logActions}>
-                    <Tooltip label="Удалить">
-                      <button
-                        className={classes.deleteQueueButton}
-                        onClick={() => handleDeleteQueueItem(item.id)}
-                        disabled={deletingQueueItemId === item.id}
-                        aria-label={`Удалить отложенное действие для ${item.login}`}
-                      >
-                        <IconTrash size={16} />
-                      </button>
-                    </Tooltip>
+                    {isAdmin && (
+                      <Tooltip label="Удалить">
+                        <button
+                          className={classes.deleteQueueButton}
+                          onClick={() => handleDeleteQueueItem(item.id)}
+                          disabled={deletingQueueItemId === item.id}
+                          aria-label={`Удалить отложенное действие для ${item.login}`}
+                        >
+                          <IconTrash size={16} />
+                        </button>
+                      </Tooltip>
+                    )}
                   </div>
                 </div>
               ))

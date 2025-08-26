@@ -26,9 +26,15 @@ export type ServerCardProps = {
   server: ServerItemWithMonitoring;
   onDelete?: (url: string, port: number) => void;
   downEvent?: DowntimeEvent | null;
+  isAdmin?: boolean;
 };
 
-const ServerCard: FC<ServerCardProps> = ({ server, onDelete, downEvent }) => {
+const ServerCard: FC<ServerCardProps> = ({
+  server,
+  onDelete,
+  downEvent,
+  isAdmin = false,
+}) => {
   const navigate = useNavigate();
 
   const getStatusColor = (status: ServerStatus) => {
@@ -204,35 +210,39 @@ const ServerCard: FC<ServerCardProps> = ({ server, onDelete, downEvent }) => {
               </span>
             </Button>
           </Tooltip>
-          <Tooltip label="Редактировать">
-            <Button
-              variant="white"
-              aria-label="Редактировать"
-              onClick={() =>
-                navigate(
-                  `/servers/edit?url=${encodeURIComponent(server.url)}&port=${encodeURIComponent(server.port.toString())}`,
-                )
-              }
-            >
-              <span className={classes.editBtn}>
-                <EditIcon />
-                Редактировать
-              </span>
-            </Button>
-          </Tooltip>
-          <Tooltip label="Удалить">
-            <Button
-              className={classes.deleteBtn}
-              variant="white"
-              color="rgb(250, 82, 82)"
-              aria-label="Удалить"
-              onClick={() => onDelete?.(server.url, server.port)}
-            >
-              <span className={classes.deleteIcon}>
-                <DeleteIcon />
-              </span>
-            </Button>
-          </Tooltip>
+          {isAdmin && (
+            <>
+              <Tooltip label="Редактировать">
+                <Button
+                  variant="white"
+                  aria-label="Редактировать"
+                  onClick={() =>
+                    navigate(
+                      `/servers/edit?url=${encodeURIComponent(server.url)}&port=${encodeURIComponent(server.port.toString())}`,
+                    )
+                  }
+                >
+                  <span className={classes.editBtn}>
+                    <EditIcon />
+                    Редактировать
+                  </span>
+                </Button>
+              </Tooltip>
+              <Tooltip label="Удалить">
+                <Button
+                  className={classes.deleteBtn}
+                  variant="white"
+                  color="rgb(250, 82, 82)"
+                  aria-label="Удалить"
+                  onClick={() => onDelete?.(server.url, server.port)}
+                >
+                  <span className={classes.deleteIcon}>
+                    <DeleteIcon />
+                  </span>
+                </Button>
+              </Tooltip>
+            </>
+          )}
         </Group>
       </Card>
     </div>

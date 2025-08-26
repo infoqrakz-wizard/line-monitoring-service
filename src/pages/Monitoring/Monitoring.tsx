@@ -12,6 +12,7 @@ import { DowntimeEvent } from "@/types";
 import classes from "./Monitoring.module.css";
 import PageHeader from "@/components/PageHeader";
 import { useServersStore } from "@/store/servers";
+import { useAuthStore } from "@/store/auth";
 
 const Monitoring: React.FC = () => {
   const [view, setView] = useState<MonitoringView>("current");
@@ -21,6 +22,9 @@ const Monitoring: React.FC = () => {
     type: "single" | "all";
     data?: ProblemRow;
   } | null>(null);
+
+  const { role } = useAuthStore();
+  const isAdmin = role === "admin";
 
   const {
     downtimeEvents,
@@ -267,8 +271,8 @@ const Monitoring: React.FC = () => {
       <MonitoringTable
         type={view}
         rows={filteredRows}
-        onDelete={handleOpenDelete}
-        onDeleteAll={handleDeleteAll}
+        onDelete={isAdmin ? handleOpenDelete : undefined}
+        onDeleteAll={isAdmin ? handleDeleteAll : undefined}
       />
 
       <DeleteConfirmModal

@@ -31,6 +31,7 @@ import IconPlus from "@/assets/icons/plus.svg?react";
 
 import classes from "./Servers.module.css";
 import ServerCard from "@/components/ServerCard/index";
+import { useAuthStore } from "@/store/auth";
 
 const Servers: React.FC = () => {
   const [q, setQ] = useState("");
@@ -46,6 +47,9 @@ const Servers: React.FC = () => {
     deleteServer,
     setCurrentPage,
   } = useServersStore();
+
+  const { role } = useAuthStore();
+  const isAdmin = role === "admin";
 
   const {
     servers: monitoringServers,
@@ -334,15 +338,17 @@ const Servers: React.FC = () => {
                   Выключенные
                 </div>
               </div>
-              <Button
-                className={classes.addServerButton}
-                variant="black"
-                aria-label="Добавить сервер"
-                leftSection={<IconPlus />}
-                onClick={() => navigate("/servers/create")}
-              >
-                Добавить сервер
-              </Button>
+              {isAdmin && (
+                <Button
+                  className={classes.addServerButton}
+                  variant="black"
+                  aria-label="Добавить сервер"
+                  leftSection={<IconPlus />}
+                  onClick={() => navigate("/servers/create")}
+                >
+                  Добавить сервер
+                </Button>
+              )}
             </div>
             <SearchInput
               value={q}
@@ -421,26 +427,28 @@ const Servers: React.FC = () => {
                     {`${arhiveDatesCount ? `${arhiveDatesCount} д.` : "-"}`}
                   </Table.Td>
                   <Table.Td className={classes.td}>
-                    <Group gap="xs">
-                      <Tooltip label="Редактировать">
-                        <ActionButton
-                          className={classes.editIcon}
-                          onClick={() =>
-                            navigate(
-                              `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
-                            )
-                          }
-                        />
-                      </Tooltip>
-                      <Tooltip label="Удалить">
-                        <ActionButton
-                          className={classes.deleteIcon}
-                          onClick={() =>
-                            handleClickDeleteServer(row.url, row.port)
-                          }
-                        />
-                      </Tooltip>
-                    </Group>
+                    {isAdmin && (
+                      <Group gap="xs">
+                        <Tooltip label="Редактировать">
+                          <ActionButton
+                            className={classes.editIcon}
+                            onClick={() =>
+                              navigate(
+                                `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
+                              )
+                            }
+                          />
+                        </Tooltip>
+                        <Tooltip label="Удалить">
+                          <ActionButton
+                            className={classes.deleteIcon}
+                            onClick={() =>
+                              handleClickDeleteServer(row.url, row.port)
+                            }
+                          />
+                        </Tooltip>
+                      </Group>
+                    )}
                   </Table.Td>
                 </Table.Tr>
               );
@@ -467,6 +475,7 @@ const Servers: React.FC = () => {
                 server={s}
                 onDelete={handleClickDeleteServer}
                 downEvent={downEvent}
+                isAdmin={isAdmin}
               />
             );
           })}
