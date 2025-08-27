@@ -54,6 +54,7 @@ export const listServers = async (
     search: params.search,
     filter: params.filter,
   });
+
   return request.get<PaginatedResponse<ServerItem>>(`/api/servers${query}`);
 };
 

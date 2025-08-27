@@ -12,7 +12,7 @@ export const useTokenRefresh = () => {
         () => {
           void refreshToken();
         },
-        1 * 60 * 1000,
+        9 * 60 * 1000,
       );
 
       return () => {

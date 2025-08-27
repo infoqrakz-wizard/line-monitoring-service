@@ -56,7 +56,7 @@ export const useServerInfo = (url: string | null, port: string | null) => {
 
   // Функция для принудительного обновления данных
   const forceUpdate = useCallback(() => {
-    setUpdateTrigger(prev => prev + 1);
+    setUpdateTrigger((prev) => prev + 1);
   }, []);
 
   useEffect(() => {

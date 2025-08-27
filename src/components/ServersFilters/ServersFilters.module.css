@@ -1,0 +1,78 @@
+.controlsRowDesktopInner {
+    display: contents;
+}
+
+.legendGroup {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    min-width: 150px;
+    padding: 15px 20px 15px 14px;
+    gap: 15px;
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 14px;
+    background: #fff;
+    color: #676767;
+    border-radius: 12px;
+    border: 1px solid #fff;
+    transition: 0.3s;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.legendItem:hover,
+.activeFilter {
+    border-color: #000;
+}
+
+.dotOnline,
+.dotOffline,
+.dotWarning {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.dotOnline {
+    background: rgba(132, 227, 173, 1);
+}
+
+.dotOffline {
+    background: rgb(250, 82, 82);
+}
+
+.dotWarning {
+    background: #f39c12;
+}
+
+
+@media (max-width: 1280px) {
+    .controlsRowDesktopInner {
+        display: flex;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+
+    .legendItem {
+        padding: 15px 16px 15px 12px;
+    }
+
+}
+
+
+@media (max-width: 767px) {
+    .addServerButton {
+        width: 100% !important;
+        max-width: 450px;
+    }
+}

@@ -118,6 +118,41 @@
   color: var(--color-white);
 }
 
+.dashboardMenuText {
+  
+}
+
+.dashboardMenuTextInner {
+  display: flex;
+}
+
+.dashboardFilter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+}
+
+.dashboardFilterItemText {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+}
+
+
+.dashboardFilterItemGreen {
+  background: rgba(132, 227, 173, 1);
+}
+.dashboardFilterItemYellow {
+  background: #f39c12;
+}
+.dashboardFilterItemRed {
+  background: rgb(250, 82, 82);
+}
 /* Make SVG icons turn white when item is active */
 .active .menuIcon {
   filter: brightness(0) invert(1);

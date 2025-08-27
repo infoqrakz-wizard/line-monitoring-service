@@ -7,6 +7,7 @@ import monitoringIconUrl from "../../assets/icons/monitoring.svg";
 import serversIconUrl from "../../assets/icons/servers.svg";
 import usersIconUrl from "../../assets/icons/users.svg";
 import mapIconUrl from "../../assets/icons/map.svg";
+import dashboardIconUrl from "../../assets/icons/dashboard.svg";
 // import groupsIconUrl from "../../assets/icons/groups.svg";
 import notificationsIconUrl from "../../assets/icons/notifications.svg";
 import settingsIconUrl from "../../assets/icons/settings.svg";
@@ -27,6 +28,20 @@ const AppLayout: React.FC = () => {
       icon: (
         <img
           src={monitoringIconUrl}
+          className={classes.menuIcon}
+          width={24}
+          height={24}
+          alt=""
+          aria-hidden="true"
+        />
+      ),
+    },
+    {
+      to: "/dashboard",
+      label: "Дашборд",
+      icon: (
+        <img
+          src={dashboardIconUrl}
           className={classes.menuIcon}
           width={24}
           height={24}
@@ -164,22 +179,63 @@ const AppLayout: React.FC = () => {
         <div className={classes.logo} />
         <nav className={classes.menu}>
           <ul className={classes.menuList}>
-            {mainItems.map((item) => (
-              <li key={item.to} className={classes.menuItem}>
-                <NavLink
-                  to={item.to}
-                  onClick={handleNavItemClick}
-                  className={({ isActive }) =>
-                    `${classes.menuButton} ${isActive ? classes.active : ""}`
-                  }
-                >
-                  <div className={classes.menuButtonInner}>
-                    <div className={classes.menuButtonIcon}>{item.icon}</div>
-                    <span className={classes.menuText}>{item.label}</span>
-                  </div>
-                </NavLink>
-              </li>
-            ))}
+            {mainItems.map((item) => {
+              if (item.to === "/dashboard") {
+                return (
+                  <li key={item.to} className={classes.menuItem}>
+                    <NavLink
+                      to={item.to}
+                      onClick={handleNavItemClick}
+                      key={item.to}
+                      className={`${classes.menuButton} ${location.pathname === "/dashboard" ? classes.active : ""}`}
+                    >
+                      <div className={classes.menuButtonInner}>
+                        <div className={classes.menuButtonIcon}>
+                          {item.icon}
+                        </div>
+                        <span
+                          className={`${classes.menuText} ${classes.dashboardMenuText}`}
+                        >
+                          <div className={classes.dashboardMenuTextInner}>
+                            <span>{item.label}</span>
+                            <div className={classes.dashboardFilter}>
+                              <div className={classes.dashboardFilterItem}>
+                                <NavLink
+                                  className={`${classes.dashboardFilterItemText} ${classes.dashboardFilterItemGreen}`}
+                                  to="/dashboard?filter=available"
+                                />
+                              </div>
+                              <div className={classes.dashboardFilterItem}>
+                                <NavLink
+                                  className={`${classes.dashboardFilterItemText} ${classes.dashboardFilterItemRed}`}
+                                  to="/dashboard?filter=unavailable"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </span>
+                      </div>
+                    </NavLink>
+                  </li>
+                );
+              }
+              return (
+                <li key={item.to} className={classes.menuItem}>
+                  <NavLink
+                    to={item.to}
+                    onClick={handleNavItemClick}
+                    className={({ isActive }) =>
+                      `${classes.menuButton} ${isActive ? classes.active : ""}`
+                    }
+                  >
+                    <div className={classes.menuButtonInner}>
+                      <div className={classes.menuButtonIcon}>{item.icon}</div>
+                      <span className={classes.menuText}>{item.label}</span>
+                    </div>
+                  </NavLink>
+                </li>
+              );
+            })}
           </ul>
 
           <div className={classes.bottomMenu}>
@@ -231,42 +287,93 @@ const AppLayout: React.FC = () => {
       >
         <nav className={classes.mobileMenu}>
           <ul className={classes.menuList}>
-            {mainItems.map((item) => (
-              <li key={item.to} className={classes.menuItem}>
-                <NavLink
-                  to={item.to}
-                  onClick={handleNavItemClick}
-                  className={({ isActive }) =>
-                    `${classes.menuButton} ${isActive ? classes.active : ""}`
-                  }
-                >
-                  <div className={classes.menuButtonInner}>
-                    <div className={classes.menuButtonIcon}>{item.icon}</div>
-                    <span className={classes.menuText}>{item.label}</span>
+            {mainItems.map((item) => {
+              if (item.to === "/dashboard") {
+                return (
+                  <div key={item.to} className={classes.menuItem}>
+                    <div
+                      key={item.to}
+                      className={`${classes.menuButton} ${location.pathname === "/dashboard" ? classes.active : ""}`}
+                    >
+                      <div className={classes.menuButtonInner}>
+                        <div className={classes.menuButtonIcon}>
+                          {item.icon}
+                        </div>
+                        <span
+                          className={`${classes.menuText} ${classes.dashboardMenuText}`}
+                        >
+                          {item.label}
+                          <div className={classes.dashboardFilter}>
+                            <div className={classes.dashboardFilterItem}>
+                              <NavLink
+                                className={classes.dashboardFilterItemText}
+                                to="/dashboard?filter=all"
+                              >
+                                Все
+                              </NavLink>
+                            </div>
+                            <div className={classes.dashboardFilterItem}>
+                              <NavLink
+                                className={classes.dashboardFilterItemText}
+                                to="/dashboard?filter=available"
+                              >
+                                Доступные
+                              </NavLink>
+                            </div>
+                            <div className={classes.dashboardFilterItem}>
+                              <NavLink
+                                className={classes.dashboardFilterItemText}
+                                to="/dashboard?filter=unavailable"
+                              >
+                                Недоступные
+                              </NavLink>
+                            </div>
+                          </div>
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </NavLink>
-              </li>
-            ))}
+                );
+              }
+              return (
+                <li key={item.to} className={classes.menuItem}>
+                  <NavLink
+                    to={item.to}
+                    onClick={handleNavItemClick}
+                    className={({ isActive }) =>
+                      `${classes.menuButton} ${isActive ? classes.active : ""}`
+                    }
+                  >
+                    <div className={classes.menuButtonInner}>
+                      <div className={classes.menuButtonIcon}>{item.icon}</div>
+                      <span className={classes.menuText}>{item.label}</span>
+                    </div>
+                  </NavLink>
+                </li>
+              );
+            })}
           </ul>
 
           <div className={classes.bottomMenu}>
-            {bottomItems.map((item) => (
-              <div key={item.to} className={classes.menuItem}>
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  onClick={handleNavItemClick}
-                  className={({ isActive }) =>
-                    `${classes.menuButton} ${isActive ? classes.active : ""}`
-                  }
-                >
-                  <div className={classes.menuButtonInner}>
-                    <div className={classes.menuButtonIcon}>{item.icon}</div>
-                    <span className={classes.menuText}>{item.label}</span>
-                  </div>
-                </NavLink>
-              </div>
-            ))}
+            {bottomItems.map((item) => {
+              return (
+                <div key={item.to} className={classes.menuItem}>
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    onClick={handleNavItemClick}
+                    className={({ isActive }) =>
+                      `${classes.menuButton} ${isActive ? classes.active : ""}`
+                    }
+                  >
+                    <div className={classes.menuButtonInner}>
+                      <div className={classes.menuButtonIcon}>{item.icon}</div>
+                      <span className={classes.menuText}>{item.label}</span>
+                    </div>
+                  </NavLink>
+                </div>
+              );
+            })}
             {/* <Tooltip label="Выйти из аккаунта" position="right" offset={8}> */}
             <button
               className={classes.menuButton}

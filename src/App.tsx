@@ -7,6 +7,7 @@ import AppLayout from "@/components/AppLayout";
 import Protected from "@/routes/Protected";
 import AuthProvider from "@/components/AuthProvider";
 import Monitoring from "@/pages/Monitoring/Monitoring";
+import Dashboard from "@/pages/Dashboard";
 import Servers from "@/pages/Servers/Servers";
 import Users from "@/pages/Users";
 import MapPage from "@/pages/MapPage";
@@ -127,6 +128,7 @@ const App: React.FC = () => {
               <Route element={<Protected />}>
                 <Route element={<AppLayout />}>
                   <Route index element={<Monitoring />} />
+                  <Route path="dashboard" element={<Dashboard />} />
                   <Route path="servers" element={<Servers />} />
                   <Route path="servers/create" element={<CreateServer />} />
                   <Route path="servers/edit" element={<CreateServer />} />

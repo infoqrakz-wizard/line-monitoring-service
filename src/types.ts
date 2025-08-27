@@ -158,7 +158,10 @@ export type AuthExpiringMessage = {
   msLeft: number;
 };
 
-export type WebSocketMessage = SubscribeRequest | UnsubscribeRequest | AuthExpiringMessage;
+export type WebSocketMessage =
+  | SubscribeRequest
+  | UnsubscribeRequest
+  | AuthExpiringMessage;
 
 // Расширенный тип сервера с данными мониторинга
 export type ServerItemWithMonitoring = ServerItem & {

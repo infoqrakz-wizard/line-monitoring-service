@@ -27,11 +27,11 @@ import { downtime } from "@/api";
 import { useNavigate } from "react-router";
 import ActionButton from "@/components/ActionButton";
 import PageHeader from "@/components/PageHeader";
-import IconPlus from "@/assets/icons/plus.svg?react";
 
 import classes from "./Servers.module.css";
 import ServerCard from "@/components/ServerCard/index";
 import { useAuthStore } from "@/store/auth";
+import ServersFilters from "@/components/ServersFilters";
 
 const Servers: React.FC = () => {
   const [q, setQ] = useState("");
@@ -321,7 +321,13 @@ const Servers: React.FC = () => {
         title="Серверы"
         rightSide={
           <div className={classes.controlsRowDesktop}>
-            <div className={classes.controlsRowDesktopInner}>
+            <ServersFilters
+              activeFilter={activeFilter}
+              isAdmin={isAdmin}
+              handleClickAddServer={() => navigate("/servers/create")}
+              handleClickFilter={handleClickFilter}
+            />
+            {/* <div className={classes.controlsRowDesktopInner}>
               <div className={classes.legendGroup}>
                 <div
                   className={`${classes.legendItem} ${activeFilter === "available" ? classes.activeFilter : ""}`}
@@ -349,7 +355,7 @@ const Servers: React.FC = () => {
                   Добавить сервер
                 </Button>
               )}
-            </div>
+            </div> */}
             <SearchInput
               value={q}
               onChange={handleSearchChange}
