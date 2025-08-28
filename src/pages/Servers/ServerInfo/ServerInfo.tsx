@@ -132,6 +132,8 @@ const ServerInfo: React.FC = () => {
   const username = server?.username || "";
   const password = server?.password || "";
 
+  const protocol = server?.scheme || "https";
+
   useEffect(() => {
     if (url && port) {
       // Fetch initial downtime events
@@ -1088,6 +1090,7 @@ const ServerInfo: React.FC = () => {
         onClose={handleCloseVideoPlayer}
         streamUrl={url || ""}
         streamPort={parseInt(port || "0")}
+        protocol={protocol}
         camera={selectedCamera}
         login={username}
         password={password}

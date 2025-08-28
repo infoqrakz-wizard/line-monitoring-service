@@ -15,6 +15,7 @@ export type ServerItem = {
   name: string;
   enabled: boolean;
   address: string | null;
+  scheme: "http" | "https";
   maps: {
     x: number;
     y: number;

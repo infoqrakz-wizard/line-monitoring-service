@@ -12,6 +12,7 @@ export type VideoPlayerModalProps = {
   camera: number;
   login: string;
   password: string;
+  protocol: "http" | "https";
   serverName: string;
 };
 
@@ -28,13 +29,14 @@ declare global {
 
 const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   opened,
-  onClose,
   streamUrl,
   streamPort,
   camera,
   login,
   password,
   serverName,
+  protocol = "https",
+  onClose,
 }) => {
   const [isPlayerLoaded, setIsPlayerLoaded] = useState(false);
   const [isPlayerInitialized, setIsPlayerInitialized] = useState(false);
@@ -101,12 +103,6 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
     }
 
     try {
-      // Создаем экземпляр плеера
-      const protocol = window.location.protocol.substring(
-        0,
-        window.location.protocol.length - 1,
-      );
-
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       playerInstanceRef.current = new window.DevLinePlayer(
         playerContainerRef.current,
@@ -136,6 +132,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
     camera,
     login,
     password,
+    protocol,
     isPlayerInitialized,
   ]);
 
