@@ -8,6 +8,7 @@ export type CreateServerRequest = {
   password: string;
   name: string;
   enabled: boolean;
+  address?: string;
   maps?: {
     x: number;
     y: number;

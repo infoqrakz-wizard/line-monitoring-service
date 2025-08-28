@@ -526,10 +526,17 @@ const ServerInfo: React.FC = () => {
             <div
               className={`${classes.serverStatusBadge} ${classes[serverStatus]}`}
             />
-            <PageTitle>{server?.name || ""}</PageTitle>
-            {updatingServerData && (
-              <Loader size="sm" className={classes.updatingIndicator} />
-            )}
+            <div className={classes.serverInfoTitleLeft}>
+              <PageTitle>{server?.name || ""}</PageTitle>
+              {server?.address && (
+                <Text size="sm" fw={500} className={classes.eventsGroupTitle}>
+                  Адрес: {server?.address}
+                </Text>
+              )}
+              {updatingServerData && (
+                <Loader size="sm" className={classes.updatingIndicator} />
+              )}
+            </div>
           </div>
         }
         rightSide={

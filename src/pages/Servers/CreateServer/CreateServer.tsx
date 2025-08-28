@@ -13,7 +13,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import classes from "./CreateServer.module.css";
 import { useServersStore } from "@/store/servers";
 import { parseApiError } from "@/lib/request";
-import { getServer as apiGetServer } from "@/api/servers";
+import { getServer as apiGetServer, CreateServerRequest } from "@/api/servers";
 import type { ServerItem } from "@/types";
 import PageHeader from "@/components/PageHeader";
 
@@ -24,6 +24,7 @@ export type CreateServerFormData = {
   ipAddress: string;
   port: number | "";
   coordinates?: string;
+  address?: string;
 };
 
 export type FormErrors = {
@@ -33,6 +34,7 @@ export type FormErrors = {
   ipAddress?: string;
   port?: string;
   coordinates?: string;
+  address?: string;
 };
 
 const CreateServer: React.FC = () => {
@@ -62,15 +64,16 @@ const CreateServer: React.FC = () => {
     if (!value.trim()) {
       return "Имя сервера обязательно для заполнения";
     }
-    if (value.includes(":")) {
-      return "Имя сервера не может содержать символ ':'";
-    }
+
     return undefined;
   };
 
   const validateIpAddress = (value: string): string | undefined => {
     if (!value.trim()) {
       return "IP-адрес обязателен для заполнения";
+    }
+    if (value.includes(":")) {
+      return "Адрес не может содержать символ ':'";
     }
     return undefined;
   };
@@ -99,9 +102,9 @@ const CreateServer: React.FC = () => {
     return undefined;
   };
 
-  const validateCoordinates = (value: string): string | undefined => {
-    if (!value.trim()) {
-      return "Координаты обязательны для заполнения";
+  const validateCoordinates = (value?: string): string | undefined => {
+    if (!value) {
+      return;
     }
 
     const coordinates = value.split(",").map((coord) => coord.trim());
@@ -121,8 +124,6 @@ const CreateServer: React.FC = () => {
     if (xNum === 0 && yNum === 0) {
       return "Координаты не могут быть равны нулю";
     }
-
-    return undefined;
   };
 
   useEffect(() => {
@@ -230,18 +231,24 @@ const CreateServer: React.FC = () => {
         .split(",")
         .map((coord) => parseFloat(coord.trim()));
 
-      await createServer({
+      const payload: CreateServerRequest = {
         name: formData.serverName,
         url: formData.ipAddress,
         port: Number(formData.port),
         username: formData.login,
         password: formData.password,
         enabled: true,
-        maps: {
+        address: formData.address,
+      };
+
+      if (coordinates.length === 2) {
+        payload.maps = {
           x: coordinates[0],
           y: coordinates[1],
-        },
-      });
+        };
+      }
+
+      await createServer(payload);
       void navigate("/servers");
     } catch (error) {
       const apiError = parseApiError(error);
@@ -330,21 +337,19 @@ const CreateServer: React.FC = () => {
   const isFormValid = isEditMode
     ? Boolean(
         formData.serverName.trim() &&
-          !formData.serverName.includes(":") &&
           formData.login.trim() &&
           formData.ipAddress.trim() &&
+          !formData.ipAddress.includes(":") &&
           formData.port !== "" &&
-          formData.coordinates?.trim() &&
           validateCoordinates(formData.coordinates) === undefined,
       )
     : Boolean(
         formData.serverName.trim() &&
-          !formData.serverName.includes(":") &&
           formData.login.trim() &&
           formData.password.trim() &&
           formData.ipAddress.trim() &&
+          !formData.ipAddress.includes(":") &&
           formData.port !== "" &&
-          formData.coordinates?.trim() &&
           validateCoordinates(formData.coordinates) === undefined,
       );
 
@@ -494,7 +499,6 @@ const CreateServer: React.FC = () => {
                 onChange={(e) =>
                   handleInputChange("coordinates", e.target.value)
                 }
-                required
                 size="md"
                 autoComplete="off"
                 name="server-coordinates"
@@ -507,7 +511,27 @@ const CreateServer: React.FC = () => {
               </div>
             </div>
           </div>
-
+          <div className={classes.formField}>
+            <label htmlFor="address" className={classes.formFieldLabel}>
+              Адрес
+            </label>
+            <div className={classes.formFieldInput}>
+              <TextInput
+                placeholder=""
+                value={formData.address}
+                onChange={(e) => handleInputChange("address", e.target.value)}
+                size="md"
+                autoComplete="off"
+                name="server-address"
+                classNames={{
+                  input: errors.coordinates ? classes.inputError : "",
+                }}
+              />
+              <div className={classes.errorMessage}>
+                {errors.coordinates || ""}
+              </div>
+            </div>
+          </div>
           <div className={classes.formField}>
             {error && (
               <Text c="rgb(250, 82, 82)" size="sm" role="alert">

@@ -350,6 +350,12 @@
   animation: pulse 1.5s ease-in-out infinite;
 }
 
+.serverInfoTitleLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
 @keyframes pulse {
   0% {
     opacity: 1;

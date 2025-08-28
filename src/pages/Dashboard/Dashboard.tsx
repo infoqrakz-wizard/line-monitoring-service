@@ -587,6 +587,11 @@ const Dashboard: React.FC = () => {
             <Text className={classes.serverName} ta="left" size="lg" fw={500}>
               {server.name}
             </Text>
+            {server.address && (
+              <Text className={classes.serverAddress} ta="left" size="xs">
+                {server.address}
+              </Text>
+            )}
           </div>
         </CustomTooltip>
       );

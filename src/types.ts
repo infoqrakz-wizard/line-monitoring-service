@@ -14,6 +14,7 @@ export type ServerItem = {
   password: string | null;
   name: string;
   enabled: boolean;
+  address: string | null;
   maps: {
     x: number;
     y: number;

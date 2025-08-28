@@ -181,14 +181,14 @@ const AppLayout: React.FC = () => {
         <nav className={classes.menu}>
           <ul className={classes.menuList}>
             {mainItems.map((item) => {
-              if (item.to === "/dashboard") {
+              if (item.to === "/") {
                 return (
                   <li key={item.to} className={classes.menuItem}>
                     <NavLink
                       to={item.to}
                       onClick={handleNavItemClick}
                       key={item.to}
-                      className={`${classes.menuButton} ${location.pathname === "/dashboard" ? classes.active : ""}`}
+                      className={`${classes.menuButton} ${location.pathname === "/" ? classes.active : ""}`}
                     >
                       <div className={classes.menuButtonInner}>
                         <div className={classes.menuButtonIcon}>
@@ -203,13 +203,13 @@ const AppLayout: React.FC = () => {
                               <div className={classes.dashboardFilterItem}>
                                 <NavLink
                                   className={`${classes.dashboardFilterItemText} ${classes.dashboardFilterItemGreen}`}
-                                  to="/dashboard?filter=available"
+                                  to="/?filter=available"
                                 />
                               </div>
                               <div className={classes.dashboardFilterItem}>
                                 <NavLink
                                   className={`${classes.dashboardFilterItemText} ${classes.dashboardFilterItemRed}`}
-                                  to="/dashboard?filter=unavailable"
+                                  to="/?filter=unavailable"
                                 />
                               </div>
                             </div>
@@ -289,12 +289,12 @@ const AppLayout: React.FC = () => {
         <nav className={classes.mobileMenu}>
           <ul className={classes.menuList}>
             {mainItems.map((item) => {
-              if (item.to === "/dashboard") {
+              if (item.to === "/") {
                 return (
                   <div key={item.to} className={classes.menuItem}>
                     <div
                       key={item.to}
-                      className={`${classes.menuButton} ${location.pathname === "/dashboard" ? classes.active : ""}`}
+                      className={`${classes.menuButton} ${location.pathname === "/" ? classes.active : ""}`}
                     >
                       <div className={classes.menuButtonInner}>
                         <div className={classes.menuButtonIcon}>
@@ -308,7 +308,7 @@ const AppLayout: React.FC = () => {
                             <div className={classes.dashboardFilterItem}>
                               <NavLink
                                 className={classes.dashboardFilterItemText}
-                                to="/dashboard?filter=all"
+                                to="/?filter=all"
                               >
                                 Все
                               </NavLink>
@@ -316,7 +316,7 @@ const AppLayout: React.FC = () => {
                             <div className={classes.dashboardFilterItem}>
                               <NavLink
                                 className={classes.dashboardFilterItemText}
-                                to="/dashboard?filter=available"
+                                to="/?filter=available"
                               >
                                 Доступные
                               </NavLink>
@@ -324,7 +324,7 @@ const AppLayout: React.FC = () => {
                             <div className={classes.dashboardFilterItem}>
                               <NavLink
                                 className={classes.dashboardFilterItemText}
-                                to="/dashboard?filter=unavailable"
+                                to="/?filter=unavailable"
                               >
                                 Недоступные
                               </NavLink>
