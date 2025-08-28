@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import {
   Stack,
@@ -56,8 +56,6 @@ const ServerInfo: React.FC = () => {
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
   const [selectedCamera, setSelectedCamera] = useState<number>(0);
 
-  const subscribeRef = useRef<boolean>(false);
-
   const [
     openedNotification,
     { toggle: toggleNotification, close: closeNotification },
@@ -91,11 +89,7 @@ const ServerInfo: React.FC = () => {
 
   const { fetchServer, findByUrlPort, forceUpdateWS } = useServersStore();
 
-  const {
-    subscribeToSpecificServer,
-    getServerStatus,
-    servers: monitoringServers,
-  } = useMonitoringStore();
+  const { getServerStatus, servers: monitoringServers } = useMonitoringStore();
 
   useEffect(() => {
     if (url && port && monitoringServers.length > 0) {
@@ -131,13 +125,6 @@ const ServerInfo: React.FC = () => {
         });
     }
   }, [url, port, fetchServer]);
-
-  useEffect(() => {
-    if (url && port && !subscribeRef.current) {
-      subscribeToSpecificServer(url, parseInt(port));
-      subscribeRef.current = true;
-    }
-  }, [url, port]);
 
   const { deleteUser, createUser } = useUsersStore();
 
@@ -709,7 +696,7 @@ const ServerInfo: React.FC = () => {
                   >
                     <div className={classes.summaryBoxTitle}>Активных</div>
                     <div className={classes.summaryBoxValue}>
-                      {main?.enabledCameras}
+                      {main?.enabledAllStreamsOk}
                     </div>
                   </div>
                   <div
@@ -717,8 +704,7 @@ const ServerInfo: React.FC = () => {
                   >
                     <div className={classes.summaryBoxTitle}>Проблемных</div>
                     <div className={classes.summaryBoxValue}>
-                      {(main?.totalCameras || 0) -
-                        (main?.enabledAllStreamsOk || 0)}
+                      {main?.enabledWithProblemStream}
                     </div>
                   </div>
                 </div>

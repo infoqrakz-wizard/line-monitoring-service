@@ -223,19 +223,9 @@ const Servers: React.FC = () => {
       return "";
     }
 
-    const { totalCameras, enabledCameras, enabledWithProblemStream } =
+    const { totalCameras, enabledAllStreamsOk, enabledWithProblemStream } =
       monitoring;
 
-    let workingCameras;
-
-    if (
-      Number.isInteger(enabledCameras) &&
-      Number.isInteger(enabledWithProblemStream)
-    ) {
-      workingCameras = enabledCameras - enabledWithProblemStream;
-    } else {
-      workingCameras = "";
-    }
     return (
       <Group gap="xs">
         {Number.isInteger(totalCameras) && (
@@ -245,10 +235,10 @@ const Servers: React.FC = () => {
             </Badge>
           </Tooltip>
         )}
-        {workingCameras && (
+        {enabledAllStreamsOk && (
           <Tooltip label="Активные">
             <Badge color="green" size="sm">
-              {workingCameras}
+              {enabledAllStreamsOk}
             </Badge>
           </Tooltip>
         )}

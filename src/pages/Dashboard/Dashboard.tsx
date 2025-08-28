@@ -373,19 +373,8 @@ const Dashboard: React.FC = () => {
       return null;
     }
 
-    const { totalCameras, enabledCameras, enabledWithProblemStream } =
+    const { totalCameras, enabledAllStreamsOk, enabledWithProblemStream } =
       monitoring;
-
-    let workingCameras;
-
-    if (
-      Number.isInteger(enabledCameras) &&
-      Number.isInteger(enabledWithProblemStream)
-    ) {
-      workingCameras = enabledCameras - enabledWithProblemStream;
-    } else {
-      workingCameras = "-";
-    }
 
     return (
       <Group gap="xs">
@@ -401,7 +390,7 @@ const Dashboard: React.FC = () => {
             </Badge>
           )}
         </Tooltip>
-        {Number.isInteger(workingCameras) && (
+        {Number.isInteger(enabledAllStreamsOk) && (
           <Tooltip
             label="Камер работают нормально"
             classNames={{
@@ -409,7 +398,7 @@ const Dashboard: React.FC = () => {
             }}
           >
             <Badge color="green" size="xs">
-              {`${workingCameras}`}
+              {`${enabledAllStreamsOk}`}
             </Badge>
           </Tooltip>
         )}

@@ -55,19 +55,8 @@ const ServerCard: FC<ServerCardProps> = ({
       return "";
     }
 
-    const { totalCameras, enabledCameras, enabledWithProblemStream } =
+    const { totalCameras, enabledAllStreamsOk, enabledWithProblemStream } =
       monitoring;
-
-    let workingCameras;
-
-    if (
-      Number.isInteger(enabledCameras) &&
-      Number.isInteger(enabledWithProblemStream)
-    ) {
-      workingCameras = enabledCameras - enabledWithProblemStream;
-    } else {
-      workingCameras = "-";
-    }
 
     return (
       <Group gap="xs">
@@ -75,7 +64,7 @@ const ServerCard: FC<ServerCardProps> = ({
           {Number.isInteger(totalCameras) ? totalCameras : "-"}
         </Badge>
         <Badge color="green" size="xs">
-          {workingCameras}
+          {enabledAllStreamsOk}
         </Badge>
         {enabledWithProblemStream && (
           <Badge color="rgb(250, 82, 82)" size="xs">

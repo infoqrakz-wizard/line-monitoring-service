@@ -245,12 +245,6 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
     onClose();
   };
 
-  const handleReset = () => {
-    if (originalConfig) {
-      setConfig(JSON.parse(JSON.stringify(originalConfig)));
-    }
-  };
-
   const updateConfig = (updates: Partial<CameraConfig>) => {
     if (config) {
       setConfig({
@@ -306,11 +300,6 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
         <div className={classes.header}>
           <Title order={3} className={classes.title}>
             Настройки камеры: {serverName} - Камера {camera}
-            {getChangedFields() && (
-              <Text component="span" size="sm" c="blue" ml="sm">
-                (есть изменения)
-              </Text>
-            )}
           </Title>
           <Button
             variant="subtle"
@@ -483,15 +472,6 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
               Сервер: {serverUrl}:{serverPort}
             </Text>
             <Group>
-              {getChangedFields() && (
-                <Button
-                  variant="outline"
-                  onClick={handleReset}
-                  disabled={saving || updatingServerData}
-                >
-                  Сбросить
-                </Button>
-              )}
               <Button
                 variant="default"
                 onClick={handleCancel}
