@@ -395,21 +395,24 @@ const Dashboard: React.FC = () => {
             tooltip: classes.tooltip,
           }}
         >
-          <Badge color="dark" size="xs">
-            {Number.isInteger(totalCameras) ? totalCameras : "-"}
-            {`${totalCameras}`}
-          </Badge>
+          {Number.isInteger(totalCameras) && (
+            <Badge color="dark" size="xs">
+              {`${totalCameras}`}
+            </Badge>
+          )}
         </Tooltip>
-        <Tooltip
-          label="Камер работают нормально"
-          classNames={{
-            tooltip: classes.tooltip,
-          }}
-        >
-          <Badge color="green" size="xs">
-            {`${workingCameras}`}
-          </Badge>
-        </Tooltip>
+        {Number.isInteger(workingCameras) && (
+          <Tooltip
+            label="Камер работают нормально"
+            classNames={{
+              tooltip: classes.tooltip,
+            }}
+          >
+            <Badge color="green" size="xs">
+              {`${workingCameras}`}
+            </Badge>
+          </Tooltip>
+        )}
         {enabledWithProblemStream && (
           <Tooltip
             label="Камер с проблемами"
@@ -418,7 +421,7 @@ const Dashboard: React.FC = () => {
             }}
           >
             <Badge color="rgb(250, 82, 82)" size="xs">
-              {enabledWithProblemStream}
+              {`${enabledWithProblemStream}`}
             </Badge>
           </Tooltip>
         )}
@@ -588,7 +591,7 @@ const Dashboard: React.FC = () => {
               {server.name}
             </Text>
             {server.address && (
-              <Text className={classes.serverAddress} ta="left" size="xs">
+              <Text className={classes.serverAddress} ta="left" size="md">
                 {server.address}
               </Text>
             )}

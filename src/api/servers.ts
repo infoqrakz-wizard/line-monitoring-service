@@ -15,7 +15,12 @@ export type CreateServerRequest = {
   };
 };
 
-export type UpdateServerRequest = Partial<CreateServerRequest>;
+export type UpdateServerRequest = Partial<CreateServerRequest> & {
+  maps?: {
+    x: number | string;
+    y: number | string;
+  } | null;
+};
 
 export type PaginatedResponse<T> = {
   limit: number;

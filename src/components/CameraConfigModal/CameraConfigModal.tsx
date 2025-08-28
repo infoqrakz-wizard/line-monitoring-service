@@ -12,6 +12,7 @@ import {
   LoadingOverlay,
 } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
+import { DeepPartial } from "@/types";
 import { cameraApi, type CameraConfig } from "@/api/camera";
 import classes from "./CameraConfigModal.module.css";
 import Checkbox from "../Checkbox";
@@ -19,7 +20,7 @@ import Checkbox from "../Checkbox";
 export type CameraConfigModalProps = {
   opened: boolean;
   onClose: () => void;
-  onSave: (config: CameraConfig) => Promise<void>;
+  onSave: (config: DeepPartial<CameraConfig>) => Promise<void>;
   serverUrl: string;
   serverPort: number;
   username: string;
@@ -57,6 +58,9 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
   updatingServerData = false,
 }) => {
   const [config, setConfig] = useState<CameraConfig | null>(null);
+  const [originalConfig, setOriginalConfig] = useState<CameraConfig | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +84,7 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
           camera,
         );
         setConfig(cameraConfig);
+        setOriginalConfig(JSON.parse(JSON.stringify(cameraConfig))); // Deep copy for comparison
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Ошибка загрузки конфигурации",
@@ -100,8 +105,123 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
     };
   }, [opened]);
 
+  // Helper function to check if a value has changed
+  const hasChanged = (current: unknown, original: unknown): boolean => {
+    return current !== original;
+  };
+
+  // Function to get only changed fields
+  const getChangedFields = (): DeepPartial<CameraConfig> | null => {
+    if (!config || !originalConfig) {
+      return null;
+    }
+
+    const changes: DeepPartial<CameraConfig> = {};
+
+    // Check global settings
+    if (hasChanged(config.enabled, originalConfig.enabled)) {
+      changes.enabled = config.enabled;
+    }
+    if (hasChanged(config.name, originalConfig.name)) {
+      changes.name = config.name;
+    }
+
+    // Check video streams
+    const videoChanges: DeepPartial<CameraConfig["video_streams"]> = {};
+
+    // Main video stream - check each field individually
+    const mainVideoChanges: DeepPartial<
+      CameraConfig["video_streams"]["video"]
+    > = {};
+    if (
+      hasChanged(
+        config.video_streams.video.url,
+        originalConfig.video_streams.video.url,
+      )
+    ) {
+      mainVideoChanges.url = config.video_streams.video.url;
+    }
+    if (
+      hasChanged(
+        config.video_streams.video.record_mode,
+        originalConfig.video_streams.video.record_mode,
+      )
+    ) {
+      mainVideoChanges.record_mode = config.video_streams.video.record_mode;
+    }
+
+    if (Object.keys(mainVideoChanges).length > 0) {
+      videoChanges.video = mainVideoChanges;
+    }
+
+    // Secondary video stream - check each field individually
+    const secondaryVideoChanges: DeepPartial<
+      CameraConfig["video_streams"]["video2"]
+    > = {};
+    if (
+      hasChanged(
+        config.video_streams.video2.enabled,
+        originalConfig.video_streams.video2.enabled,
+      )
+    ) {
+      secondaryVideoChanges.enabled = config.video_streams.video2.enabled;
+    }
+    if (
+      hasChanged(
+        config.video_streams.video2.url,
+        originalConfig.video_streams.video2.url,
+      )
+    ) {
+      secondaryVideoChanges.url = config.video_streams.video2.url;
+    }
+    if (
+      hasChanged(
+        config.video_streams.video2.record_mode,
+        originalConfig.video_streams.video2.record_mode,
+      )
+    ) {
+      secondaryVideoChanges.record_mode =
+        config.video_streams.video2.record_mode;
+    }
+
+    if (Object.keys(secondaryVideoChanges).length > 0) {
+      videoChanges.video2 = secondaryVideoChanges;
+    }
+
+    if (Object.keys(videoChanges).length > 0) {
+      changes.video_streams = videoChanges;
+    }
+
+    // Check audio streams
+    const audioChanges: DeepPartial<CameraConfig["audio_streams"]> = {};
+    if (
+      hasChanged(
+        config.audio_streams.audio.enabled,
+        originalConfig.audio_streams.audio.enabled,
+      )
+    ) {
+      audioChanges.audio = {
+        enabled: config.audio_streams.audio.enabled,
+      };
+    }
+
+    if (Object.keys(audioChanges).length > 0) {
+      changes.audio_streams = audioChanges;
+    }
+
+    // Return null if no changes
+    return Object.keys(changes).length > 0 ? changes : null;
+  };
+
   const handleSave = async () => {
     if (!config) {
+      return;
+    }
+
+    const changedFields = getChangedFields();
+    if (!changedFields) {
+      // No changes, just close the modal
+      onClose();
       return;
     }
 
@@ -109,7 +229,8 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
     setError(null);
 
     try {
-      await onSave(config);
+      // Send only the changed fields, not the entire config
+      await onSave(changedFields);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ошибка сохранения конфигурации",
@@ -122,6 +243,12 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
 
   const handleCancel = () => {
     onClose();
+  };
+
+  const handleReset = () => {
+    if (originalConfig) {
+      setConfig(JSON.parse(JSON.stringify(originalConfig)));
+    }
   };
 
   const updateConfig = (updates: Partial<CameraConfig>) => {
@@ -179,6 +306,11 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
         <div className={classes.header}>
           <Title order={3} className={classes.title}>
             Настройки камеры: {serverName} - Камера {camera}
+            {getChangedFields() && (
+              <Text component="span" size="sm" c="blue" ml="sm">
+                (есть изменения)
+              </Text>
+            )}
           </Title>
           <Button
             variant="subtle"
@@ -351,6 +483,15 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
               Сервер: {serverUrl}:{serverPort}
             </Text>
             <Group>
+              {getChangedFields() && (
+                <Button
+                  variant="outline"
+                  onClick={handleReset}
+                  disabled={saving || updatingServerData}
+                >
+                  Сбросить
+                </Button>
+              )}
               <Button
                 variant="default"
                 onClick={handleCancel}
@@ -363,7 +504,12 @@ const CameraConfigModal: React.FC<CameraConfigModalProps> = ({
                 variant="black"
                 onClick={handleSave}
                 loading={saving}
-                disabled={!config || loading || updatingServerData}
+                disabled={
+                  !config ||
+                  loading ||
+                  updatingServerData ||
+                  !getChangedFields()
+                }
               >
                 Сохранить
               </Button>

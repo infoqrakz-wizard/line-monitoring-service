@@ -23,7 +23,7 @@ import {
 import { useServerInfo } from "@/hooks/useServerInfo";
 import { downtime } from "@/api";
 import { cameraApi, type CameraConfig } from "@/api/camera";
-import type { DowntimeEvent, ServerStatus } from "@/types";
+import type { DeepPartial, DowntimeEvent, ServerStatus } from "@/types";
 import { CreateUserModal } from "@/components/CreateUserModal";
 import { useUsersStore } from "@/store/users";
 import { useAuthStore } from "@/store/auth";
@@ -369,7 +369,7 @@ const ServerInfo: React.FC = () => {
     setSelectedCameraForConfig("");
   };
 
-  const handleSaveCameraConfig = async (config: CameraConfig) => {
+  const handleSaveCameraConfig = async (config: DeepPartial<CameraConfig>) => {
     if (!url || !port || !username || !password || !selectedCameraForConfig) {
       return;
     }

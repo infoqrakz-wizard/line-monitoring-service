@@ -148,6 +148,7 @@ const CreateServer: React.FC = () => {
         coordinates: fromStore.maps
           ? `${fromStore.maps.x}, ${fromStore.maps.y}`
           : "",
+        address: fromStore.address || "",
       });
       return;
     }
@@ -167,6 +168,7 @@ const CreateServer: React.FC = () => {
           ipAddress: server.url,
           port: server.port,
           coordinates: server.maps ? `${server.maps.x}, ${server.maps.y}` : "",
+          address: server.address || "",
         });
       })
       .catch(() => {
@@ -292,19 +294,59 @@ const CreateServer: React.FC = () => {
         patch.password = formData.password;
       }
 
-      const coordinates = (formData.coordinates || "")
-        .split(",")
-        .map((coord) => parseFloat(coord.trim()));
-      const newMaps = {
-        x: coordinates[0],
-        y: coordinates[1],
-      };
+      // Обработка поля address
+      const formAddress = formData.address || "";
+      const originalAddress = originalServer.address || "";
 
-      if (
-        newMaps.x !== originalServer.maps?.x ||
-        newMaps.y !== originalServer.maps?.y
-      ) {
-        patch.maps = newMaps;
+      if (formAddress.trim() === "" && originalAddress.trim() === "") {
+        // Оба адреса пустые - ничего не изменяем
+      } else if (formAddress.trim() === "" && originalAddress.trim() !== "") {
+        // Очищаем существующий адрес
+        patch.address = "";
+      } else if (formAddress.trim() !== "" && originalAddress.trim() !== "") {
+        // Сравниваем два непустых адреса
+        if (formAddress !== originalAddress) {
+          patch.address = formAddress;
+        }
+      } else if (formAddress.trim() !== "" && originalAddress.trim() === "") {
+        // Устанавливаем новый адрес
+        patch.address = formAddress;
+      }
+
+      // Обработка координат для поля maps
+      if ((formData.coordinates || "").trim() === "") {
+        // Если координаты пустые, но в оригинальном сервере есть значения
+        if (originalServer.maps) {
+          patch.maps = {
+            x: "",
+            y: "",
+          };
+        }
+      } else {
+        // Если координаты не пустые, парсим их
+        const coordinates = (formData.coordinates || "")
+          .split(",")
+          .map((coord) => parseFloat(coord.trim()));
+
+        // Проверяем, что получили валидные координаты
+        if (
+          coordinates.length === 2 &&
+          !isNaN(coordinates[0]) &&
+          !isNaN(coordinates[1])
+        ) {
+          const newMaps = {
+            x: coordinates[0],
+            y: coordinates[1],
+          };
+
+          // Проверяем, изменились ли координаты
+          if (
+            newMaps.x !== originalServer.maps?.x ||
+            newMaps.y !== originalServer.maps?.y
+          ) {
+            patch.maps = newMaps;
+          }
+        }
       }
 
       if (Object.keys(patch).length === 0) {

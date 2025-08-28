@@ -55,7 +55,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
     text-align: left;

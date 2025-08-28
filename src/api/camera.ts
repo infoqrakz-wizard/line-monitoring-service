@@ -1,4 +1,5 @@
 import { request } from "@/lib/request";
+import { DeepPartial } from "@/types";
 
 export interface CameraConfig {
   id: string;
@@ -135,7 +136,7 @@ export const cameraApi = {
     username: string,
     password: string,
     camera: string,
-    config: Partial<CameraConfig>,
+    config: DeepPartial<CameraConfig>,
   ): Promise<SetCameraConfigResponse> => {
     const response = await request.post<SetCameraConfigResponse>(
       "/api/rpc-proxy",
