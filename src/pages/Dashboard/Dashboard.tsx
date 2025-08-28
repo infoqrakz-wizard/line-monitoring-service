@@ -1,5 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Text, Group, Pagination, Badge, Divider } from "@mantine/core";
+import {
+  Text,
+  Group,
+  Pagination,
+  Badge,
+  Divider,
+  Tooltip,
+} from "@mantine/core";
 import CustomTooltip from "@/components/CustomTooltip";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useServersStore } from "@/store/servers";
@@ -360,6 +367,95 @@ const Dashboard: React.FC = () => {
     }
   }, []);
 
+  // Функция форматирования отображения камер
+  const formatCamerasDisplay = useCallback((monitoring?: any) => {
+    if (!monitoring) {
+      return null;
+    }
+
+    const { totalCameras, enabledCameras, enabledWithProblemStream } =
+      monitoring;
+
+    let workingCameras;
+
+    if (
+      Number.isInteger(enabledCameras) &&
+      Number.isInteger(enabledWithProblemStream)
+    ) {
+      workingCameras = enabledCameras - enabledWithProblemStream;
+    } else {
+      workingCameras = "-";
+    }
+
+    return (
+      <Group gap="xs">
+        <Tooltip
+          label="Камер всего"
+          classNames={{
+            tooltip: classes.tooltip,
+          }}
+        >
+          <Badge color="dark" size="xs">
+            {Number.isInteger(totalCameras) ? totalCameras : "-"}
+            {`${totalCameras}`}
+          </Badge>
+        </Tooltip>
+        <Tooltip
+          label="Камер работают нормально"
+          classNames={{
+            tooltip: classes.tooltip,
+          }}
+        >
+          <Badge color="green" size="xs">
+            {`${workingCameras}`}
+          </Badge>
+        </Tooltip>
+        {enabledWithProblemStream && (
+          <Tooltip
+            label="Камер с проблемами"
+            classNames={{
+              tooltip: classes.tooltip,
+            }}
+          >
+            <Badge color="rgb(250, 82, 82)" size="xs">
+              {enabledWithProblemStream}
+            </Badge>
+          </Tooltip>
+        )}
+      </Group>
+    );
+  }, []);
+
+  // Функция форматирования статуса HDD
+  const formatHddStatus = useCallback((monitoring?: any) => {
+    if (!monitoring) {
+      return "-";
+    }
+
+    if (monitoring.lastErrorTime === null) {
+      return (
+        <Badge color="green" size="xs" title="HDD работает нормально">
+          OK
+        </Badge>
+      );
+    } else {
+      const errorDate = new Date(monitoring.lastErrorTime).toLocaleDateString();
+      if (errorDate === "Invalid Date") {
+        return null;
+      }
+
+      return (
+        <Badge
+          color="rgb(250, 82, 82)"
+          size="xs"
+          title={`Ошибка HDD: ${errorDate}`}
+        >
+          {errorDate}
+        </Badge>
+      );
+    }
+  }, []);
+
   const handleServerClick = useCallback(
     (url: string, port: number) => {
       void navigate(
@@ -443,7 +539,17 @@ const Dashboard: React.FC = () => {
               </Group>
               <Group gap="xs" mb="xs">
                 <Text size="xs">Камеры:</Text>
-                <Text size="xs">{totalCameras > 0 ? totalCameras : "Н/Д"}</Text>
+                <div>
+                  {formatCamerasDisplay(monitoringServer?.sections.main) || (
+                    <Text size="xs">
+                      {totalCameras > 0 ? totalCameras : "Н/Д"}
+                    </Text>
+                  )}
+                </div>
+              </Group>
+              <Group gap="xs" mb="xs">
+                <Text size="xs">HDD:</Text>
+                <div>{formatHddStatus(monitoringServer?.sections.main)}</div>
               </Group>
               <Group gap="xs" mb="xs">
                 <Text size="xs">Uptime:</Text>
@@ -478,7 +584,7 @@ const Dashboard: React.FC = () => {
               height: gridConfig ? `${gridConfig.tileH}px` : "100%",
             }}
           >
-            <Text className={classes.serverName} ta="left" size="sm" fw={500}>
+            <Text className={classes.serverName} ta="left" size="lg" fw={500}>
               {server.name}
             </Text>
           </div>
@@ -489,6 +595,8 @@ const Dashboard: React.FC = () => {
       getServerStatusFromMonitoring,
       getStatusColor,
       getStatusLabel,
+      formatCamerasDisplay,
+      formatHddStatus,
       monitoringServers,
       openTooltipId,
       handleTooltipClose,

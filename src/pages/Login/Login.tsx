@@ -47,7 +47,7 @@ const Login: React.FC = () => {
     if (isAuthenticated) {
       // Добавляем небольшую задержку для стабилизации состояния
       const timer = setTimeout(() => {
-        void navigate("/servers", { replace: true });
+        void navigate("/", { replace: true });
       }, 100);
 
       return () => clearTimeout(timer);
@@ -65,7 +65,7 @@ const Login: React.FC = () => {
 
     try {
       await login(email.trim(), password);
-      void navigate("/servers", { replace: true });
+      void navigate("/", { replace: true });
     } catch {
       const errorMessage = "Проверьте email и пароль.";
       setError(errorMessage);

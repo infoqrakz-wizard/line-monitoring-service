@@ -127,8 +127,8 @@ const App: React.FC = () => {
               <Route path="/password-reset" element={<PasswordReset />} />
               <Route element={<Protected />}>
                 <Route element={<AppLayout />}>
-                  <Route index element={<Monitoring />} />
-                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route index element={<Dashboard />} />
+                  <Route path="monitoring" element={<Monitoring />} />
                   <Route path="servers" element={<Servers />} />
                   <Route path="servers/create" element={<CreateServer />} />
                   <Route path="servers/edit" element={<CreateServer />} />

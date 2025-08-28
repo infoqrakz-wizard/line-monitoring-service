@@ -24,20 +24,6 @@ const AppLayout: React.FC = () => {
   const mainItems = [
     {
       to: "/",
-      label: "Мониторинг",
-      icon: (
-        <img
-          src={monitoringIconUrl}
-          className={classes.menuIcon}
-          width={24}
-          height={24}
-          alt=""
-          aria-hidden="true"
-        />
-      ),
-    },
-    {
-      to: "/dashboard",
       label: "Дашборд",
       icon: (
         <img
@@ -50,6 +36,21 @@ const AppLayout: React.FC = () => {
         />
       ),
     },
+    {
+      to: "/monitoring",
+      label: "Мониторинг",
+      icon: (
+        <img
+          src={monitoringIconUrl}
+          className={classes.menuIcon}
+          width={24}
+          height={24}
+          alt=""
+          aria-hidden="true"
+        />
+      ),
+    },
+
     {
       to: "/servers",
       label: "Серверы",

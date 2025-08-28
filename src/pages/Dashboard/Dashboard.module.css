@@ -122,6 +122,10 @@
     color: #333333;
 }
 
+.tooltip {
+  z-index: 1500 !important;
+}
+
 /* Large tablet styles */
 @media (max-width: 1200px) {
     .wrapper {
