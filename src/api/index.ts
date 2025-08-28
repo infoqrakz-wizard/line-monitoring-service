@@ -31,6 +31,7 @@ export type {
   DowntimeEventResponse,
   DowntimeFilter,
   DowntimeQueryRequest,
+  DowntimeServerQueryRequest,
   DowntimeDeleteRequest,
 } from "@/types";
 export { queue };

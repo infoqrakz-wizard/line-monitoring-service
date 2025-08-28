@@ -147,35 +147,17 @@ const ServerInfo: React.FC = () => {
     }
 
     try {
-      const serverDownEventsPromise = downtime.query({
-        filter: "servers_down",
+      const response = await downtime.queryByServer({
+        url,
+        port: parseInt(port),
       });
 
-      const cameraDownEventsPromise = downtime.query({
-        filter: "cameras_down",
-      });
+      // Разделяем события по типам
+      const completedEvents = response.data.filter((event) => !!event.up_at);
+      const activeEvents = response.data.filter((event) => !event.up_at);
 
-      const completedEventsPromise = downtime.query({
-        filter: "completed",
-      });
-
-      const [serverDownEvents, cameraDownEvents, completedEvents] =
-        await Promise.all([
-          serverDownEventsPromise,
-          cameraDownEventsPromise,
-          completedEventsPromise,
-        ]);
-
-      setCompletedEvents(
-        completedEvents.data.filter(
-          (event) => event.url === url && event.port === parseInt(port),
-        ),
-      );
-      const filteredEvents = [
-        ...serverDownEvents.data,
-        ...cameraDownEvents.data,
-      ].filter((event) => event.url === url && event.port === parseInt(port));
-      setDowntimeEvents(filteredEvents);
+      setCompletedEvents(completedEvents);
+      setDowntimeEvents(activeEvents);
       setLoadingEvents(false);
     } catch (error) {
       console.error("Failed to fetch downtime events:", error);
@@ -413,13 +395,16 @@ const ServerInfo: React.FC = () => {
     }
   };
 
-  const getCameraPreviewUrl = (cameraId: string) => {
+  const getCameraPreviewUrl = (
+    cameraId: string,
+    protocol: "http" | "https" = "https",
+  ) => {
     if (!url || !port || !username) {
       return "";
     }
 
     const credentials = btoa(`${username}:${password || ""}`);
-    return `https://${url}:${port}/cameras/${cameraId}/image?authorization=Basic%20${credentials}&keep_aspect_ratio=0&resolution=640x480`;
+    return `${protocol}://${url}:${port}/cameras/${cameraId}/image?authorization=Basic%20${credentials}&keep_aspect_ratio=0&resolution=640x480`;
   };
 
   if (!url || !port) {
@@ -841,7 +826,7 @@ const ServerInfo: React.FC = () => {
                             src={
                               shouldShowFallback
                                 ? ""
-                                : getCameraPreviewUrl(camera.id)
+                                : getCameraPreviewUrl(camera.id, protocol)
                             }
                             alt={`Preview camera ${camera.id}`}
                             fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDY0MCA0ODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyMCIgeT0iMjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Q0EzQUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qn9GA0LXQtNC/0YDQvtGB0LzQvtGC0YAg0L3QtdC00L7RgdGC0YPQv9C10L08L3RleHQ+Cjwvc3ZnPgo="

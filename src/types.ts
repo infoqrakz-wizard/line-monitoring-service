@@ -200,6 +200,11 @@ export type DowntimeQueryRequest = {
   filter: DowntimeFilter;
 };
 
+export type DowntimeServerQueryRequest = {
+  url: string;
+  port: number;
+};
+
 export type DowntimeDeleteRequest = {
   id?: number;
   url?: string;
