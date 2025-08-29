@@ -25,13 +25,14 @@ export type UpdateServerRequest = Partial<CreateServerRequest> & {
 export type PaginatedResponse<T> = {
   limit: number;
   nextCursor: string | null;
+  previousCursor: string | null;
   servers: T[];
   total: number;
   totalPages: number;
 };
 
 const buildQueryString = (
-  params: Record<string, string | number | undefined>,
+  params: Record<string, string | number | null | undefined>,
 ): string => {
   const searchParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
@@ -49,14 +50,14 @@ const buildUrlPort = (url: string, port: number | string): string =>
 export const listServers = async (
   params: {
     limit?: number;
-    offset?: number;
+    cursor?: string | null;
     search?: string;
     filter?: "all" | "available" | "unavailable";
   } = {},
 ): Promise<PaginatedResponse<ServerItem>> => {
   const query = buildQueryString({
     limit: params.limit,
-    offset: params.offset,
+    cursor: params.cursor,
     search: params.search,
     filter: params.filter,
   });

@@ -1,12 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import {
-  Text,
-  Group,
-  Pagination,
-  Badge,
-  Divider,
-  Tooltip,
-} from "@mantine/core";
+import { Text, Group, Badge, Divider, Tooltip, Button } from "@mantine/core";
 import CustomTooltip from "@/components/CustomTooltip";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useServersStore } from "@/store/servers";
@@ -41,8 +34,11 @@ const GRID_GAP = 8; // Размер gap между элементами в px
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [currentPage, setCurrentPage] = useState(1);
   const [openTooltipId, setOpenTooltipId] = useState<number | null>(null);
+
+  // Состояние для cursor-based пагинации
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+
   const [clickPosition, setClickPosition] = useState<{
     x: number;
     y: number;
@@ -62,15 +58,8 @@ const Dashboard: React.FC = () => {
 
   const pageSize = 60; // Фиксированное количество элементов на странице
 
-  const {
-    servers,
-    loading,
-    error,
-    total,
-    totalPages: totalPagesFromStore,
-    fetchServers,
-    setCurrentPage: setCurrentPageStore,
-  } = useServersStore();
+  const { servers, loading, error, total, nextCursor, previousCursor, fetchServers } =
+    useServersStore();
 
   const currentServers = servers;
 
@@ -232,7 +221,7 @@ const Dashboard: React.FC = () => {
     } else {
       setGridConfig(null);
     }
-  }, [bestRectGrid, parseAspect, currentServers.length, shouldShowPagination]);
+  }, [bestRectGrid, parseAspect, currentServers.length]);
 
   // Функция для получения статуса сервера из monitoring store
   const getServerStatusFromMonitoring = useCallback(
@@ -255,19 +244,18 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     void fetchServers({
-      page: currentPage,
+      cursor: currentPageIndex === 0 ? null : null, // Всегда начинаем с первой страницы
       limit: pageSize,
       filter: activeFilter,
     });
-  }, [fetchServers, currentPage, pageSize, activeFilter]);
+  }, [fetchServers, pageSize, activeFilter]);
 
-  // Сбрасываем страницу на первую при изменении фильтра
+  // Сбрасываем пагинацию при изменении фильтра
   useEffect(() => {
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-      setCurrentPageStore(1);
+    if (currentPageIndex !== 0) {
+      setCurrentPageIndex(0);
     }
-  }, [activeFilter, currentPage, setCurrentPageStore]);
+  }, [activeFilter, currentPageIndex]);
 
   // Подписываемся на мониторинг для получения статусов серверов
   useEffect(() => {
@@ -579,11 +567,6 @@ const Dashboard: React.FC = () => {
             <Text className={classes.serverName} ta="left" size="lg" fw={500}>
               {server.name}
             </Text>
-            {server.address && (
-              <Text className={classes.serverAddress} ta="left" size="md">
-                {server.address}
-              </Text>
-            )}
           </div>
         </CustomTooltip>
       );
@@ -670,8 +653,6 @@ const Dashboard: React.FC = () => {
     return elements;
   }, [gridConfig, currentServers, renderServerCard]);
 
-  const totalPages = totalPagesFromStore || 1;
-
   if (loading) {
     return (
       <div className={classes.wrapper}>
@@ -732,20 +713,45 @@ const Dashboard: React.FC = () => {
 
         {shouldShowPagination && (
           <div className={classes.paginationContainer}>
-            <Pagination
-              total={totalPages}
-              value={currentPage}
-              onChange={(page) => {
-                setCurrentPage(page);
-                void fetchServers({
-                  page,
-                  limit: pageSize,
-                  filter: activeFilter,
-                });
-              }}
-              size="sm"
-              radius="md"
-            />
+            <Group gap="xs" justify="center">
+              <Button
+                variant="subtle"
+                size="sm"
+                disabled={!previousCursor}
+                onClick={() => {
+                  if (previousCursor) {
+                    setCurrentPageIndex(currentPageIndex - 1);
+                    void fetchServers({
+                      cursor: previousCursor,
+                      limit: pageSize,
+                      filter: activeFilter,
+                    });
+                  }
+                }}
+              >
+                Назад
+              </Button>
+              <Text size="sm" c="dimmed">
+                Страница {currentPageIndex + 1}
+              </Text>
+              <Button
+                variant="subtle"
+                size="sm"
+                disabled={!nextCursor}
+                onClick={() => {
+                  if (nextCursor) {
+                    setCurrentPageIndex(currentPageIndex + 1);
+                    void fetchServers({
+                      cursor: nextCursor,
+                      limit: pageSize,
+                      filter: activeFilter,
+                    });
+                  }
+                }}
+              >
+                Вперед
+              </Button>
+            </Group>
           </div>
         )}
 

@@ -8,7 +8,6 @@ import {
   LoadingOverlay,
   Badge,
   Table,
-  Pagination,
   Text,
 } from "@mantine/core";
 import SearchInput from "@/components/SearchInput/SearchInput";
@@ -41,11 +40,10 @@ const Servers: React.FC = () => {
     loading,
     error,
     total,
-    totalPages,
-    currentPage,
+    nextCursor,
+    previousCursor,
     fetchServers,
     deleteServer,
-    setCurrentPage,
   } = useServersStore();
 
   const { role } = useAuthStore();
@@ -75,6 +73,9 @@ const Servers: React.FC = () => {
     Record<string, DowntimeEvent>
   >({});
 
+  // Состояние для cursor-based пагинации
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+
   const handleClickFilter = (filter: "all" | "available" | "unavailable") => {
     if (filter === "available" && activeFilter === "available") {
       setActiveFilter("all");
@@ -99,9 +100,12 @@ const Servers: React.FC = () => {
   }, [q]);
 
   useEffect(() => {
+    // Сбрасываем пагинацию при изменении фильтров или поиска
+    setCurrentPageIndex(0);
+
     if (debouncedQ === "" && activeFilter === "all") {
       void fetchServers({
-        page: currentPage,
+        cursor: null,
         search: "",
         filter: "all",
       });
@@ -109,18 +113,18 @@ const Servers: React.FC = () => {
     }
 
     void fetchServers({
-      page: currentPage,
+      cursor: null,
       search: debouncedQ || "",
       filter: activeFilter,
     });
-  }, [fetchServers, currentPage, debouncedQ, activeFilter]);
+  }, [fetchServers, debouncedQ, activeFilter]);
 
-  // Сбрасываем страницу на первую при изменении фильтров или поиска
+  // Сбрасываем пагинацию при изменении фильтров или поиска
   useEffect(() => {
-    if (currentPage !== 1) {
-      setCurrentPage(1);
+    if (currentPageIndex !== 0) {
+      setCurrentPageIndex(0);
     }
-  }, [activeFilter, debouncedQ, currentPage, setCurrentPage]);
+  }, [activeFilter, debouncedQ]);
 
   // Объединяем данные серверов с мониторингом
   const serversWithMonitoring = useMemo((): ServerItemWithMonitoring[] => {
@@ -176,7 +180,7 @@ const Servers: React.FC = () => {
       cancelled = true;
       clearInterval(id);
     };
-  }, [debouncedQ, activeFilter, currentPage]);
+  }, [debouncedQ, activeFilter, currentPageIndex]);
 
   const handleClickDeleteServer = (url: string, port: number) => {
     const server = serversWithMonitoring.find(
@@ -196,14 +200,7 @@ const Servers: React.FC = () => {
     setIsRemoveModalOpen(false);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    void fetchServers({
-      page,
-      search: debouncedQ || undefined,
-      filter: activeFilter,
-    });
-  };
+
 
   const getStatusDotClass = (status?: ServerStatus) => {
     switch (status) {
@@ -478,21 +475,52 @@ const Servers: React.FC = () => {
         </SimpleGrid>
       </div>
 
-      {totalPages > 1 && (
+      {total > 0 && (
         <div className={classes.paginationContainer}>
           <div className={classes.paginationInfo}>
             <Text size="sm" c="dimmed">
               Показано {servers.length} из {total} серверов
             </Text>
           </div>
-          <Pagination
-            total={totalPages}
-            value={currentPage}
-            onChange={handlePageChange}
-            size="sm"
-            radius="md"
-            withEdges
-          />
+          <Group gap="xs" justify="center">
+            <Button
+              variant="subtle"
+              size="sm"
+              disabled={!previousCursor}
+              onClick={() => {
+                if (previousCursor) {
+                  setCurrentPageIndex(currentPageIndex - 1);
+                  void fetchServers({
+                    cursor: previousCursor,
+                    search: debouncedQ || undefined,
+                    filter: activeFilter,
+                  });
+                }
+              }}
+            >
+              Назад
+            </Button>
+            <Text size="sm" c="dimmed">
+              Страница {currentPageIndex + 1}
+            </Text>
+            <Button
+              variant="subtle"
+              size="sm"
+              disabled={!nextCursor}
+              onClick={() => {
+                if (nextCursor) {
+                  setCurrentPageIndex(currentPageIndex + 1);
+                  void fetchServers({
+                    cursor: nextCursor,
+                    search: debouncedQ || undefined,
+                    filter: activeFilter,
+                  });
+                }
+              }}
+            >
+              Вперед
+            </Button>
+          </Group>
         </div>
       )}
 
