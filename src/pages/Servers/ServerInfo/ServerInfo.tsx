@@ -91,19 +91,33 @@ const ServerInfo: React.FC = () => {
 
   const { getServerStatus, servers: monitoringServers } = useMonitoringStore();
 
+  const { deleteUser, createUser } = useUsersStore();
+
+  const server = url && port ? findByUrlPort(url, parseInt(port)) : undefined;
+  const username = server?.username || "";
+  const password = server?.password || "";
+
+  const protocol = server?.scheme || "https";
+
   useEffect(() => {
     if (url && port && monitoringServers.length > 0) {
-      setServerStatus(
-        getServerStatus(
-          monitoringServers.find(
-            (s) =>
-              s.sections.main.url === url &&
-              s.sections.main.port === parseInt(port),
-          )!,
-        ),
+      const monitoringServer = monitoringServers.find(
+        (s) =>
+          s.sections.main.url === url &&
+          s.sections.main.port === parseInt(port),
       );
+
+      if (monitoringServer) {
+        const status = getServerStatus(monitoringServer);
+        // Если сервер выключен, показываем статус "disabled"
+        if (server && !server.enabled) {
+          setServerStatus("disabled");
+        } else {
+          setServerStatus(status);
+        }
+      }
     }
-  }, [url, port, monitoringServers, getServerStatus]);
+  }, [url, port, monitoringServers, getServerStatus, server]);
 
   const { role } = useAuthStore((s) => ({
     role: s.role,
@@ -125,14 +139,6 @@ const ServerInfo: React.FC = () => {
         });
     }
   }, [url, port, fetchServer]);
-
-  const { deleteUser, createUser } = useUsersStore();
-
-  const server = url && port ? findByUrlPort(url, parseInt(port)) : undefined;
-  const username = server?.username || "";
-  const password = server?.password || "";
-
-  const protocol = server?.scheme || "https";
 
   useEffect(() => {
     if (url && port) {
@@ -661,12 +667,12 @@ const ServerInfo: React.FC = () => {
         {/* Cameras - Middle */}
         <div className={classes.cameras}>
           <div className={classes.sectionHeaderTitle}>Камеры</div>
-          {serverStatus === "red" && (
+          {(serverStatus === "red" || serverStatus === "disabled") && (
             <Text c="dimmed" ta="center" py="xl">
-              Нет доступа
+              {serverStatus === "disabled" ? "Сервер выключен" : "Нет доступа"}
             </Text>
           )}
-          {serverStatus !== "red" && (
+          {serverStatus !== "red" && serverStatus !== "disabled" && (
             <>
               {!loadingServerInfo && main?.totalCameras && (
                 <div className={classes.cameraSummary}>

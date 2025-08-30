@@ -1,6 +1,7 @@
 import { Button } from "@mantine/core";
 import classes from "./ServersFilters.module.css";
 import IconPlus from "@/assets/icons/plus.svg?react";
+import { ServerFilter } from "@/types";
 
 export default function ServersFilters({
   activeFilter,
@@ -8,10 +9,10 @@ export default function ServersFilters({
   handleClickAddServer,
   handleClickFilter,
 }: {
-  activeFilter: "all" | "available" | "unavailable";
+  activeFilter: ServerFilter;
   isAdmin: boolean;
   handleClickAddServer: () => void;
-  handleClickFilter: (filter: "all" | "available" | "unavailable") => void;
+  handleClickFilter: (filter: ServerFilter) => void;
 }) {
   return (
     <div className={classes.controlsRowDesktopInner}>

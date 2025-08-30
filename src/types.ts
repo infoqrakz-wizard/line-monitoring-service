@@ -30,7 +30,7 @@ export type GroupItem = {
 };
 
 // Мониторинг серверов
-export type ServerStatus = "green" | "yellow" | "red";
+export type ServerStatus = "green" | "yellow" | "red" | "disabled";
 
 export type ServerMonitoringData = {
   url: string;
@@ -286,3 +286,11 @@ export type GetQueueResponse = {
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
+
+export type ServerFilter =
+  | "all"
+  | "healthy"
+  | "problems"
+  | "unavailable"
+  | "available"
+  | "disabled";

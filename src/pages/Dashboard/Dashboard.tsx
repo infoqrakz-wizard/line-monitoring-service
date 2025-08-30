@@ -53,7 +53,11 @@ const Dashboard: React.FC = () => {
   // Получаем активный фильтр из query-параметра
   const filterParam = searchParams.get("filter");
   const activeFilter =
-    filterParam === "available" || filterParam === "unavailable"
+    filterParam === "available" ||
+    filterParam === "unavailable" ||
+    filterParam === "healthy" ||
+    filterParam === "problems" ||
+    filterParam === "disabled"
       ? filterParam
       : "all";
 
@@ -70,9 +74,9 @@ const Dashboard: React.FC = () => {
     updateServersStatus,
   } = useServersStore();
 
-  const currentServers = servers;
-
   const { getServerStatus, servers: monitoringServers } = useMonitoringStore();
+
+  const currentServers = servers;
 
   const shouldShowPagination = total > pageSize;
 
@@ -233,6 +237,10 @@ const Dashboard: React.FC = () => {
   // Функция для получения статуса сервера из monitoring store
   const getServerStatusFromMonitoring = useCallback(
     (server: ServerItem): ServerStatus => {
+      if (!server.enabled) {
+        return "disabled";
+      }
+
       const monitoringServer = monitoringServers.find(
         (ms) =>
           ms.sections.main.url === server.url &&
@@ -372,6 +380,8 @@ const Dashboard: React.FC = () => {
         return "#f1c40f";
       case "red":
         return "#e74c3c";
+      case "disabled":
+        return "#000000";
       default:
         return "#95a5a6";
     }
@@ -385,6 +395,8 @@ const Dashboard: React.FC = () => {
         return "Проблемы";
       case "red":
         return "Не работает";
+      case "disabled":
+        return "Выключен";
       default:
         return "Неизвестно";
     }
@@ -583,7 +595,7 @@ const Dashboard: React.FC = () => {
             </div>
           }
           position="top"
-          isOpen={openTooltipId === server.id}
+          isOpen={Boolean(server.id && openTooltipId === server.id)}
           onClose={handleTooltipClose}
           clickPosition={clickPosition}
         >

@@ -23,12 +23,24 @@ export type ServersState = {
   total: number;
   currentCursor: string | null;
   currentSearch: string;
-  currentFilter: "all" | "available" | "unavailable";
+  currentFilter:
+    | "all"
+    | "available"
+    | "unavailable"
+    | "healthy"
+    | "problems"
+    | "disabled";
   fetchServers: (params?: {
     limit?: number;
     cursor?: string | null;
     search?: string;
-    filter?: "all" | "available" | "unavailable";
+    filter?:
+      | "all"
+      | "available"
+      | "unavailable"
+      | "healthy"
+      | "problems"
+      | "disabled";
   }) => Promise<void>;
   fetchServer: (url: string, port: number) => Promise<ServerItem>;
   createServer: (payload: CreateServerRequest) => Promise<ServerItem>;

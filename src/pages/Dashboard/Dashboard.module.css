@@ -78,6 +78,11 @@
     background: rgb(250, 82, 82);
 }
 
+.disabled {
+    background: #000000;
+    color: #ffffff;
+}
+
 .serverName {
     font-size: 14px;
     line-height: 1.4;

@@ -16,6 +16,7 @@ import type {
   ServerStatus,
   ServerItemWithMonitoring,
   ServerMonitoringData,
+  ServerFilter,
 } from "@/types";
 import { useServersStore } from "@/store/servers";
 import { useMonitoringStore } from "@/store/monitoring";
@@ -29,7 +30,7 @@ import PageHeader from "@/components/PageHeader";
 import classes from "./Servers.module.css";
 import ServerCard from "@/components/ServerCard/index";
 import { useAuthStore } from "@/store/auth";
-import ServersFilters from "@/components/ServersFilters";
+import ServerSummary from "@/components/ServerSummary";
 
 const Servers: React.FC = () => {
   const [q, setQ] = useState("");
@@ -38,7 +39,6 @@ const Servers: React.FC = () => {
     servers,
     loading,
     error,
-    total,
     nextCursor,
     previousCursor,
     fetchServers,
@@ -61,10 +61,6 @@ const Servers: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const [activeFilter, setActiveFilter] = useState<
-    "all" | "available" | "unavailable"
-  >("all");
-
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [selectedServer, setSelectedServer] =
     useState<ServerItemWithMonitoring | null>(null);
@@ -72,20 +68,20 @@ const Servers: React.FC = () => {
   // Состояние для cursor-based пагинации
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-  const handleClickFilter = (filter: "all" | "available" | "unavailable") => {
-    if (filter === "available" && activeFilter === "available") {
-      setActiveFilter("all");
-    } else if (filter === "unavailable" && activeFilter === "unavailable") {
-      setActiveFilter("all");
-    } else {
-      setActiveFilter(filter);
-    }
-  };
+  const [activeFilter, setActiveFilter] = useState<ServerFilter>("all");
 
   const pageSize = 50;
 
   const handleSearchChange = (value: string) => {
     setQ(value);
+  };
+
+  const handleFilterClick = (filter: ServerFilter) => {
+    if (filter === activeFilter) {
+      setActiveFilter("all");
+    } else {
+      setActiveFilter(filter);
+    }
   };
 
   // Debounce для поиска
@@ -138,6 +134,30 @@ const Servers: React.FC = () => {
     });
   }, [servers, monitoringServers, getServerStatus]);
 
+  const filteredServers = useMemo(() => {
+    if (activeFilter === "all") {
+      return serversWithMonitoring;
+    }
+
+    return serversWithMonitoring.filter((server) => {
+      switch (activeFilter) {
+        case "healthy":
+          return server.enabled && server.status === "green";
+        case "problems":
+          return (
+            server.enabled &&
+            (server.status === "yellow" || server.status === "red")
+          );
+        case "unavailable":
+          return server.enabled && server.status === "red";
+        case "disabled":
+          return !server.enabled;
+        default:
+          return true;
+      }
+    });
+  }, [serversWithMonitoring, activeFilter]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -182,7 +202,11 @@ const Servers: React.FC = () => {
     setIsRemoveModalOpen(false);
   };
 
-  const getStatusDotClass = (status?: ServerStatus) => {
+  const getStatusDotClass = (status?: ServerStatus, enabled?: boolean) => {
+    if (enabled === false) {
+      return classes.dotDisabled;
+    }
+
     switch (status) {
       case "green":
         return classes.dotOnline;
@@ -271,232 +295,234 @@ const Servers: React.FC = () => {
   }, [isConnected, servers]);
 
   return (
-    <Stack className={classes.wrapper} gap="0" pos="relative">
+    <>
       <LoadingOverlay visible={loading || monitoringLoading} />
-      {(error || monitoringError) && (
-        <div
-          style={{
-            color: "rgb(250, 82, 82)",
-            padding: "16px",
-            textAlign: "center",
-          }}
-        >
-          Ошибка: {error || monitoringError}
-        </div>
-      )}
-      <PageHeader
-        title="Серверы"
-        rightSide={
-          <div className={classes.controlsRowDesktop}>
-            <ServersFilters
-              activeFilter={activeFilter}
-              isAdmin={isAdmin}
-              handleClickAddServer={() => navigate("/servers/create")}
-              handleClickFilter={handleClickFilter}
-            />
-            {/* <div className={classes.controlsRowDesktopInner}>
-              <div className={classes.legendGroup}>
-                <div
-                  className={`${classes.legendItem} ${activeFilter === "available" ? classes.activeFilter : ""}`}
-                  onClick={() => handleClickFilter("available")}
-                >
-                  <span className={classes.dotOnline} />
-                  Доступные
-                </div>
-                <div
-                  className={`${classes.legendItem} ${activeFilter === "unavailable" ? classes.activeFilter : ""}`}
-                  onClick={() => handleClickFilter("unavailable")}
-                >
-                  <span className={classes.dotOffline} />
-                  Выключенные
-                </div>
-              </div>
-              {isAdmin && (
-                <Button
-                  className={classes.addServerButton}
-                  variant="black"
-                  aria-label="Добавить сервер"
-                  leftSection={<IconPlus />}
-                  onClick={() => navigate("/servers/create")}
-                >
-                  Добавить сервер
-                </Button>
-              )}
-            </div> */}
-            <SearchInput
-              value={q}
-              onChange={handleSearchChange}
-              placeholder="Найти сервер..."
-              containerClassName={classes.searchInputDesktopContainer}
-              className={classes.searchInputDesktop}
-              withClearIcon={q.length > 0}
-              inputClassName={classes.searchInputDesktopInput}
-              rootClassName={classes.searchInputDesktopRoot}
-            />
-          </div>
-        }
-      />
-
-      <div className={classes.desktopTable}>
-        <Table
-          className={classes.table}
-          withTableBorder
-          withColumnBorders
-          striped
-        >
-          <Table.Thead className={classes.thead}>
-            <Table.Tr className={classes.tr}>
-              <Table.Th className={classes.th}>Имя сервера</Table.Th>
-              <Table.Th className={classes.th}>URL:Порт</Table.Th>
-              <Table.Th className={classes.th}>Камеры</Table.Th>
-              <Table.Th className={classes.th}>HDD</Table.Th>
-              <Table.Th className={classes.th}>Uptime</Table.Th>
-              <Table.Th className={classes.th}>Глубина архива</Table.Th>
-              <Table.Th className={classes.th}>Действия</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {serversWithMonitoring.map((row) => {
-              const arhiveDatesCount =
-                row.archiveState?.result?.state?.storages[0]?.archive
-                  ?.dates_count;
-
-              return (
-                <Table.Tr key={row.id}>
-                  <Table.Td className={classes.td}>
-                    <Group gap="xs">
-                      <span className={getStatusDotClass(row.status)} />
-                      <a
-                        href={`/servers/info?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`}
-                      >
-                        <strong>{row.name}</strong>
-                      </a>
-                    </Group>
-                  </Table.Td>
-                  <Table.Td
-                    className={classes.td}
-                  >{`${row.url}:${row.port}`}</Table.Td>
-                  <Table.Td className={classes.td}>
-                    {formatCamerasDisplay(row.monitoring)}
-                  </Table.Td>
-                  <Table.Td className={classes.td}>
-                    {formatHddStatus(row.monitoring)}
-                  </Table.Td>
-                  <Table.Td className={classes.td}>
-                    {row.status === "red" ? (
-                      <Text size="sm" c="rgb(250, 82, 82)">
-                        {formatUptime(row.monitoring, row.status, null)}
-                      </Text>
-                    ) : (
-                      formatUptime(row.monitoring, row.status)
-                    )}
-                  </Table.Td>
-                  <Table.Td className={classes.td}>
-                    {`${arhiveDatesCount ? `${arhiveDatesCount} д.` : "-"}`}
-                  </Table.Td>
-                  <Table.Td className={classes.td}>
-                    {isAdmin && (
-                      <Group gap="xs">
-                        <Tooltip label="Редактировать">
-                          <ActionButton
-                            className={classes.editIcon}
-                            onClick={() =>
-                              navigate(
-                                `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
-                              )
-                            }
-                          />
-                        </Tooltip>
-                        <Tooltip label="Удалить">
-                          <ActionButton
-                            className={classes.deleteIcon}
-                            onClick={() =>
-                              handleClickDeleteServer(row.url, row.port)
-                            }
-                          />
-                        </Tooltip>
-                      </Group>
-                    )}
-                  </Table.Td>
-                </Table.Tr>
-              );
-            })}
-          </Table.Tbody>
-        </Table>
-      </div>
-
-      <div className={classes.mobileCards}>
-        <SimpleGrid
-          cols={{
-            base: 1,
-            sm: 2,
-          }}
-          spacing="md"
-        >
-          {serversWithMonitoring.map((s) => (
-            <ServerCard
-              key={s.id}
-              server={s}
-              onDelete={handleClickDeleteServer}
-              downEvent={null}
-              isAdmin={isAdmin}
-            />
-          ))}
-        </SimpleGrid>
-      </div>
-
-      {total > 0 && total > servers.length && (
-        <div className={classes.paginationContainer}>
-          <Pagination
-            currentPageIndex={currentPageIndex}
-            total={total}
-            pageSize={pageSize}
-            nextCursor={nextCursor}
-            previousCursor={previousCursor}
-            onPageChange={(cursor, pageIndex) => {
-              setCurrentPageIndex(pageIndex);
-              void fetchServers({
-                cursor,
-                search: debouncedQ || undefined,
-                filter: activeFilter,
-                limit: pageSize,
-              });
-            }}
-          />
-        </div>
-      )}
-
-      <Modal
-        opened={isRemoveModalOpen}
-        title="Вы уверены, что хотите удалить сервер?"
-        onClose={() => {
-          setIsRemoveModalOpen(false);
-          setSelectedServer(null);
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            justifyContent: "flex-end",
-            marginTop: "16px",
-          }}
-        >
-          <Button
-            variant="subtle"
-            onClick={() => {
-              setIsRemoveModalOpen(false);
-              setSelectedServer(null);
+      <Stack className={classes.wrapper} gap="0" pos="relative">
+        {(error || monitoringError) && (
+          <div
+            style={{
+              color: "rgb(250, 82, 82)",
+              padding: "16px",
+              textAlign: "center",
             }}
           >
-            Отмена
+            Ошибка: {error || monitoringError}
+          </div>
+        )}
+        <PageHeader
+          title="Серверы"
+          rightSide={
+            <ServerSummary
+              workingServers={
+                serversWithMonitoring.filter(
+                  (s) => s.enabled && s.status === "green",
+                ).length
+              }
+              problemServers={
+                serversWithMonitoring.filter(
+                  (s) =>
+                    s.enabled && (s.status === "yellow" || s.status === "red"),
+                ).length
+              }
+              unavailableServers={
+                serversWithMonitoring.filter(
+                  (s) => s.enabled && s.status === "red",
+                ).length
+              }
+              disabledServers={
+                serversWithMonitoring.filter((s) => !s.enabled).length
+              }
+              activeFilter={activeFilter}
+              onFilterClick={handleFilterClick}
+            />
+          }
+        />
+
+        <div className={classes.controlsRowDesktop}>
+          <Button
+            variant="black"
+            onClick={() => navigate("/servers/create")}
+            size="md"
+          >
+            Добавить сервер
           </Button>
-          <Button color="rgb(250, 82, 82)" onClick={handleDeleteServer}>
-            Удалить
-          </Button>
+
+          <SearchInput
+            value={q}
+            onChange={handleSearchChange}
+            placeholder="Найти сервер..."
+            containerClassName={classes.searchInputDesktopContainer}
+            className={classes.searchInputDesktop}
+            withClearIcon={q.length > 0}
+            inputClassName={classes.searchInputDesktopInput}
+            rootClassName={classes.searchInputDesktopRoot}
+          />
         </div>
-      </Modal>
-    </Stack>
+
+        <div className={classes.desktopTable}>
+          <Table
+            className={classes.table}
+            withTableBorder
+            withColumnBorders
+            striped
+          >
+            <Table.Thead className={classes.thead}>
+              <Table.Tr className={classes.tr}>
+                <Table.Th className={classes.th}>Имя сервера</Table.Th>
+                <Table.Th className={classes.th}>URL:Порт</Table.Th>
+                <Table.Th className={classes.th}>Камеры</Table.Th>
+                <Table.Th className={classes.th}>HDD</Table.Th>
+                <Table.Th className={classes.th}>Uptime</Table.Th>
+                <Table.Th className={classes.th}>Глубина архива</Table.Th>
+                <Table.Th className={classes.th}>Действия</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {filteredServers.map((row) => {
+                const arhiveDatesCount =
+                  row.archiveState?.result?.state?.storages[0]?.archive
+                    ?.dates_count;
+
+                return (
+                  <Table.Tr key={row.id}>
+                    <Table.Td className={classes.td}>
+                      <Group gap="xs">
+                        <span
+                          className={getStatusDotClass(row.status, row.enabled)}
+                        />
+                        <a
+                          href={`/servers/info?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`}
+                        >
+                          <strong>{row.name}</strong>
+                        </a>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td
+                      className={classes.td}
+                    >{`${row.url}:${row.port}`}</Table.Td>
+                    <Table.Td className={classes.td}>
+                      {formatCamerasDisplay(row.monitoring)}
+                    </Table.Td>
+                    <Table.Td className={classes.td}>
+                      {formatHddStatus(row.monitoring)}
+                    </Table.Td>
+                    <Table.Td className={classes.td}>
+                      {row.status === "red" ? (
+                        <Text size="sm" c="rgb(250, 82, 82)">
+                          {formatUptime(row.monitoring, row.status, null)}
+                        </Text>
+                      ) : (
+                        formatUptime(row.monitoring, row.status)
+                      )}
+                    </Table.Td>
+                    <Table.Td className={classes.td}>
+                      {`${arhiveDatesCount ? `${arhiveDatesCount} д.` : "-"}`}
+                    </Table.Td>
+                    <Table.Td className={classes.td}>
+                      {isAdmin && (
+                        <Group gap="xs">
+                          <Tooltip label="Редактировать">
+                            <ActionButton
+                              className={classes.editIcon}
+                              onClick={() =>
+                                navigate(
+                                  `/servers/edit?url=${encodeURIComponent(row.url)}&port=${encodeURIComponent(row.port.toString())}`,
+                                )
+                              }
+                            />
+                          </Tooltip>
+                          <Tooltip label="Удалить">
+                            <ActionButton
+                              className={classes.deleteIcon}
+                              onClick={() =>
+                                handleClickDeleteServer(row.url, row.port)
+                              }
+                            />
+                          </Tooltip>
+                        </Group>
+                      )}
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
+            </Table.Tbody>
+          </Table>
+        </div>
+
+        <div className={classes.mobileCards}>
+          <SimpleGrid
+            cols={{
+              base: 1,
+              sm: 2,
+            }}
+            spacing="md"
+          >
+            {filteredServers.map((s) => (
+              <ServerCard
+                key={s.id}
+                server={s}
+                onDelete={handleClickDeleteServer}
+                downEvent={null}
+                isAdmin={isAdmin}
+              />
+            ))}
+          </SimpleGrid>
+        </div>
+
+        {filteredServers.length > 0 &&
+          filteredServers.length < serversWithMonitoring.length && (
+            <div className={classes.paginationContainer}>
+              <Pagination
+                currentPageIndex={currentPageIndex}
+                total={filteredServers.length}
+                pageSize={pageSize}
+                nextCursor={nextCursor}
+                previousCursor={previousCursor}
+                onPageChange={(cursor, pageIndex) => {
+                  setCurrentPageIndex(pageIndex);
+                  void fetchServers({
+                    cursor,
+                    search: debouncedQ || undefined,
+                    filter: activeFilter,
+                    limit: pageSize,
+                  });
+                }}
+              />
+            </div>
+          )}
+
+        <Modal
+          opened={isRemoveModalOpen}
+          title="Вы уверены, что хотите удалить сервер?"
+          onClose={() => {
+            setIsRemoveModalOpen(false);
+            setSelectedServer(null);
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              justifyContent: "flex-end",
+              marginTop: "16px",
+            }}
+          >
+            <Button
+              variant="subtle"
+              onClick={() => {
+                setIsRemoveModalOpen(false);
+                setSelectedServer(null);
+              }}
+            >
+              Отмена
+            </Button>
+            <Button color="rgb(250, 82, 82)" onClick={handleDeleteServer}>
+              Удалить
+            </Button>
+          </div>
+        </Modal>
+      </Stack>
+    </>
   );
 };
 

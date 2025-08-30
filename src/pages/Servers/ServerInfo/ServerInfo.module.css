@@ -391,6 +391,10 @@
   background-color: rgb(103, 103, 103);
 }
 
+.serverStatusBadge.disabled {
+  background-color: #000000;
+}
+
 /* Tablet styles */
 @media (max-width: 1024px) {
   .container {

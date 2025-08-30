@@ -1,5 +1,5 @@
 import { request } from "@/lib/request";
-import { ServerItem } from "@/types";
+import { ServerFilter, ServerItem } from "@/types";
 
 export type CreateServerRequest = {
   url: string;
@@ -52,7 +52,7 @@ export const listServers = async (
     limit?: number;
     cursor?: string | null;
     search?: string;
-    filter?: "all" | "available" | "unavailable";
+    filter?: ServerFilter;
   } = {},
 ): Promise<PaginatedResponse<ServerItem>> => {
   const query = buildQueryString({

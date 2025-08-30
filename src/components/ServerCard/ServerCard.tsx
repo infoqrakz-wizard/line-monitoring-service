@@ -37,7 +37,11 @@ const ServerCard: FC<ServerCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const getStatusColor = (status: ServerStatus) => {
+  const getStatusColor = (status: ServerStatus, enabled: boolean) => {
+    if (!enabled) {
+      return "#000000";
+    }
+
     switch (status) {
       case "green":
         return "#2ecc71";
@@ -100,7 +104,7 @@ const ServerCard: FC<ServerCardProps> = ({
     }
   };
 
-  const statusColor = getStatusColor(server.status || "red");
+  const statusColor = getStatusColor(server.status || "red", server.enabled);
   const arhiveDatesCount =
     server.archiveState?.result?.state?.storages[0]?.archive?.dates_count;
 

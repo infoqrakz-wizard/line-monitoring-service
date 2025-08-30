@@ -121,6 +121,9 @@
   width: 100%;
 }
 
+.checkboxContainer {
+  padding-top: 8px;
+}
 /* Tablet styles */
 @media (max-width: 1024px) {
   .header {

@@ -16,6 +16,7 @@ import { parseApiError } from "@/lib/request";
 import { getServer as apiGetServer, CreateServerRequest } from "@/api/servers";
 import type { ServerItem } from "@/types";
 import PageHeader from "@/components/PageHeader";
+import Checkbox from "@/components/Checkbox";
 
 export type CreateServerFormData = {
   serverName: string;
@@ -25,6 +26,7 @@ export type CreateServerFormData = {
   port: number | "";
   coordinates?: string;
   address?: string;
+  enabled: boolean;
 };
 
 export type FormErrors = {
@@ -35,6 +37,7 @@ export type FormErrors = {
   port?: string;
   coordinates?: string;
   address?: string;
+  enabled?: string;
 };
 
 const CreateServer: React.FC = () => {
@@ -53,6 +56,7 @@ const CreateServer: React.FC = () => {
     ipAddress: "",
     port: "",
     coordinates: "",
+    enabled: true,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -149,6 +153,7 @@ const CreateServer: React.FC = () => {
           ? `${fromStore.maps.x}, ${fromStore.maps.y}`
           : "",
         address: fromStore.address || "",
+        enabled: fromStore.enabled,
       });
       return;
     }
@@ -169,6 +174,7 @@ const CreateServer: React.FC = () => {
           port: server.port,
           coordinates: server.maps ? `${server.maps.x}, ${server.maps.y}` : "",
           address: server.address || "",
+          enabled: server.enabled,
         });
       })
       .catch(() => {
@@ -179,7 +185,7 @@ const CreateServer: React.FC = () => {
 
   const handleInputChange = (
     field: keyof CreateServerFormData,
-    value: string | number,
+    value: string | number | boolean,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -205,6 +211,7 @@ const CreateServer: React.FC = () => {
     newErrors.login = validateLogin(formData.login);
     newErrors.password = validatePassword(formData.password);
     newErrors.coordinates = validateCoordinates(formData.coordinates || "");
+    newErrors.enabled = undefined; // Clear enabled error on submit
 
     setErrors(newErrors);
 
@@ -239,7 +246,7 @@ const CreateServer: React.FC = () => {
         port: Number(formData.port),
         username: formData.login,
         password: formData.password,
-        enabled: true,
+        enabled: formData.enabled,
         address: formData.address,
       };
 
@@ -292,6 +299,9 @@ const CreateServer: React.FC = () => {
       }
       if (formData.password && formData.password.trim().length > 0) {
         patch.password = formData.password;
+      }
+      if (formData.enabled !== originalServer.enabled) {
+        patch.enabled = formData.enabled;
       }
 
       // Обработка поля address
@@ -416,6 +426,25 @@ const CreateServer: React.FC = () => {
       </div>
       <form onSubmit={handleSubmit} className={classes.form}>
         <Stack gap="20">
+          <div className={classes.formField}>
+            <label htmlFor="server-enabled" className={classes.formFieldLabel}>
+              Сервер включен
+            </label>
+            <div
+              className={`${classes.formFieldInput} ${classes.checkboxContainer}`}
+            >
+              <Checkbox
+                label=""
+                checked={formData.enabled}
+                onChange={(event) =>
+                  handleInputChange("enabled", event.currentTarget.checked)
+                }
+                name="server-enabled"
+              />
+              <div className={classes.errorMessage}>{errors.enabled || ""}</div>
+            </div>
+          </div>
+
           <div className={classes.formField}>
             <label htmlFor="serverName" className={classes.formFieldLabel}>
               Имя сервера
@@ -566,14 +595,13 @@ const CreateServer: React.FC = () => {
                 autoComplete="off"
                 name="server-address"
                 classNames={{
-                  input: errors.coordinates ? classes.inputError : "",
+                  input: errors.address ? classes.inputError : "",
                 }}
               />
-              <div className={classes.errorMessage}>
-                {errors.coordinates || ""}
-              </div>
+              <div className={classes.errorMessage}>{errors.address || ""}</div>
             </div>
           </div>
+
           <div className={classes.formField}>
             {error && (
               <Text c="rgb(250, 82, 82)" size="sm" role="alert">
