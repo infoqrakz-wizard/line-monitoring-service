@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Alert, Text } from "@mantine/core";
+import Pagination from "@/components/Pagination";
 import { IconAlertCircle } from "@tabler/icons-react";
 import MonitoringSummary from "@/components/MonitoringSummary";
 import MonitoringControls, {
@@ -23,26 +24,33 @@ const Monitoring: React.FC = () => {
     data?: ProblemRow;
   } | null>(null);
 
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+
   const { role } = useAuthStore();
   const isAdmin = role === "admin";
 
   const {
     downtimeEvents,
     allDowntimeEvents,
+    nextCursor,
+    previousCursor,
+    total,
     error,
     servers: monitoringServers,
     fetchDowntimeEvents,
-    fetchAllDowntimeEvents,
     refreshAllDowntimeEvents,
     deleteDowntimeEvent,
     deleteDowntimeByUrlPort,
     clearDowntimeEvents,
     subscribeToServers,
+    setView: setStoreView,
   } = useMonitoringStore();
 
   const { total: totalServers, fetchServers } = useServersStore();
 
   const [totalCameras, setTotalCameras] = useState(0);
+
+  const pageSize = 50;
 
   useEffect(() => {
     subscribeToServers();
@@ -59,20 +67,16 @@ const Monitoring: React.FC = () => {
     );
   }, [monitoringServers]);
 
-  // Fetch all data when component mounts
-  useEffect(() => {
-    void fetchAllDowntimeEvents();
-  }, []);
-
   useEffect(() => {
     void fetchServers();
   }, [fetchServers]);
 
-  // Fetch filtered data when view changes
   useEffect(() => {
-    const filter = view === "current" ? "servers_down" : "completed";
+    const filter = view === "current" ? "active" : "completed";
+    setStoreView(view);
+    setCurrentPageIndex(0);
     void fetchDowntimeEvents(filter);
-  }, [view, fetchDowntimeEvents]);
+  }, [view]);
 
   const handleOpenDelete = (row: ProblemRow) => {
     setDeleteTarget({
@@ -274,6 +278,26 @@ const Monitoring: React.FC = () => {
         onDelete={isAdmin ? handleOpenDelete : undefined}
         onDeleteAll={isAdmin ? handleDeleteAll : undefined}
       />
+
+      <div
+        style={{
+          marginTop: "24px",
+          padding: "16px 0",
+        }}
+      >
+        <Pagination
+          currentPageIndex={currentPageIndex}
+          total={total}
+          pageSize={pageSize}
+          nextCursor={nextCursor}
+          previousCursor={previousCursor}
+          onPageChange={(cursor, pageIndex) => {
+            setCurrentPageIndex(pageIndex);
+            const filter = view === "current" ? "active" : "completed";
+            void fetchDowntimeEvents(filter, cursor, pageSize);
+          }}
+        />
+      </div>
 
       <DeleteConfirmModal
         opened={confirmOpen}

@@ -16,7 +16,10 @@ export const downtime = {
   queryByServer: async (
     serverRequest: DowntimeServerQueryRequest,
   ): Promise<DowntimeEventResponse> => {
-    return request.post<DowntimeEventResponse>("/api/downtime/query", serverRequest);
+    return request.post<DowntimeEventResponse>(
+      "/api/downtime/query",
+      serverRequest,
+    );
   },
 
   delete: async (deleteRequest: DowntimeDeleteRequest): Promise<void> => {

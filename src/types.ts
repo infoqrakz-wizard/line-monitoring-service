@@ -175,9 +175,8 @@ export type ServerItemWithMonitoring = ServerItem & {
 export type DowntimeEventResponse = {
   data: DowntimeEvent[];
   meta: {
-    page: number;
-    pageSize: number;
-    pages: number;
+    nextCursor: string | null;
+    previousCursor: string | null;
     total: number;
   };
 };
@@ -194,10 +193,12 @@ export type DowntimeEvent = {
   type: string | null;
 };
 
-export type DowntimeFilter = "servers_down" | "cameras_down" | "completed";
+export type DowntimeFilter = "active" | "completed";
 
 export type DowntimeQueryRequest = {
   filter: DowntimeFilter;
+  cursor?: string | null;
+  limit?: number;
 };
 
 export type DowntimeServerQueryRequest = {

@@ -10,18 +10,17 @@ import {
   Table,
   Text,
 } from "@mantine/core";
+import Pagination from "@/components/Pagination";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import type {
   ServerStatus,
   ServerItemWithMonitoring,
   ServerMonitoringData,
-  DowntimeEvent,
 } from "@/types";
 import { useServersStore } from "@/store/servers";
 import { useMonitoringStore } from "@/store/monitoring";
 import Modal from "@/components/Modal/Modal";
 import { formatUptime } from "@/utils/uptime";
-import { downtime } from "@/api";
 
 import { useNavigate } from "react-router";
 import ActionButton from "@/components/ActionButton";
@@ -44,6 +43,7 @@ const Servers: React.FC = () => {
     previousCursor,
     fetchServers,
     deleteServer,
+    updateServersStatus,
   } = useServersStore();
 
   const { role } = useAuthStore();
@@ -69,10 +69,6 @@ const Servers: React.FC = () => {
   const [selectedServer, setSelectedServer] =
     useState<ServerItemWithMonitoring | null>(null);
 
-  const [serversDownMap, setServersDownMap] = useState<
-    Record<string, DowntimeEvent>
-  >({});
-
   // Состояние для cursor-based пагинации
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
@@ -85,6 +81,8 @@ const Servers: React.FC = () => {
       setActiveFilter(filter);
     }
   };
+
+  const pageSize = 50;
 
   const handleSearchChange = (value: string) => {
     setQ(value);
@@ -107,6 +105,7 @@ const Servers: React.FC = () => {
       void fetchServers({
         cursor: null,
         search: "",
+        limit: pageSize,
         filter: "all",
       });
       return;
@@ -116,15 +115,9 @@ const Servers: React.FC = () => {
       cursor: null,
       search: debouncedQ || "",
       filter: activeFilter,
+      limit: pageSize,
     });
   }, [fetchServers, debouncedQ, activeFilter]);
-
-  // Сбрасываем пагинацию при изменении фильтров или поиска
-  useEffect(() => {
-    if (currentPageIndex !== 0) {
-      setCurrentPageIndex(0);
-    }
-  }, [activeFilter, debouncedQ]);
 
   // Объединяем данные серверов с мониторингом
   const serversWithMonitoring = useMemo((): ServerItemWithMonitoring[] => {
@@ -145,42 +138,31 @@ const Servers: React.FC = () => {
     });
   }, [servers, monitoringServers, getServerStatus]);
 
-  // Fetch current servers_down events once and on relevant changes
   useEffect(() => {
     let cancelled = false;
-    const fetchServersDown = async () => {
+
+    const updateStatus = async () => {
+      if (cancelled) {
+        return;
+      }
+
       try {
-        const resp = await downtime.query({ filter: "servers_down" });
-        if (cancelled) {
-          return;
-        }
-        const map: Record<string, DowntimeEvent> = {};
-        resp.data.forEach((event) => {
-          if (event.up_at === null) {
-            const key = `${event.url}:${event.port}`;
-            // Keep the latest down_at if multiple (compare strings as dates)
-            if (!map[key]) {
-              map[key] = event;
-            } else if (
-              new Date(event.down_at).getTime() >
-              new Date(map[key].down_at).getTime()
-            ) {
-              map[key] = event;
-            }
-          }
-        });
-        setServersDownMap(map);
+        await updateServersStatus();
       } catch {
         // silent fail; uptime will fallback
       }
     };
-    void fetchServersDown();
-    const id = setInterval(fetchServersDown, 60000);
+
+    void updateStatus();
+
+    // Периодическое обновление каждую минуту
+    const id = setInterval(updateStatus, 60000);
+
     return () => {
       cancelled = true;
       clearInterval(id);
     };
-  }, [debouncedQ, activeFilter, currentPageIndex]);
+  }, [updateServersStatus]);
 
   const handleClickDeleteServer = (url: string, port: number) => {
     const server = serversWithMonitoring.find(
@@ -199,8 +181,6 @@ const Servers: React.FC = () => {
 
     setIsRemoveModalOpen(false);
   };
-
-
 
   const getStatusDotClass = (status?: ServerStatus) => {
     switch (status) {
@@ -405,12 +385,7 @@ const Servers: React.FC = () => {
                   <Table.Td className={classes.td}>
                     {row.status === "red" ? (
                       <Text size="sm" c="rgb(250, 82, 82)">
-                        {formatUptime(
-                          row.monitoring,
-                          row.status,
-                          serversDownMap[`${row.url}:${row.port}`]?.down_at ??
-                            null,
-                        )}
+                        {formatUptime(row.monitoring, row.status, null)}
                       </Text>
                     ) : (
                       formatUptime(row.monitoring, row.status)
@@ -458,69 +433,36 @@ const Servers: React.FC = () => {
           }}
           spacing="md"
         >
-          {serversWithMonitoring.map((s) => {
-            const key = `${s.url}:${s.port}`;
-            const downEvent = serversDownMap[key] || null;
-
-            return (
-              <ServerCard
-                key={s.id}
-                server={s}
-                onDelete={handleClickDeleteServer}
-                downEvent={downEvent}
-                isAdmin={isAdmin}
-              />
-            );
-          })}
+          {serversWithMonitoring.map((s) => (
+            <ServerCard
+              key={s.id}
+              server={s}
+              onDelete={handleClickDeleteServer}
+              downEvent={null}
+              isAdmin={isAdmin}
+            />
+          ))}
         </SimpleGrid>
       </div>
 
-      {total > 0 && (
+      {total > 0 && total > servers.length && (
         <div className={classes.paginationContainer}>
-          <div className={classes.paginationInfo}>
-            <Text size="sm" c="dimmed">
-              Показано {servers.length} из {total} серверов
-            </Text>
-          </div>
-          <Group gap="xs" justify="center">
-            <Button
-              variant="subtle"
-              size="sm"
-              disabled={!previousCursor}
-              onClick={() => {
-                if (previousCursor) {
-                  setCurrentPageIndex(currentPageIndex - 1);
-                  void fetchServers({
-                    cursor: previousCursor,
-                    search: debouncedQ || undefined,
-                    filter: activeFilter,
-                  });
-                }
-              }}
-            >
-              Назад
-            </Button>
-            <Text size="sm" c="dimmed">
-              Страница {currentPageIndex + 1}
-            </Text>
-            <Button
-              variant="subtle"
-              size="sm"
-              disabled={!nextCursor}
-              onClick={() => {
-                if (nextCursor) {
-                  setCurrentPageIndex(currentPageIndex + 1);
-                  void fetchServers({
-                    cursor: nextCursor,
-                    search: debouncedQ || undefined,
-                    filter: activeFilter,
-                  });
-                }
-              }}
-            >
-              Вперед
-            </Button>
-          </Group>
+          <Pagination
+            currentPageIndex={currentPageIndex}
+            total={total}
+            pageSize={pageSize}
+            nextCursor={nextCursor}
+            previousCursor={previousCursor}
+            onPageChange={(cursor, pageIndex) => {
+              setCurrentPageIndex(pageIndex);
+              void fetchServers({
+                cursor,
+                search: debouncedQ || undefined,
+                filter: activeFilter,
+                limit: pageSize,
+              });
+            }}
+          />
         </div>
       )}
 

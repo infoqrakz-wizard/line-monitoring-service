@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Text, Group, Badge, Divider, Tooltip, Button } from "@mantine/core";
+import { Text, Group, Badge, Divider, Tooltip } from "@mantine/core";
+import Pagination from "@/components/Pagination";
 import CustomTooltip from "@/components/CustomTooltip";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useServersStore } from "@/store/servers";
@@ -58,17 +59,23 @@ const Dashboard: React.FC = () => {
 
   const pageSize = 60; // Фиксированное количество элементов на странице
 
-  const { servers, loading, error, total, nextCursor, previousCursor, fetchServers } =
-    useServersStore();
+  const {
+    servers,
+    loading,
+    error,
+    total,
+    nextCursor,
+    previousCursor,
+    fetchServers,
+    updateServersStatus,
+  } = useServersStore();
 
   const currentServers = servers;
 
   const { getServerStatus, servers: monitoringServers } = useMonitoringStore();
 
-  // Helper to determine if pagination should be shown
   const shouldShowPagination = total > pageSize;
 
-  // Grid calculation functions - основан на оригинальном рабочем алгоритме
   const bestRectGrid = useCallback(
     (N: number, { W, H }: GridParams): GridConfig => {
       const screenAR = W / H;
@@ -244,11 +251,11 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     void fetchServers({
-      cursor: currentPageIndex === 0 ? null : null, // Всегда начинаем с первой страницы
+      cursor: currentPageIndex === 0 ? null : undefined,
       limit: pageSize,
       filter: activeFilter,
     });
-  }, [fetchServers, pageSize, activeFilter]);
+  }, [fetchServers, pageSize, activeFilter, currentPageIndex]);
 
   // Сбрасываем пагинацию при изменении фильтра
   useEffect(() => {
@@ -262,6 +269,34 @@ const Dashboard: React.FC = () => {
     const { subscribeToServers } = useMonitoringStore.getState();
     subscribeToServers();
   }, []);
+
+  // Периодическое обновление статуса серверов через store
+  useEffect(() => {
+    let cancelled = false;
+
+    const updateStatus = async () => {
+      if (cancelled) {
+        return;
+      }
+
+      try {
+        await updateServersStatus();
+      } catch {
+        // silent fail; uptime will fallback
+      }
+    };
+
+    // Первое обновление
+    void updateStatus();
+
+    // Периодическое обновление каждую минуту
+    const id = setInterval(updateStatus, 60000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [updateServersStatus]);
 
   // Calculate grid layout when servers change, pagination state changes, or component mounts
   useEffect(() => {
@@ -712,46 +747,22 @@ const Dashboard: React.FC = () => {
         </div>
 
         {shouldShowPagination && (
-          <div className={classes.paginationContainer}>
-            <Group gap="xs" justify="center">
-              <Button
-                variant="subtle"
-                size="sm"
-                disabled={!previousCursor}
-                onClick={() => {
-                  if (previousCursor) {
-                    setCurrentPageIndex(currentPageIndex - 1);
-                    void fetchServers({
-                      cursor: previousCursor,
-                      limit: pageSize,
-                      filter: activeFilter,
-                    });
-                  }
-                }}
-              >
-                Назад
-              </Button>
-              <Text size="sm" c="dimmed">
-                Страница {currentPageIndex + 1}
-              </Text>
-              <Button
-                variant="subtle"
-                size="sm"
-                disabled={!nextCursor}
-                onClick={() => {
-                  if (nextCursor) {
-                    setCurrentPageIndex(currentPageIndex + 1);
-                    void fetchServers({
-                      cursor: nextCursor,
-                      limit: pageSize,
-                      filter: activeFilter,
-                    });
-                  }
-                }}
-              >
-                Вперед
-              </Button>
-            </Group>
+          <div>
+            <Pagination
+              currentPageIndex={currentPageIndex}
+              total={total}
+              pageSize={pageSize}
+              nextCursor={nextCursor}
+              previousCursor={previousCursor}
+              onPageChange={(cursor, pageIndex) => {
+                setCurrentPageIndex(pageIndex);
+                void fetchServers({
+                  cursor: cursor || undefined,
+                  limit: pageSize,
+                  filter: activeFilter,
+                });
+              }}
+            />
           </div>
         )}
 

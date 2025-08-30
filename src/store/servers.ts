@@ -21,6 +21,9 @@ export type ServersState = {
   nextCursor: string | null;
   previousCursor: string | null;
   total: number;
+  currentCursor: string | null;
+  currentSearch: string;
+  currentFilter: "all" | "available" | "unavailable";
   fetchServers: (params?: {
     limit?: number;
     cursor?: string | null;
@@ -39,6 +42,7 @@ export type ServersState = {
   clearError: () => void;
   findByUrlPort: (url: string, port: number) => ServerItem | undefined;
   forceUpdateWS: () => Promise<void>;
+  updateServersStatus: () => Promise<void>;
 };
 
 export const useServersStore = create<ServersState>((set, get) => ({
@@ -49,6 +53,9 @@ export const useServersStore = create<ServersState>((set, get) => ({
   nextCursor: null,
   previousCursor: null,
   total: 0,
+  currentCursor: null,
+  currentSearch: "",
+  currentFilter: "all",
 
   fetchServers: async (params) => {
     set({
@@ -71,6 +78,9 @@ export const useServersStore = create<ServersState>((set, get) => ({
         nextCursor: response.nextCursor,
         previousCursor: response.previousCursor,
         total: response.total,
+        currentCursor: cursor,
+        currentSearch: search || "",
+        currentFilter: filter || "all",
       });
     } catch (error) {
       const message =
@@ -144,6 +154,30 @@ export const useServersStore = create<ServersState>((set, get) => ({
 
   forceUpdateWS: async () => {
     await apiForceUpdateWS();
+  },
+
+  updateServersStatus: async () => {
+    const state = get();
+    const { currentCursor, limit, currentSearch, currentFilter } = state;
+
+    if (!currentCursor) {
+      return;
+    }
+
+    try {
+      const response: PaginatedResponse<ServerItem> = await listServers({
+        limit,
+        cursor: currentCursor,
+        search: currentSearch,
+        filter: currentFilter,
+      });
+
+      set({
+        servers: response.servers,
+      });
+    } catch (error) {
+      console.warn("Failed to update servers status:", error);
+    }
   },
 
   setServers: (servers) => set({ servers }),
