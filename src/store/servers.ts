@@ -21,6 +21,7 @@ export type ServersState = {
   nextCursor: string | null;
   previousCursor: string | null;
   total: number;
+  pages: number;
   currentCursor: string | null;
   currentSearch: string;
   currentFilter:
@@ -55,6 +56,7 @@ export type ServersState = {
   findByUrlPort: (url: string, port: number) => ServerItem | undefined;
   forceUpdateWS: () => Promise<void>;
   updateServersStatus: () => Promise<void>;
+  resetCursors: () => void;
 };
 
 export const useServersStore = create<ServersState>((set, get) => ({
@@ -65,6 +67,7 @@ export const useServersStore = create<ServersState>((set, get) => ({
   nextCursor: null,
   previousCursor: null,
   total: 0,
+  pages: 0,
   currentCursor: null,
   currentSearch: "",
   currentFilter: "all",
@@ -84,12 +87,15 @@ export const useServersStore = create<ServersState>((set, get) => ({
         filter,
       });
 
+      const { servers, meta } = response;
+
       set({
-        servers: response.servers,
-        limit: response.limit,
-        nextCursor: response.nextCursor,
-        previousCursor: response.previousCursor,
-        total: response.total,
+        servers,
+        limit: meta.limit,
+        nextCursor: meta.nextCursor,
+        previousCursor: meta.previousCursor,
+        total: meta.total,
+        pages: meta.pages,
         currentCursor: cursor,
         currentSearch: search || "",
         currentFilter: filter || "all",
@@ -196,4 +202,13 @@ export const useServersStore = create<ServersState>((set, get) => ({
   clearError: () => set({ error: null }),
   findByUrlPort: (url, port) =>
     get().servers.find((s) => s.url === url && s.port === port),
+  resetCursors: () =>
+    set({
+      nextCursor: null,
+      previousCursor: null,
+      currentCursor: null,
+      total: 0,
+      pages: 0,
+      currentFilter: "all",
+    }),
 }));

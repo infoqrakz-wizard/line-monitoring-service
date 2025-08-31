@@ -34,7 +34,7 @@ const Monitoring: React.FC = () => {
     allDowntimeEvents,
     nextCursor,
     previousCursor,
-    total,
+    pages,
     error,
     servers: monitoringServers,
     fetchDowntimeEvents,
@@ -46,7 +46,7 @@ const Monitoring: React.FC = () => {
     setView: setStoreView,
   } = useMonitoringStore();
 
-  const { total: totalServers, fetchServers } = useServersStore();
+  const { total: totalServers, fetchServers, resetCursors } = useServersStore();
 
   const [totalCameras, setTotalCameras] = useState(0);
 
@@ -69,13 +69,16 @@ const Monitoring: React.FC = () => {
 
   useEffect(() => {
     void fetchServers();
-  }, [fetchServers]);
+    return () => {
+      void resetCursors();
+    };
+  }, []);
 
   useEffect(() => {
     const filter = view === "current" ? "active" : "completed";
     setStoreView(view);
     setCurrentPageIndex(0);
-    void fetchDowntimeEvents(filter);
+    void fetchDowntimeEvents(filter, null, pageSize);
   }, [view]);
 
   const handleOpenDelete = (row: ProblemRow) => {
@@ -287,7 +290,7 @@ const Monitoring: React.FC = () => {
       >
         <Pagination
           currentPageIndex={currentPageIndex}
-          total={total}
+          pagesCount={pages}
           pageSize={pageSize}
           nextCursor={nextCursor}
           previousCursor={previousCursor}

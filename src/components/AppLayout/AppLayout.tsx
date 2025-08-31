@@ -203,13 +203,27 @@ const AppLayout: React.FC = () => {
                               <div className={classes.dashboardFilterItem}>
                                 <NavLink
                                   className={`${classes.dashboardFilterItemText} ${classes.dashboardFilterItemGreen}`}
-                                  to="/?filter=available"
+                                  to="/?filter=healthy"
                                 />
                               </div>
+
+                              <div className={classes.dashboardFilterItem}>
+                                <NavLink
+                                  className={`${classes.dashboardFilterItemText} ${classes.dashboardFilterItemYellow}`}
+                                  to="/?filter=problems"
+                                />
+                              </div>
+
                               <div className={classes.dashboardFilterItem}>
                                 <NavLink
                                   className={`${classes.dashboardFilterItemText} ${classes.dashboardFilterItemRed}`}
                                   to="/?filter=unavailable"
+                                />
+                              </div>
+                              <div className={classes.dashboardFilterItem}>
+                                <NavLink
+                                  className={`${classes.dashboardFilterItemText} ${classes.dashboardFilterItemBlack}`}
+                                  to="/?filter=disabled"
                                 />
                               </div>
                             </div>

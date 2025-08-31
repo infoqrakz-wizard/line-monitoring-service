@@ -70,7 +70,9 @@ const Dashboard: React.FC = () => {
     total,
     nextCursor,
     previousCursor,
+    pages: pagesCount,
     fetchServers,
+    resetCursors,
     updateServersStatus,
   } = useServersStore();
 
@@ -257,20 +259,17 @@ const Dashboard: React.FC = () => {
     [monitoringServers, getServerStatus],
   );
 
+  // Сбрасываем пагинацию при изменении фильтра
   useEffect(() => {
+    setCurrentPageIndex(0);
     void fetchServers({
-      cursor: currentPageIndex === 0 ? null : undefined,
       limit: pageSize,
       filter: activeFilter,
     });
-  }, [fetchServers, pageSize, activeFilter, currentPageIndex]);
-
-  // Сбрасываем пагинацию при изменении фильтра
-  useEffect(() => {
-    if (currentPageIndex !== 0) {
-      setCurrentPageIndex(0);
-    }
-  }, [activeFilter, currentPageIndex]);
+    return () => {
+      void resetCursors();
+    };
+  }, [activeFilter]);
 
   // Подписываемся на мониторинг для получения статусов серверов
   useEffect(() => {
@@ -762,7 +761,7 @@ const Dashboard: React.FC = () => {
           <div>
             <Pagination
               currentPageIndex={currentPageIndex}
-              total={total}
+              pagesCount={pagesCount}
               pageSize={pageSize}
               nextCursor={nextCursor}
               previousCursor={previousCursor}

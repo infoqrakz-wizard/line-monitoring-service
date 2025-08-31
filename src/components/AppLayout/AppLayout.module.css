@@ -143,7 +143,9 @@
   cursor: pointer;
 }
 
-
+.dashboardFilterItemBlack {
+  background: #000000;
+}
 .dashboardFilterItemGreen {
   background: rgba(132, 227, 173, 1);
 }
@@ -153,6 +155,7 @@
 .dashboardFilterItemRed {
   background: rgb(250, 82, 82);
 }
+
 /* Make SVG icons turn white when item is active */
 .active .menuIcon {
   filter: brightness(0) invert(1);

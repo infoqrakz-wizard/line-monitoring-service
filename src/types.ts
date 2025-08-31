@@ -131,6 +131,13 @@ export type ServerWithMonitoring = {
 export type MonitoringData = {
   servers: ServerWithMonitoring[];
   users: User[];
+  total_stats: {
+    bad: number;
+    disabled: number;
+    ok: number;
+    problems: number;
+    total: number;
+  };
   notFound: string[];
   total: number;
   at: number;
@@ -178,6 +185,9 @@ export type DowntimeEventResponse = {
     nextCursor: string | null;
     previousCursor: string | null;
     total: number;
+    pages: number;
+    order: "ASC" | "DESC";
+    limit: number;
   };
 };
 

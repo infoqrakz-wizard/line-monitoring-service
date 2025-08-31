@@ -31,6 +31,7 @@ export type MonitoringState = {
   socket: WebSocket | null;
   isConnected: boolean;
   view: "current" | "postponed";
+  pages: number;
   lastSubscription: {
     serverIds?: string[];
     url?: string;
@@ -60,7 +61,13 @@ export type MonitoringState = {
   deleteDowntimeByUrlPort: (url: string, port: number) => Promise<void>;
   clearDowntimeEvents: () => void;
   refreshAllDowntimeEvents: () => Promise<void>;
-
+  stats: {
+    bad: number;
+    disabled: number;
+    ok: number;
+    problems: number;
+    total: number;
+  };
 };
 
 export const useMonitoringStore = create<MonitoringState>((set, get) => ({
@@ -77,7 +84,15 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   socket: null,
   isConnected: false,
   view: "current",
+  pages: 0,
   lastSubscription: null,
+  stats: {
+    bad: 0,
+    disabled: 0,
+    ok: 0,
+    problems: 0,
+    total: 0,
+  },
 
   connect: () => {
     const socket = get().socket;
@@ -134,9 +149,12 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
             filteredUsers.push(user);
           });
 
+          const stats = response.data.total_stats;
+
           set({
             servers: response.data.servers,
             users: filteredUsers,
+            stats,
             error: null,
           });
         }
@@ -460,12 +478,15 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
         limit,
       });
 
+      const { data, meta } = response;
+
       set({
-        downtimeEvents: response.data,
+        downtimeEvents: data,
         currentCursor: cursor,
-        nextCursor: response.meta.nextCursor,
-        previousCursor: response.meta.previousCursor,
-        total: response.meta.total,
+        nextCursor: meta.nextCursor,
+        previousCursor: meta.previousCursor,
+        total: meta.total,
+        pages: meta.pages,
         loading: false,
       });
     } catch (error) {

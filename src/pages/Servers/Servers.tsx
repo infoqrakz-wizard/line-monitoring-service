@@ -41,7 +41,9 @@ const Servers: React.FC = () => {
     error,
     nextCursor,
     previousCursor,
+    pages: pagesCount,
     fetchServers,
+    resetCursors,
     deleteServer,
     updateServersStatus,
   } = useServersStore();
@@ -53,6 +55,7 @@ const Servers: React.FC = () => {
     servers: monitoringServers,
     loading: monitoringLoading,
     error: monitoringError,
+    stats,
     subscribeToServers,
     getServerStatus,
     connect,
@@ -92,6 +95,12 @@ const Servers: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [q]);
+
+  useEffect(() => {
+    return () => {
+      void resetCursors();
+    };
+  }, []);
 
   useEffect(() => {
     // Сбрасываем пагинацию при изменении фильтров или поиска
@@ -134,29 +143,29 @@ const Servers: React.FC = () => {
     });
   }, [servers, monitoringServers, getServerStatus]);
 
-  const filteredServers = useMemo(() => {
-    if (activeFilter === "all") {
-      return serversWithMonitoring;
-    }
+  // const filteredServers = useMemo(() => {
+  //   if (activeFilter === "all") {
+  //     return serversWithMonitoring;
+  //   }
 
-    return serversWithMonitoring.filter((server) => {
-      switch (activeFilter) {
-        case "healthy":
-          return server.enabled && server.status === "green";
-        case "problems":
-          return (
-            server.enabled &&
-            (server.status === "yellow" || server.status === "red")
-          );
-        case "unavailable":
-          return server.enabled && server.status === "red";
-        case "disabled":
-          return !server.enabled;
-        default:
-          return true;
-      }
-    });
-  }, [serversWithMonitoring, activeFilter]);
+  //   return serversWithMonitoring.filter((server) => {
+  //     switch (activeFilter) {
+  //       case "healthy":
+  //         return server.enabled && server.status === "green";
+  //       case "problems":
+  //         return (
+  //           server.enabled &&
+  //           (server.status === "yellow" || server.status === "red")
+  //         );
+  //       case "unavailable":
+  //         return server.enabled && server.status === "red";
+  //       case "disabled":
+  //         return !server.enabled;
+  //       default:
+  //         return true;
+  //     }
+  //   });
+  // }, [serversWithMonitoring, activeFilter]);
 
   useEffect(() => {
     let cancelled = false;
@@ -313,25 +322,10 @@ const Servers: React.FC = () => {
           title="Серверы"
           rightSide={
             <ServerSummary
-              workingServers={
-                serversWithMonitoring.filter(
-                  (s) => s.enabled && s.status === "green",
-                ).length
-              }
-              problemServers={
-                serversWithMonitoring.filter(
-                  (s) =>
-                    s.enabled && (s.status === "yellow" || s.status === "red"),
-                ).length
-              }
-              unavailableServers={
-                serversWithMonitoring.filter(
-                  (s) => s.enabled && s.status === "red",
-                ).length
-              }
-              disabledServers={
-                serversWithMonitoring.filter((s) => !s.enabled).length
-              }
+              workingServers={stats.ok}
+              problemServers={stats.problems}
+              unavailableServers={stats.bad}
+              disabledServers={stats.disabled}
               activeFilter={activeFilter}
               onFilterClick={handleFilterClick}
             />
@@ -378,7 +372,7 @@ const Servers: React.FC = () => {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {filteredServers.map((row) => {
+              {serversWithMonitoring.map((row) => {
                 const arhiveDatesCount =
                   row.archiveState?.result?.state?.storages[0]?.archive
                     ?.dates_count;
@@ -457,7 +451,7 @@ const Servers: React.FC = () => {
             }}
             spacing="md"
           >
-            {filteredServers.map((s) => (
+            {serversWithMonitoring.map((s) => (
               <ServerCard
                 key={s.id}
                 server={s}
@@ -469,27 +463,26 @@ const Servers: React.FC = () => {
           </SimpleGrid>
         </div>
 
-        {filteredServers.length > 0 &&
-          filteredServers.length < serversWithMonitoring.length && (
-            <div className={classes.paginationContainer}>
-              <Pagination
-                currentPageIndex={currentPageIndex}
-                total={filteredServers.length}
-                pageSize={pageSize}
-                nextCursor={nextCursor}
-                previousCursor={previousCursor}
-                onPageChange={(cursor, pageIndex) => {
-                  setCurrentPageIndex(pageIndex);
-                  void fetchServers({
-                    cursor,
-                    search: debouncedQ || undefined,
-                    filter: activeFilter,
-                    limit: pageSize,
-                  });
-                }}
-              />
-            </div>
-          )}
+        {(nextCursor || previousCursor) && (
+          <div className={classes.paginationContainer}>
+            <Pagination
+              currentPageIndex={currentPageIndex}
+              pagesCount={pagesCount}
+              pageSize={pageSize}
+              nextCursor={nextCursor}
+              previousCursor={previousCursor}
+              onPageChange={(cursor, pageIndex) => {
+                setCurrentPageIndex(pageIndex);
+                void fetchServers({
+                  cursor,
+                  search: debouncedQ || undefined,
+                  filter: activeFilter,
+                  limit: pageSize,
+                });
+              }}
+            />
+          </div>
+        )}
 
         <Modal
           opened={isRemoveModalOpen}

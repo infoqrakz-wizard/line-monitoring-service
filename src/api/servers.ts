@@ -23,12 +23,14 @@ export type UpdateServerRequest = Partial<CreateServerRequest> & {
 };
 
 export type PaginatedResponse<T> = {
-  limit: number;
-  nextCursor: string | null;
-  previousCursor: string | null;
   servers: T[];
-  total: number;
-  totalPages: number;
+  meta: {
+    limit: number;
+    nextCursor: string | null;
+    previousCursor: string | null;
+    total: number;
+    pages: number;
+  };
 };
 
 const buildQueryString = (

@@ -4,7 +4,7 @@ import classes from "./Pagination.module.css";
 
 export interface PaginationProps {
   currentPageIndex: number;
-  total: number;
+  pagesCount: number;
   pageSize: number;
   nextCursor?: string | null;
   previousCursor?: string | null;
@@ -15,15 +15,14 @@ export interface PaginationProps {
 
 const Pagination: React.FC<PaginationProps> = ({
   currentPageIndex,
-  total,
-  pageSize,
+  pagesCount,
   nextCursor,
   previousCursor,
   onPageChange,
   showPageInfo = true,
   className,
 }) => {
-  const shouldShowPagination = total > pageSize;
+  const shouldShowPagination = pagesCount > 1;
 
   if (!shouldShowPagination) {
     return null;
