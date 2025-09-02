@@ -205,6 +205,8 @@
   border: 1px solid #e9ecef;
   margin: 0 auto;
   position: relative;
+  aspect-ratio: 1.333;
+  background-color: #F3F4F6;
 }
 
 .cameraPreview:hover .cameraEditButton {
