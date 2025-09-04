@@ -138,6 +138,16 @@ export const cameraApi = {
     camera: string,
     config: DeepPartial<CameraConfig>,
   ): Promise<SetCameraConfigResponse> => {
+    config.url = "";
+
+    if (config.video_streams?.video?.auto) {
+      config.video_streams.video.auto = false;
+    }
+
+    if (config.video_streams?.video2?.auto) {
+      config.video_streams.video2.auto = false;
+    }
+
     const response = await request.post<SetCameraConfigResponse>(
       "/api/rpc-proxy",
       {
