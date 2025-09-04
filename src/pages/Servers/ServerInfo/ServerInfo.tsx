@@ -827,92 +827,90 @@ const ServerInfo: React.FC = () => {
                         </div>
                       </div>
                       <div className={classes.cameraPreview}>
-                        <div className={classes.cameraPreviewContainer}>
-                          <Image
-                            src={
-                              shouldShowFallback
-                                ? ""
-                                : getCameraPreviewUrl(camera.id, protocol)
-                            }
-                            alt={`Preview camera ${camera.id}`}
-                            fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDY0MCA0ODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyMCIgeT0iMjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Q0EzQUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qn9GA0LXQtNC/0YDQvtGB0LzQvtGC0YAg0L3QtdC00L7RgdGC0YPQv9C10L08L3RleHQ+Cjwvc3ZnPgo="
-                          />
-                          {role === "admin" && cameraStatus !== "offline" && (
-                            <div className={classes.cameraEditButtonContainer}>
-                              <Tooltip label="Редактировать настройки камеры">
-                                <ActionButton
-                                  size="sm"
-                                  className={classes.cameraEditButton}
-                                  onClick={() =>
-                                    handleOpenCameraConfig(camera.id)
-                                  }
-                                  aria-label="Редактировать настройки камеры"
-                                  disabled={updatingServerData}
-                                >
-                                  <IconEdit size={16} />
-                                </ActionButton>
-                              </Tooltip>
-                            </div>
-                          )}
+                        <Image
+                          src={
+                            shouldShowFallback
+                              ? ""
+                              : getCameraPreviewUrl(camera.id, protocol)
+                          }
+                          alt={`Preview camera ${camera.id}`}
+                          fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDY0MCA0ODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyMCIgeT0iMjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Q0EzQUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qn9GA0LXQtNC/0YDQvtGB0LzQvtGC0YAg0L3QtdC00L7RgdGC0YPQv9C10L08L3RleHQ+Cjwvc3ZnPgo="
+                        />
+                        {role === "admin" && cameraStatus !== "offline" && (
+                          <div className={classes.cameraEditButtonContainer}>
+                            <Tooltip label="Редактировать настройки камеры">
+                              <ActionButton
+                                size="sm"
+                                className={classes.cameraEditButton}
+                                onClick={() =>
+                                  handleOpenCameraConfig(camera.id)
+                                }
+                                aria-label="Редактировать настройки камеры"
+                                disabled={updatingServerData}
+                              >
+                                <IconEdit size={16} />
+                              </ActionButton>
+                            </Tooltip>
+                          </div>
+                        )}
 
-                          {isHaveVideo && (
-                            <div className={classes.cameraPreviewOverlay}>
-                              <Tooltip label="Открыть видео-плеер">
-                                <Button
-                                  variant="white"
-                                  size="sm"
-                                  radius="xl"
-                                  onClick={() =>
-                                    handleOpenVideoPlayer(parseInt(camera.id))
-                                  }
-                                  className={classes.playButton}
-                                  aria-label="Открыть видео-плеер"
-                                  disabled={updatingServerData}
-                                >
-                                  <IconPlayerPlay size={16} />
-                                </Button>
-                              </Tooltip>
-                            </div>
-                          )}
+                        {isHaveVideo && (
+                          <div className={classes.cameraPreviewOverlay}>
+                            <Tooltip label="Открыть видео-плеер">
+                              <Button
+                                variant="white"
+                                size="sm"
+                                radius="xl"
+                                onClick={() =>
+                                  handleOpenVideoPlayer(parseInt(camera.id))
+                                }
+                                className={classes.playButton}
+                                aria-label="Открыть видео-плеер"
+                                disabled={updatingServerData}
+                              >
+                                <IconPlayerPlay size={16} />
+                              </Button>
+                            </Tooltip>
+                          </div>
+                        )}
 
-                          {shouldShowFallback && (
-                            <div className={classes.cameraPreviewOverlay}>
-                              <Tooltip
-                                label={
+                        {shouldShowFallback && (
+                          <div className={classes.cameraPreviewOverlay}>
+                            <Tooltip
+                              label={
+                                cameraStatus === "offline"
+                                  ? "Включить камеру"
+                                  : "Камера недоступна"
+                              }
+                            >
+                              <Button
+                                variant="white"
+                                size="sm"
+                                radius="xl"
+                                onClick={() =>
+                                  cameraStatus === "offline"
+                                    ? handleEnableCamera(camera.id)
+                                    : undefined
+                                }
+                                className={classes.playButton}
+                                aria-label={
                                   cameraStatus === "offline"
                                     ? "Включить камеру"
                                     : "Камера недоступна"
                                 }
+                                loading={updatingServerData}
+                                disabled={
+                                  updatingServerData ||
+                                  cameraStatus === "error"
+                                }
                               >
-                                <Button
-                                  variant="white"
-                                  size="sm"
-                                  radius="xl"
-                                  onClick={() =>
-                                    cameraStatus === "offline"
-                                      ? handleEnableCamera(camera.id)
-                                      : undefined
-                                  }
-                                  className={classes.playButton}
-                                  aria-label={
-                                    cameraStatus === "offline"
-                                      ? "Включить камеру"
-                                      : "Камера недоступна"
-                                  }
-                                  loading={updatingServerData}
-                                  disabled={
-                                    updatingServerData ||
-                                    cameraStatus === "error"
-                                  }
-                                >
-                                  {cameraStatus === "offline"
-                                    ? "Включить"
-                                    : "Недоступна"}
-                                </Button>
-                              </Tooltip>
-                            </div>
-                          )}
-                        </div>
+                                {cameraStatus === "offline"
+                                  ? "Включить"
+                                  : "Недоступна"}
+                              </Button>
+                            </Tooltip>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
