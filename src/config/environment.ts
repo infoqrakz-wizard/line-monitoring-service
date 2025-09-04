@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /**
  * Конфигурация окружения с поддержкой разных режимов
  */
@@ -14,17 +15,12 @@ export interface EnvironmentConfig {
 export const getEnvironmentConfig = (): EnvironmentConfig => {
   const mode = import.meta.env.MODE;
   const appEnv = import.meta.env.VITE_APP_ENV;
-  const isDevline = mode === "devline" || appEnv === "devline";
 
   return {
     apiUrl:
-      import.meta.env.VITE_API_URL ||
-      (isDevline
-        ? "https://devline-api.example.com/"
-        : "http://localhost:5173/"),
+      import.meta.env.VITE_API_URL || window.location.origin,
     wsUrl:
-      import.meta.env.VITE_WS_URL ||
-      (isDevline ? "wss://devline-ws.example.com/" : "ws://localhost:4000"),
+      import.meta.env.VITE_WS_URL || `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`,
     appEnv: appEnv || mode,
   };
 };
