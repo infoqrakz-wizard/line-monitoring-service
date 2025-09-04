@@ -8,6 +8,7 @@ export default function Checkbox(props: CheckboxProps) {
       classNames={{
         label: classes.checkboxLabel,
         input: classes.checkboxInput,
+        root: classes.root,
       }}
     />
   );

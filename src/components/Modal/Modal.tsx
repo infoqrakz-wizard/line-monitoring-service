@@ -12,15 +12,16 @@ export type BaseModalProps = {
   onClose: () => void;
 };
 
-const ModalComponent: React.FC<BaseModalProps> = ({
-  opened,
-  title,
-  children,
-  closeOnBackdrop = false,
-  withoutTitleMargin = false,
-  style,
-  onClose,
-}) => {
+const ModalComponent: React.FC<BaseModalProps> = (props) => {
+  const {
+    opened,
+    title,
+    children,
+    closeOnBackdrop = false,
+    withoutTitleMargin = false,
+    style,
+    onClose,
+  } = props;
   useEffect(() => {
     if (!opened) {
       return;

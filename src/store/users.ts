@@ -51,6 +51,9 @@ export type UsersState = {
       url: string;
       port: number;
     }>,
+    options?: {
+      create_on_unreachable: boolean;
+    },
   ) => Promise<CreateUserResponse>;
   clearError: () => void;
 };
@@ -112,8 +115,13 @@ export const useUsersStore = create<UsersState>((set, get) => ({
     );
   },
 
-  deleteUser: async (name, serverNames, availableServers) => {
-    return await usersApi.deleteUser(name, serverNames, availableServers);
+  deleteUser: async (name, serverNames, availableServers, options) => {
+    return await usersApi.deleteUser(
+      name,
+      serverNames,
+      availableServers,
+      options,
+    );
   },
 
   updateAdmin: async (id, patch) => {

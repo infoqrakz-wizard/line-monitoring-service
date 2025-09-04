@@ -140,6 +140,9 @@ export const deleteUser = async (
     url: string;
     port: number;
   }>,
+  options?: {
+    create_on_unreachable: boolean;
+  },
 ): Promise<CreateUserResponse> => {
   const serverIdentifiers = serverNames.map((serverName) => {
     const server = availableServers.find((s) => s.name === serverName);
@@ -155,6 +158,7 @@ export const deleteUser = async (
       name,
     },
     servers: serverIdentifiers,
+    ...(options && { options }),
   };
 
   return request.post<CreateUserResponse>("/api/manage/users", apiPayload);

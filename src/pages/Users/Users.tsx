@@ -5,7 +5,6 @@ import { useUsersStore } from "@/store/users";
 import { CreateUserModal, UserData } from "@/components/CreateUserModal";
 import { DeleteUserData } from "@/components/DeleteUserModal";
 import DeleteUserModal from "@/components/DeleteUserModal/DeleteUserModal";
-import DeleteConfirmModal from "@/components/DeleteConfirmModal/DeleteConfirmModal";
 import PageHeader from "@/components/PageHeader";
 import PlusIcon from "../../assets/icons/plus.svg?react";
 import ActionButton from "@/components/ActionButton/ActionButton";
@@ -32,7 +31,6 @@ const Users: FC = () => {
   // Состояния для модальных окон
   const [createUserModalOpened, setCreateUserModalOpened] = useState(false);
   const [deleteUserModalOpened, setDeleteUserModalOpened] = useState(false);
-  const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
 
   // сервера, на которых удалось создать пользователя
   const [successServers, setSuccessServers] = useState<string[]>([]);
@@ -48,9 +46,6 @@ const Users: FC = () => {
   // Ошибки
   const [createUserError, setCreateUserError] = useState<string | null>(null);
   const [deleteUserError, setDeleteUserError] = useState<string | null>(null);
-
-  // Состояние загрузки для удаления
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Состояние загрузки для создания
   const [createUserLoading, setCreateUserLoading] = useState(false);
@@ -86,12 +81,6 @@ const Users: FC = () => {
     setCreateUserError(null);
   };
 
-  // const handleDeleteUserOpen = () => setDeleteUserModalOpened(true);
-  const handleDeleteUserClose = () => {
-    setDeleteUserModalOpened(false);
-    setDeleteUserError(null);
-  };
-
   const sortedMapping = useMemo(() => {
     if (!users || !servers) {
       return [];
@@ -121,17 +110,12 @@ const Users: FC = () => {
     }
   }, [sortedMapping, usersServersMapping]);
 
-  const handleDeleteConfirmOpen = (user: User) => {
+  const handleDeleteUserOpen = (user: User) => {
     setUserToDelete({
       id: user.id,
       name: user.name,
     });
-    setDeleteConfirmOpened(true);
-  };
-
-  const handleDeleteConfirmClose = () => {
-    setDeleteConfirmOpened(false);
-    setUserToDelete(null);
+    setDeleteUserModalOpened(true);
   };
 
   const handleClearCreateUserError = useCallback(
@@ -183,34 +167,10 @@ const Users: FC = () => {
     [deleteQueueItem],
   );
 
-  const handleDeleteUser = async (userName: string) => {
-    try {
-      setDeleteLoading(true);
-      const user = usersServersMapping.find((u) => u.name === userName);
-      if (!user) {
-        throw new Error("User not found");
-      }
-
-      const serverNames = user.servers.map((s) => s.sections.main.name);
-
-      const availableServersData = servers.map((server) => ({
-        id: server.id,
-        name: server.sections.main.name,
-        url: server.sections.main.url,
-        port: server.sections.main.port,
-      }));
-
-      await deleteUser(user.name, serverNames, availableServersData);
-
-      await forceUpdateWS();
-
-      handleDeleteConfirmClose();
-    } catch (error) {
-      console.error("Failed to delete user:", error);
-      // Можно добавить уведомление об ошибке
-    } finally {
-      setDeleteLoading(false);
-    }
+  const handleDeleteUserClose = () => {
+    setDeleteUserModalOpened(false);
+    setUserToDelete(null);
+    setDeleteUserError(null);
   };
 
   return (
@@ -239,7 +199,7 @@ const Users: FC = () => {
               value={q}
               onChange={setQ}
               placeholder="Найти пользователя..."
-              disabled={createUserLoading || deleteLoading}
+              disabled={createUserLoading || deleteUserLoading}
             />
           </div>
         }
@@ -341,7 +301,7 @@ const Users: FC = () => {
                             <Tooltip label="Удалить">
                               <ActionButton
                                 className={classes.deleteIcon}
-                                onClick={() => handleDeleteConfirmOpen(u)}
+                                onClick={() => handleDeleteUserOpen(u)}
                               />
                             </Tooltip>
                           </Group>
@@ -501,6 +461,7 @@ const Users: FC = () => {
         loading={deleteUserLoading}
         error={deleteUserError}
         onClearError={handleClearDeleteUserError}
+        userToDelete={userToDelete}
         availableServers={servers.map((server) => ({
           id: server.id,
           name: server.sections.main.name,
@@ -511,7 +472,15 @@ const Users: FC = () => {
           try {
             setDeleteUserLoading(true);
 
-            // Get available servers data for the API call
+            const user = usersServersMapping.find(
+              (u) => u.name === payload.login,
+            );
+            if (!user) {
+              throw new Error("User not found");
+            }
+
+            const serverNames = user.servers.map((s) => s.sections.main.name);
+
             const availableServersData = servers.map((server) => ({
               id: server.id,
               name: server.sections.main.name,
@@ -519,36 +488,22 @@ const Users: FC = () => {
               port: server.sections.main.port,
             }));
 
-            await deleteUser(
-              payload.login,
-              payload.servers,
-              availableServersData,
-            );
-            subscribeToServers();
+            await deleteUser(user.name, serverNames, availableServersData, {
+              create_on_unreachable: !!payload.createOnUnreachable,
+            });
+
+            await forceUpdateWS();
+
+            handleDeleteUserClose();
+
+            // handleDeleteConfirmClose();
           } catch (error) {
-            let message = "Не удалось удалить пользователя с серверов";
-
-            if (error instanceof ApiError) {
-              message = error.getServerMessage();
-            } else if (error instanceof Error) {
-              message = error.message;
-            }
-
-            setDeleteUserError(message);
-            throw error;
+            console.error("Failed to delete user:", error);
+            // Можно добавить уведомление об ошибке
           } finally {
             setDeleteUserLoading(false);
           }
         }}
-      />
-
-      {/* Модальное окно подтверждения удаления */}
-      <DeleteConfirmModal
-        opened={deleteConfirmOpened}
-        title={`Удалить пользователя ${userToDelete?.name}?`}
-        onConfirm={() => userToDelete && handleDeleteUser(userToDelete.name)}
-        onClose={handleDeleteConfirmClose}
-        loading={deleteLoading}
       />
 
       <Toast opened={toastOpened} close={closeToast}>

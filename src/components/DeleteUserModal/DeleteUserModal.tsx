@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Button, TextInput, TagsInput } from "@mantine/core";
+import { Button, Checkbox } from "@mantine/core";
 import { Modal } from "@/components/Modal";
 import classes from "./DeleteUserModal.module.css";
 
 export type DeleteUserData = {
   login: string;
   servers: string[];
+  createOnUnreachable: boolean;
 };
 
 export type DeleteUserModalProps = {
@@ -21,6 +22,10 @@ export type DeleteUserModalProps = {
     url: string;
     port: number;
   }>;
+  userToDelete?: {
+    id: string;
+    name: string;
+  } | null;
 };
 
 const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
@@ -30,24 +35,23 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
   loading,
   error,
   onClearError,
-  availableServers,
+  userToDelete,
 }) => {
   const [login, setLogin] = useState("");
   const [servers, setServers] = useState<string[]>([]);
+  const [createOnUnreachable, setCreateOnUnreachable] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  const canSubmit =
-    Boolean(login) && servers.length > 0 && !submitting && !loading;
 
   // Clear form and error when modal opens
   useEffect(() => {
     if (opened) {
-      setLogin("");
+      setLogin(userToDelete?.name || "");
       setServers([]);
+      setCreateOnUnreachable(false);
       setSubmitting(false);
       onClearError?.();
     }
-  }, [opened, onClearError]);
+  }, [opened, onClearError, userToDelete]);
 
   const handleClose = () => {
     if (submitting) {
@@ -61,14 +65,13 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
     if (e) {
       e.preventDefault();
     }
-    if (!canSubmit) {
-      return;
-    }
+
     setSubmitting(true);
     try {
       await onSubmit({
         login,
         servers,
+        createOnUnreachable,
       });
       onClose();
     } catch (err) {
@@ -79,58 +82,33 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
     }
   };
 
-  const handleServerSelect = (values: string[]) => {
-    setServers(values);
-  };
-
-  const serverOptions = availableServers.map((server) => ({
-    value: server.name,
-    label: server.name,
-  }));
-
   return (
     <Modal
       opened={opened}
       onClose={handleClose}
-      title="Удалить пользователя с серверов"
+      title={
+        userToDelete
+          ? `Удалить пользователя ${userToDelete.name}`
+          : "Удалить пользователя с серверов"
+      }
     >
       <form onSubmit={handleSubmit} className={classes.form}>
         <div className={classes.formField}>
-          <label htmlFor="login" className={classes.formFieldLabel}>
-            Логин пользователя
-          </label>
-          <div className={classes.formFieldInput}>
-            <TextInput
-              id="login"
-              placeholder="Введите логин пользователя для удаления"
-              value={login}
-              onChange={(e) => setLogin(e.currentTarget.value)}
-              required
-              size="md"
-              aria-label="Логин пользователя"
-              autoComplete="off"
-              name="delete-login"
-            />
-          </div>
-        </div>
-
-        <div className={classes.formField}>
-          <label htmlFor="servers" className={classes.formFieldLabel}>
-            Серверы
-          </label>
-          <div className={classes.formFieldInput}>
-            <TagsInput
-              id="servers"
-              placeholder="Выберите серверы для удаления пользователя"
-              value={servers}
-              onChange={handleServerSelect}
-              data={serverOptions}
-              required
-              size="md"
-              aria-label="Выбор серверов"
-              description="Выберите серверы, с которых будет удален пользователь"
-            />
-          </div>
+          <Checkbox
+            classNames={{
+              label: classes.checkboxLabel,
+              input: classes.checkboxInput,
+              root: classes.checkboxField,
+            }}
+            id="createOnUnreachable"
+            label="Удалить на недоступных серверах"
+            checked={createOnUnreachable}
+            onChange={(event) =>
+              setCreateOnUnreachable(event.currentTarget.checked)
+            }
+            size="md"
+            aria-label="Удалить на недоступных серверах"
+          />
         </div>
 
         {error && (
@@ -152,7 +130,6 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
             type="submit"
             color="rgb(250, 82, 82)"
             loading={submitting || !!loading}
-            disabled={!canSubmit}
             aria-label="Удалить пользователя"
           >
             Удалить пользователя
