@@ -137,6 +137,8 @@ export type MonitoringData = {
     ok: number;
     problems: number;
     total: number;
+    downtime_active: number;
+    downtime_completed: number;
   };
   notFound: string[];
   total: number;

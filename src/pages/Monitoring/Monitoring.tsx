@@ -31,12 +31,12 @@ const Monitoring: React.FC = () => {
 
   const {
     downtimeEvents,
-    allDowntimeEvents,
     nextCursor,
     previousCursor,
     pages,
     error,
     servers: monitoringServers,
+    stats,
     fetchDowntimeEvents,
     refreshAllDowntimeEvents,
     deleteDowntimeEvent,
@@ -46,7 +46,7 @@ const Monitoring: React.FC = () => {
     setView: setStoreView,
   } = useMonitoringStore();
 
-  const { total: totalServers, fetchServers, resetCursors } = useServersStore();
+  // const { fetchServers, resetCursors } = useServersStore();
 
   const [totalCameras, setTotalCameras] = useState(0);
 
@@ -66,13 +66,6 @@ const Monitoring: React.FC = () => {
       }, 0),
     );
   }, [monitoringServers]);
-
-  useEffect(() => {
-    void fetchServers();
-    return () => {
-      void resetCursors();
-    };
-  }, []);
 
   useEffect(() => {
     const filter = view === "current" ? "active" : "completed";
@@ -230,10 +223,10 @@ const Monitoring: React.FC = () => {
 
   // Calculate summary data using all events for current statistics
   const summary = {
-    servers: totalServers,
+    servers: stats.total,
     cameras: totalCameras,
-    postponed: allDowntimeEvents?.filter((e) => e.up_at !== null).length || 0,
-    current: allDowntimeEvents?.filter((e) => e.up_at === null).length || 0,
+    postponed: stats.downtimeCompleted,
+    current: stats.downtimeActive,
   };
 
   const getDeleteMessage = () => {

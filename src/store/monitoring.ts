@@ -67,6 +67,8 @@ export type MonitoringState = {
     ok: number;
     problems: number;
     total: number;
+    downtimeActive: number;
+    downtimeCompleted: number;
   };
 };
 
@@ -92,6 +94,8 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
     ok: 0,
     problems: 0,
     total: 0,
+    downtimeActive: 0,
+    downtimeCompleted: 0,
   },
 
   connect: () => {
@@ -113,7 +117,11 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       error: null,
     });
 
-    const wsUrl = import.meta.env.VITE_WS_URL ?? "ws://161.35.77.101:4000";
+    // const wsUrl = import.meta.env.VITE_WS_URL ?? "ws://161.35.77.101:4000";
+    const wsUrl =
+      import.meta.env.VITE_WS_URL ||
+      `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`;
+
     const ws = new WebSocket(`${wsUrl}/ws?token=${token}`);
 
     ws.onopen = () => {
@@ -154,7 +162,15 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
           set({
             servers: response.data.servers,
             users: filteredUsers,
-            stats,
+            stats: {
+              bad: stats.bad,
+              disabled: stats.disabled,
+              ok: stats.ok,
+              problems: stats.problems,
+              total: stats.total,
+              downtimeActive: stats.downtime_active,
+              downtimeCompleted: stats.downtime_completed,
+            },
             error: null,
           });
         }
