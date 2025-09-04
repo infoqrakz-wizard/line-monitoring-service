@@ -795,37 +795,44 @@ const ServerInfo: React.FC = () => {
                       </div>
 
                       <div className={classes.cameraMetrics}>
-                        <div className={classes.metric}>
-                          <Text size="xs" c="dimmed">
-                            Main (Video)
-                          </Text>
-                          <Text size="sm">
-                            {mainBitrate !== "-"
-                              ? `${mainBitrate} Mbit/s, ${Math.round(cameraInfo?.main?.fps || 0)} fps`
-                              : "-"}
-                          </Text>
-                        </div>
-                        <div className={classes.metric}>
-                          <Text size="xs" c="dimmed">
-                            Sub (Video2)
-                          </Text>
-                          <Text size="sm">
-                            {subBitrate !== "-"
-                              ? `${subBitrate} Mbit/s, ${Math.round(cameraInfo?.sub?.fps || 0)} fps`
-                              : "-"}
-                          </Text>
-                        </div>
-                        <div className={classes.metric}>
-                          <Text size="xs" c="dimmed">
-                            Audio
-                          </Text>
-                          <Text size="sm">
-                            {audioBitrate !== "-"
-                              ? `${audioBitrate} kbit/s`
-                              : "-"}
-                          </Text>
-                        </div>
+                        {camera.enabled && (
+                          <div className={classes.metric}>
+                            <Text size="xs" c="dimmed">
+                              Main (Video)
+                            </Text>
+                            <Text size="sm">
+                              {mainBitrate !== "-"
+                                ? `${mainBitrate} Mbit/s, ${Math.round(cameraInfo?.main?.fps || 0)} fps`
+                                : "-"}
+                            </Text>
+                          </div>
+                        )}
+                        {camera.mediaState?.streams?.video2?.active && (
+                          <div className={classes.metric}>
+                            <Text size="xs" c="dimmed">
+                              Sub (Video2)
+                            </Text>
+                            <Text size="sm">
+                              {subBitrate !== "-"
+                                ? `${subBitrate} Mbit/s, ${Math.round(cameraInfo?.sub?.fps || 0)} fps`
+                                : "-"}
+                            </Text>
+                          </div>
+                        )}
+                        {camera.mediaState?.streams?.audio?.enabled && (
+                          <div className={classes.metric}>
+                            <Text size="xs" c="dimmed">
+                              Audio
+                            </Text>
+                            <Text size="sm">
+                              {audioBitrate !== "-"
+                                ? `${audioBitrate} kbit/s`
+                                : "-"}
+                            </Text>
+                          </div>
+                        )}
                       </div>
+
                       <div className={classes.cameraPreview}>
                         <Image
                           src={
@@ -900,8 +907,7 @@ const ServerInfo: React.FC = () => {
                                 }
                                 loading={updatingServerData}
                                 disabled={
-                                  updatingServerData ||
-                                  cameraStatus === "error"
+                                  updatingServerData || cameraStatus === "error"
                                 }
                               >
                                 {cameraStatus === "offline"
